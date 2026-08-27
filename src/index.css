@@ -62,7 +62,9 @@
   .btn-gold {
     @apply inline-flex items-center gap-2 bg-gold text-obsidian px-7 py-3.5 text-xs font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-500 ease-lux hover:bg-gold-light hover:gap-3;
   }
-
+.btn-yellow{
+  @apply 
+}
   .btn-outline {
     @apply inline-flex items-center gap-2 border border-ivory/30 text-ivory px-7 py-3.5 text-xs font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-500 ease-lux hover:border-gold hover:text-gold hover:gap-3;
   }
