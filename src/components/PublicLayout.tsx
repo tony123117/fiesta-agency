@@ -13,7 +13,7 @@ export function PublicLayout({ children }: { children?: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-obsidian">
-      <Navbar />
+      <Navbar settings={settings} />
       <main className="flex-1">{children || <Outlet />}</main>
       <Footer settings={settings} />
       <WhatsAppButton settings={settings} />

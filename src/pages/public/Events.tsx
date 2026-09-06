@@ -1,115 +1,826 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Reveal } from '@/components/Reveal';
-import { supabase } from '@/lib/supabase';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { supabase } from '@/lib/supabase';
+import { useReveal } from '@/lib/useReveal';
 import type { EventItem } from '@/lib/types';
-import { EVENT_CATEGORIES } from '@/lib/types';
+
+const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+const CATEGORIES = ['ALL', 'CORPORATE', 'PRIVATE', 'WEDDINGS', 'CONCERTS', 'FESTIVALS'] as const;
+
+const CTA_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
+
+const FALLBACK_EVENTS: EventItem[] = [
+  { id: 'f1', title: 'Afro Rhythm Live in Kigali', slug: 'afro-rhythm-live-kigali', description: 'A spectacular night of African rhythms and world-class performance.', category: 'Concert', event_date: '2025-05-24', location: 'Kigali Arena', cover_image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80', cover_alt: 'Live concert stage with dramatic lighting', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: true, published: true, sort_order: 0, created_at: '', updated_at: '' },
+  { id: 'f2', title: 'Global Leadership Summit 2025', slug: 'global-leadership-summit-2025', description: 'An international corporate summit bringing together industry leaders.', category: 'Corporate', event_date: '2025-06-15', location: 'Kigali Convention Centre', cover_image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80', cover_alt: 'Corporate event with dramatic lighting', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 1, created_at: '', updated_at: '' },
+  { id: 'f3', title: 'The Williams Wedding', slug: 'the-williams-wedding', description: 'An intimate garden wedding celebration surrounded by nature.', category: 'Wedding', event_date: '2025-04-12', location: 'Five Hills Estate', cover_image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80', cover_alt: 'Elegant outdoor wedding ceremony', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 2, created_at: '', updated_at: '' },
+  { id: 'f4', title: 'Gala Night Celebration', slug: 'gala-night-celebration', description: 'A premium private gala evening with live entertainment.', category: 'Private', event_date: '2025-03-20', location: 'Radisson Blu Kigali', cover_image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80', cover_alt: 'Elegant candlelit gala dinner', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 3, created_at: '', updated_at: '' },
+  { id: 'f5', title: 'Cultural Heritage Festival', slug: 'cultural-heritage-festival', description: 'A vibrant public festival celebrating Rwandan culture.', category: 'Festival', event_date: '2025-02-08', location: 'Amahoro Stadium', cover_image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80', cover_alt: 'Outdoor cultural festival with crowds', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 4, created_at: '', updated_at: '' },
+  { id: 'f6', title: 'New Year Eve Concert', slug: 'new-year-eve-concert', description: 'Ring in the new year with an unforgettable night of music.', category: 'Concert', event_date: '2024-12-31', location: 'Kigali Arena', cover_image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80', cover_alt: 'Night concert with stage lights', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 5, created_at: '', updated_at: '' },
+  { id: 'f7', title: 'Rooftop Party Night', slug: 'rooftop-party-night', description: 'An exclusive rooftop celebration under the city lights.', category: 'Private', event_date: '2025-01-18', location: 'Ubumwe Grande Hotel', cover_image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80', cover_alt: 'Rooftop party with city skyline', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 6, created_at: '', updated_at: '' },
+  { id: 'f8', title: 'Kigali Music Festival', slug: 'kigali-music-festival', description: 'A three-day music festival celebrating African talent.', category: 'Festival', event_date: '2025-07-10', location: 'BD Life Centre', cover_image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80', cover_alt: 'Music festival crowd at sunset', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 7, created_at: '', updated_at: '' },
+];
+
+/* ─── EVENTS PAGE ─── */
 
 export function Events() {
-  useDocumentMeta({
-    title: 'Events — Fiesta Agency',
-    description: 'Explore celebrations, productions and experiences brought to life by Fiesta.',
-  });
-
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('All');
+  const [activeFilter, setActiveFilter] = useState('ALL');
+
+  useDocumentMeta({
+    title: 'Events | Fiesta Agency Rwanda',
+    description: 'Discover upcoming events and see our past productions across Rwanda.',
+  });
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('events').select('*').eq('published', true).order('sort_order');
-      setEvents((data || []) as EventItem[]);
+      try {
+        const { data } = await supabase
+          .from('events')
+          .select('*')
+          .eq('published', true)
+          .order('sort_order');
+        if (data) setEvents(data as EventItem[]);
+      } catch { /* silent */ }
       setLoading(false);
     })();
   }, []);
 
-  const filtered = useMemo(() => {
-    if (filter === 'All') return events;
-    return events.filter((e) => {
-      const cat = e.category.toLowerCase();
-      const f = filter.toLowerCase();
-      return cat === f || cat.includes(f.slice(0, -1)); // handle plural
-    });
-  }, [events, filter]);
+  const displayEvents = events.length > 0 ? events : FALLBACK_EVENTS;
+
+  const featured = useMemo(() => displayEvents.find((e) => e.featured && e.cover_image) || displayEvents.find((e) => e.cover_image) || null, [displayEvents]);
+  const upcoming = useMemo(() => displayEvents.filter((e) => e.status === 'upcoming' && e.cover_image && e.id !== featured?.id), [displayEvents, featured]);
+  const past = useMemo(() => displayEvents.filter((e) => e.status === 'completed' && e.cover_image && e.id !== featured?.id), [displayEvents, featured]);
+
+  const filteredUpcoming = useMemo(() => {
+    if (activeFilter === 'ALL') return upcoming;
+    const cat = activeFilter.toLowerCase();
+    return upcoming.filter((e) => e.category?.toLowerCase() === cat);
+  }, [upcoming, activeFilter]);
+
+  const filteredPast = useMemo(() => {
+    if (activeFilter === 'ALL') return past;
+    const cat = activeFilter.toLowerCase();
+    return past.filter((e) => e.category?.toLowerCase() === cat);
+  }, [past, activeFilter]);
 
   return (
     <>
-      <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-obsidian">
-        <div className="container-lux">
-          <Reveal>
-            <span className="label-gold mb-6 block">Experiences in Motion</span>
-            <h1 className="font-serif text-hero font-light text-ivory max-w-3xl text-balance">
-              Experiences in Motion
-            </h1>
-            <p className="mt-8 text-lg text-ivory-muted max-w-2xl leading-relaxed">
-              Explore celebrations, productions and experiences brought to life by Fiesta.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="pb-24 md:pb-32 bg-obsidian">
-        <div className="container-lux">
-          {/* Filters */}
-          <Reveal>
-            <div className="flex flex-wrap gap-2 mb-16 border-b border-charcoal-border pb-6">
-              {EVENT_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className={`px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors duration-300 ${
-                    filter === cat ? 'text-gold border-b border-gold' : 'text-ivory-muted hover:text-ivory'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </Reveal>
-
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {[1, 2, 3, 4].map((i) => <div key={i} className="h-96 skeleton" />)}
-            </div>
-          ) : filtered.length === 0 ? (
-            <Reveal>
-              <div className="text-center py-20">
-                <p className="font-serif text-2xl italic text-ivory-muted">No events published yet.</p>
-              </div>
-            </Reveal>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              {filtered.map((event, i) => (
-                <Reveal key={event.id} delay={(i % 2) * 100}>
-                  <Link to={`/events/${event.slug}`} className="group block">
-                    <div className="relative overflow-hidden aspect-[4/3] mb-6">
-                      <img
-                        src={event.cover_image || ''}
-                        alt={event.cover_alt || event.title}
-                        className="w-full h-full object-cover transition-transform duration-[1.5s] ease-lux group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-700" />
-                    </div>
-                    <div className="label-ivory mb-2">
-                      {event.category}{event.location && ` • ${event.location}`}{event.event_date && ` • ${new Date(event.event_date).getFullYear()}`}
-                    </div>
-                    <h2 className="font-serif text-2xl md:text-3xl font-light text-ivory group-hover:text-gold transition-colors duration-300">
-                      {event.title}
-                    </h2>
-                    <p className="text-ivory-muted mt-2 line-clamp-2 leading-relaxed">{event.description}</p>
-                    <span className="inline-flex items-center gap-2 mt-4 text-xs uppercase tracking-[0.2em] text-gold">
-                      View Event <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <E01Hero />
+      <E02Filter active={activeFilter} onChange={setActiveFilter} />
+      {featured && <E03Featured event={featured} />}
+      <E04Upcoming events={filteredUpcoming} loading={loading} />
+      <E05Past events={filteredPast} loading={loading} />
+      <E06Editorial />
+      <E07CTA />
     </>
   );
 }
+
+/* ─── 01 — HERO ─── */
+
+function E01Hero() {
+  const { ref, visible } = useReveal({ threshold: 0.1 });
+
+  return (
+    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden' }}>
+      <div style={{
+        margin: '0 auto',
+        maxWidth: '1200px',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+        paddingTop: 'clamp(90px, 12vw, 160px)',
+        paddingBottom: 'clamp(50px, 6vw, 80px)',
+      }}>
+        <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start' }}
+          className="evt-hero-grid"
+        >
+          {/* Left: Text — 45% */}
+          <div style={{ flex: '0 0 45%' }} className="evt-hero-text">
+            <Reveal delay={0} visible={visible}>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '11px',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase' as const,
+                fontWeight: 600,
+                color: '#D6A54A',
+                marginBottom: '20px',
+              }}>OUR EVENTS</p>
+            </Reveal>
+            <Reveal delay={0.08} visible={visible}>
+              <h1 style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(2.5rem, 5vw, 4.25rem)',
+                lineHeight: 0.92,
+                fontWeight: 400,
+                color: '#F8F5EF',
+                whiteSpace: 'pre-line' as const,
+                maxWidth: '520px',
+                marginBottom: '24px',
+              }}>
+                {"EXTRAORDINARY\nMOMENTS.\nALWAYS."}
+              </h1>
+            </Reveal>
+            <Reveal delay={0.14} visible={visible}>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
+                lineHeight: 1.65,
+                color: '#C8C2B8',
+                maxWidth: '390px',
+                marginBottom: '32px',
+              }}>
+                From intimate gatherings to large celebrations, our events are designed to create lasting memories and meaningful connections.
+              </p>
+            </Reveal>
+            <Reveal delay={0.2} visible={visible}>
+              <div style={{ width: '50px', height: '2px', backgroundColor: '#D6A54A' }} />
+            </Reveal>
+          </div>
+
+          {/* Right: Image — 55% */}
+          <Reveal delay={0.12} visible={visible}>
+            <div style={{ flex: 1, overflow: 'hidden' }} className="evt-hero-img">
+              <img
+                src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80"
+                alt="Elegant candlelit event reception with floral arrangements"
+                style={{
+                  width: '100%',
+                  height: 'clamp(300px, 28vw, 340px)',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: visible ? 'scale(1)' : 'scale(1.04)',
+                  transition: `transform 1.2s ${E}`,
+                }}
+                loading="eager"
+              />
+            </div>
+          </Reveal>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .evt-hero-grid { flex-direction: column !important; }
+          .evt-hero-text { flex: none !important; width: 100% !important; }
+          .evt-hero-img { width: 100% !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ─── 02 — FILTER BAR ─── */
+
+function E02Filter({ active, onChange }: { active: string; onChange: (c: string) => void }) {
+  return (
+    <section style={{
+      backgroundColor: '#F1EDE3',
+      borderBottom: '1px solid rgba(0,0,0,0.08)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+        display: 'flex',
+        alignItems: 'center',
+        height: '52px',
+        overflowX: 'auto',
+      }}
+        className="evt-filter-bar"
+      >
+        <div style={{ display: 'flex', gap: 'clamp(20px, 3vw, 36px)', flexShrink: 0 }}>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => onChange(cat)}
+              style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.14em',
+                color: active === cat ? '#D6A54A' : '#6F6B63',
+                background: 'none',
+                border: 'none',
+                borderBottom: active === cat ? '1.5px solid #D6A54A' : '1.5px solid transparent',
+                paddingBottom: '2px',
+                cursor: 'pointer',
+                transition: 'color 0.3s ease',
+                whiteSpace: 'nowrap' as const,
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── 03 — FEATURED EVENT ─── */
+
+function E03Featured({ event }: { event: EventItem }) {
+  const { ref, visible } = useReveal({ threshold: 0.08 });
+  const dateStr = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase() : '';
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#F1EDE3',
+      paddingTop: 'clamp(60px, 8vw, 100px)',
+      paddingBottom: 'clamp(80px, 10vw, 120px)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
+          className="evt-featured-grid"
+        >
+          {/* Left: Image — 55% */}
+          <Reveal delay={0} visible={visible}>
+            <div style={{ overflow: 'hidden' }}>
+              <img
+                src={event.cover_image || ''}
+                alt={event.cover_alt || event.title}
+                style={{
+                  width: '100%',
+                  aspectRatio: '16/10',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: visible ? 'scale(1)' : 'scale(1.03)',
+                  transition: `transform 1.2s ${E}`,
+                }}
+                loading="lazy"
+              />
+            </div>
+          </Reveal>
+
+          {/* Right: Text — 40% */}
+          <div className="evt-featured-text">
+            <Reveal delay={0.12} visible={visible}>
+              {event.category && (
+                <span style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '0.6rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.15em',
+                  color: '#D6A54A',
+                  display: 'block',
+                  marginBottom: '16px',
+                }}>{event.category}</span>
+              )}
+              <h2 style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(2rem, 3.5vw, 3.25rem)',
+                lineHeight: 0.95,
+                fontWeight: 400,
+                color: '#161616',
+                whiteSpace: 'pre-line' as const,
+                marginBottom: '20px',
+              }}>{event.title}</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+                {dateStr && (
+                  <div>
+                    <span style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.55rem', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.15em', color: '#6F6B63', display: 'block', marginBottom: '2px' }}>DATE</span>
+                    <span style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.85rem', color: '#161616' }}>{dateStr}</span>
+                  </div>
+                )}
+                {event.location && (
+                  <div>
+                    <span style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.55rem', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.15em', color: '#6F6B63', display: 'block', marginBottom: '2px' }}>VENUE</span>
+                    <span style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.85rem', color: '#161616' }}>{event.location}</span>
+                  </div>
+                )}
+              </div>
+              {event.description && (
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: 'clamp(0.85rem, 1vw, 0.94rem)',
+                  lineHeight: 1.7,
+                  color: '#6F6B63',
+                  marginBottom: '28px',
+                  maxWidth: '400px',
+                }}>{event.description}</p>
+              )}
+              <Link
+                to={`/events/${event.slug}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.14em',
+                  color: '#D6A54A',
+                  textDecoration: 'none',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+              >
+                VIEW EVENT
+                <ArrowRight size={14} strokeWidth={2} />
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .evt-featured-grid { grid-template-columns: 55% 1fr !important; gap: 48px !important; align-items: center !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ─── 04 — UPCOMING EVENTS ─── */
+
+function E04Upcoming({ events: evts, loading }: { events: EventItem[]; loading: boolean }) {
+  const { ref, visible } = useReveal({ threshold: 0.06 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#FFFFFF',
+      paddingTop: 'clamp(80px, 10vw, 130px)',
+      paddingBottom: 'clamp(80px, 10vw, 130px)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <Reveal delay={0} visible={visible}>
+          <div style={{ marginBottom: 'clamp(36px, 5vw, 56px)' }}>
+            <p style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              fontWeight: 600,
+              color: '#D6A54A',
+              marginBottom: '20px',
+            }}>UPCOMING EVENTS</p>
+            <h2 style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#161616',
+            }}>WHAT&apos;S COMING UP</h2>
+          </div>
+        </Reveal>
+
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', opacity: 0.5 }}
+            className="evt-grid"
+          >
+            {[1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ aspectRatio: '4/3' }} />)}
+          </div>
+        ) : evts.length === 0 ? (
+          <p style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.9rem', color: '#6F6B63' }}>
+            No upcoming events at the moment.
+          </p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(16px, 2vw, 24px)' }}
+            className="evt-grid"
+          >
+            {evts.slice(0, 6).map((event, i) => (
+              <EventCard key={event.id} event={event} index={i} visible={visible} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @media (max-width: 1024px) { .evt-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .evt-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function EventCard({ event, index, visible }: { event: EventItem; index: number; visible: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const dateStr = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase() : '';
+
+  return (
+    <Link
+      to={`/events/${event.slug}`}
+      style={{
+        display: 'block',
+        textDecoration: 'none',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.8s ${E} ${0.1 + index * 0.08}s, transform 0.8s ${E} ${0.1 + index * 0.08}s`,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      aria-label={`View event: ${event.title}`}
+    >
+      <div style={{ overflow: 'hidden', marginBottom: '14px' }}>
+        <img
+          src={event.cover_image || ''}
+          alt={event.cover_alt || event.title}
+          style={{
+            width: '100%',
+            aspectRatio: '4/3',
+            objectFit: 'cover',
+            display: 'block',
+            transform: hovered ? 'scale(1.03)' : 'scale(1)',
+            transition: `transform 0.7s ${E}`,
+          }}
+          loading="lazy"
+        />
+      </div>
+      {event.category && (
+        <span style={{
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: '0.55rem',
+          fontWeight: 600,
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.18em',
+          color: '#D6A54A',
+          display: 'block',
+          marginBottom: '6px',
+        }}>{event.category}</span>
+      )}
+      <h3 style={{
+        fontFamily: "'Fraunces', Georgia, serif",
+        fontSize: 'clamp(1rem, 1.4vw, 1.3rem)',
+        fontWeight: 400,
+        color: '#161616',
+        lineHeight: 1.2,
+        marginBottom: '6px',
+      }}>{event.title}</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {dateStr && (
+          <span style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: '0.62rem',
+            color: '#6F6B63',
+          }}>{dateStr}</span>
+        )}
+        {event.location && (
+          <span style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: '0.62rem',
+            color: '#6F6B63',
+          }}>{event.location}</span>
+        )}
+      </div>
+      <ArrowRight
+        style={{
+          color: hovered ? '#D6A54A' : 'rgba(22,22,22,0.2)',
+          transform: hovered ? 'translateX(4px)' : 'translateX(0)',
+          transition: `transform 0.4s ${E}, color 0.4s ${E}`,
+          marginTop: '10px',
+        }}
+        size={14}
+        strokeWidth={1.5}
+      />
+    </Link>
+  );
+}
+
+/* ─── 05 — PAST EVENTS ─── */
+
+function E05Past({ events: evts, loading }: { events: EventItem[]; loading: boolean }) {
+  const { ref, visible } = useReveal({ threshold: 0.05 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#090909',
+      paddingTop: 'clamp(80px, 10vw, 130px)',
+      paddingBottom: 'clamp(80px, 10vw, 130px)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <Reveal delay={0} visible={visible}>
+          <div style={{ marginBottom: 'clamp(36px, 5vw, 56px)' }}>
+            <p style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              fontWeight: 600,
+              color: '#D6A54A',
+              marginBottom: '20px',
+            }}>PAST EVENTS</p>
+            <h2 style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#F8F5EF',
+            }}>MOMENTS WE&apos;VE CREATED</h2>
+          </div>
+        </Reveal>
+
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', opacity: 0.5 }}
+            className="evt-past-grid"
+          >
+            {[1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ aspectRatio: '4/3' }} />)}
+          </div>
+        ) : evts.length === 0 ? (
+          <p style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.9rem', color: 'rgba(248,245,239,0.4)' }}>
+            No past events to display.
+          </p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(12px, 1.5vw, 20px)' }}
+            className="evt-past-grid"
+          >
+            {evts.slice(0, 6).map((event, i) => (
+              <PastEventItem key={event.id} event={event} index={i} visible={visible} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @media (max-width: 1024px) { .evt-past-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .evt-past-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function PastEventItem({ event, index, visible }: { event: EventItem; index: number; visible: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const year = event.event_date ? new Date(event.event_date).getFullYear() : '';
+
+  return (
+    <Link
+      to={`/events/${event.slug}`}
+      style={{
+        display: 'block',
+        textDecoration: 'none',
+        position: 'relative',
+        overflow: 'hidden',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.8s ${E} ${0.1 + index * 0.08}s, transform 0.8s ${E} ${0.1 + index * 0.08}s`,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      aria-label={`View event: ${event.title}`}
+    >
+      <img
+        src={event.cover_image || ''}
+        alt={event.cover_alt || event.title}
+        style={{
+          width: '100%',
+          aspectRatio: '4/3',
+          objectFit: 'cover',
+          display: 'block',
+          transform: hovered ? 'scale(1.05)' : 'scale(1)',
+          transition: `transform 0.7s ${E}`,
+        }}
+        loading="lazy"
+      />
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: hovered
+          ? 'linear-gradient(180deg, rgba(9,9,9,0) 0%, rgba(9,9,9,0.7) 100%)'
+          : 'linear-gradient(180deg, rgba(9,9,9,0) 0%, rgba(9,9,9,0.35) 100%)',
+        transition: 'background 0.5s ease',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '16px',
+        left: '16px',
+        right: '16px',
+        pointerEvents: 'none',
+      }}>
+        {event.category && (
+          <span style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: '0.5rem',
+            fontWeight: 600,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.18em',
+            color: '#D6A54A',
+            display: 'block',
+            marginBottom: '4px',
+          }}>{event.category}</span>
+        )}
+        <h3 style={{
+          fontFamily: "'Fraunces', Georgia, serif",
+          fontSize: 'clamp(0.9rem, 1.2vw, 1.1rem)',
+          fontWeight: 400,
+          color: '#F8F5EF',
+          lineHeight: 1.2,
+          opacity: hovered ? 1 : 0.9,
+          transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+          transition: `opacity 0.4s ${E}, transform 0.4s ${E}`,
+        }}>{event.title}</h3>
+        {year && (
+          <span style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: '0.55rem',
+            color: 'rgba(248,245,239,0.5)',
+          }}>{year}</span>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+/* ─── 06 — EDITORIAL STATEMENT ─── */
+
+function E06Editorial() {
+  const { ref, visible } = useReveal({ threshold: 0.08 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#F1EDE3',
+      paddingTop: 'clamp(80px, 10vw, 130px)',
+      paddingBottom: 'clamp(80px, 10vw, 130px)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
+          className="evt-editorial-grid"
+        >
+          {/* Left: Gold Rule + Heading */}
+          <div style={{ position: 'relative' }}>
+            <div
+              className="evt-editorial-rule"
+              style={{
+                position: 'absolute',
+                left: '-28px',
+                top: 0,
+                bottom: 0,
+                width: '2px',
+                backgroundColor: '#D6A54A',
+                opacity: visible ? 1 : 0,
+                transition: 'opacity 0.8s ease 0.2s',
+              }}
+            />
+            <Reveal delay={0} visible={visible}>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '11px',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase' as const,
+                fontWeight: 600,
+                color: '#D6A54A',
+                marginBottom: '20px',
+              }}>THE FIESTA EXPERIENCE</p>
+              <h2 style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(2.75rem, 4.5vw, 3.625rem)',
+                lineHeight: 0.95,
+                fontWeight: 400,
+                color: '#161616',
+                whiteSpace: 'pre-line' as const,
+              }}>
+                {"EVERY EVENT\nBECOMES A STORY\nWORTH REMEMBERING."}
+              </h2>
+            </Reveal>
+          </div>
+
+          {/* Right: Body */}
+          <Reveal delay={0.15} visible={visible}>
+            <p style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: 'clamp(0.9rem, 1.05vw, 1rem)',
+              lineHeight: 1.8,
+              color: '#6F6B63',
+              maxWidth: '480px',
+            }}>
+              Fiesta creates experiences rather than simply coordinating schedules. We bring together creative direction, production expertise, and an obsession with detail to craft events that resonate with people long after the last song fades. Every gathering has a story — we help tell it.
+            </p>
+          </Reveal>
+        </div>
+      </div>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .evt-editorial-grid { grid-template-columns: 45% 1fr !important; gap: 48px !important; align-items: start !important; }
+          .evt-editorial-rule { display: block !important; }
+        }
+        @media (max-width: 1023px) { .evt-editorial-rule { display: none !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+/* ─── 07 — CTA ─── */
+
+function E07CTA() {
+  const { ref, visible } = useReveal({ threshold: 0.1 });
+
+  return (
+    <section ref={ref} style={{
+      position: 'relative',
+      overflow: 'hidden',
+      height: 'clamp(300px, 40vh, 400px)',
+    }}>
+      <div style={{ position: 'absolute', inset: 0 }}>
+        <img
+          src={CTA_IMAGE}
+          alt="Elegant outdoor celebration with warm atmospheric lighting"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          loading="lazy"
+        />
+      </div>
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
+      }} />
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center' as const,
+        paddingLeft: 'clamp(24px, 4vw, 40px)',
+        paddingRight: 'clamp(24px, 4vw, 40px)',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(28px)',
+        transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
+      }}>
+        <h2 style={{
+          fontFamily: "'Fraunces', Georgia, serif",
+          fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',
+          lineHeight: 0.95,
+          fontWeight: 400,
+          color: '#F8F5EF',
+          whiteSpace: 'pre-line' as const,
+          maxWidth: '16ch',
+        }}>
+          {"READY TO PLAN\nYOUR NEXT EVENT?"}
+        </h2>
+        <Link
+          to="/contact"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginTop: '32px',
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.14em',
+            color: '#D6A54A',
+            textDecoration: 'none',
+            transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+        >
+          GET IN TOUCH
+          <ArrowRight size={16} strokeWidth={2} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* ─── REVEAL HELPER ─── */
+
+function Reveal({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
+  return (
+    <div style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(22px)',
+      transition: `opacity 0.8s ${E} ${delay}s, transform 0.8s ${E} ${delay}s`,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+export default Events;

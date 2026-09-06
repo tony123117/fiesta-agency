@@ -5,11 +5,12 @@ import { useAuth } from '@/lib/auth';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 export function AdminLogin() {
-  useDocumentMeta({ title: 'Admin Login — Fiesta Agency' });
+  useDocumentMeta({ title: 'Admin Login | Fiesta Agency' });
   const { session, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,46 +32,92 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian flex items-center justify-center px-6">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-12">
-          <h1 className="font-serif text-4xl font-light text-ivory">FIESTA</h1>
-          <p className="label-gold mt-3">Admin Portal</p>
+    <div className="min-h-screen bg-obsidian flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="font-serif font-medium text-3xl tracking-tight text-ivory">
+            FIESTA
+          </h1>
+          <p className="text-[0.8rem] text-white/35 mt-2">
+            Sign in to your admin account.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-ivory-muted mb-2">Email</label>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-white/40">
+              Email
+            </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-transparent border-b border-charcoal-border px-0 py-3 text-ivory text-sm focus:border-gold focus:outline-none transition-colors"
+              autoComplete="email"
+              className="w-full bg-transparent border-b border-white/[0.12] px-0 py-3 text-[0.85rem] text-ivory placeholder:text-white/20 focus:border-gold/40 focus:outline-none transition-colors"
+              placeholder="you@example.com"
             />
           </div>
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-ivory-muted mb-2">Password</label>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-white/40">
+              Password
+            </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-transparent border-b border-charcoal-border px-0 py-3 text-ivory text-sm focus:border-gold focus:outline-none transition-colors"
+              autoComplete="current-password"
+              className="w-full bg-transparent border-b border-white/[0.12] px-0 py-3 text-[0.85rem] text-ivory placeholder:text-white/20 focus:border-gold/40 focus:outline-none transition-colors"
+              placeholder="Enter your password"
             />
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          <div className="flex items-center justify-between mt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-3.5 h-3.5 accent-gold"
+              />
+              <span className="text-[0.75rem] text-white/35">Remember me</span>
+            </label>
+            <button
+              type="button"
+              className="text-[0.75rem] text-gold/70 hover:text-gold transition-colors"
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {error && (
+            <p className="text-[0.8rem] text-red-400 bg-red-500/10 border border-red-500/20 rounded px-3 py-2">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-gold text-obsidian py-3.5 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-gold-light transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-gold text-obsidian py-3 rounded text-[0.7rem] font-semibold uppercase tracking-[0.15em] border-none cursor-pointer transition-all duration-200 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
-            {submitting ? <Loader2 size={16} className="animate-spin" /> : 'Sign In'}
+            {submitting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
       </div>
     </div>
   );
 }
+
+export default AdminLogin;
+

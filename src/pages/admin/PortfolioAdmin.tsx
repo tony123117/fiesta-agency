@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
+import { Search, Trash2, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminButton, StatusBadge, AdminLoading, EmptyState } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, EmptyState, Toast } from '@/components/admin/AdminUI';
 import type { PortfolioProject } from '@/lib/types';
+
+const CATEGORIES = ['All', 'Concerts', 'Weddings', 'Corporate', 'Festivals', 'Parties'] as const;
+type Filter = typeof CATEGORIES[number];
 
 export function PortfolioAdmin() {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<Filter>('All');
+  const [toast, setToast] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -19,58 +24,68 @@ export function PortfolioAdmin() {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this project? This cannot be undone.')) return;
-    await supabase.from('portfolio_projects').delete().eq('id', id);
+  const handleDelete = async (item: PortfolioProject) => {
+    if (!confirm(`Delete "${item.title}"?`)) return;
+    await supabase.storage.from('media').remove([item.cover_image]);
+    await supabase.from('portfolio_projects').delete().eq('id', item.id);
     load();
+    setToast('Project deleted');
+    setTimeout(() => setToast(null), 3000);
   };
 
-  const filtered = projects.filter((p) => !search || p.title.toLowerCase().includes(search.toLowerCase()));
+  const copyUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setToast('URL copied');
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const filtered = projects.filter((p) => {
+    if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filter !== 'All' && p.category !== filter) return false;
+    return true;
+  });
 
   if (loading) return <AdminLoading />;
 
   return (
-    <div className="p-6 md:p-10">
-      <PageHeader title="Portfolio" action={
-        <Link to="/admin/portfolio/new"><AdminButton><Plus size={14} /> New Project</AdminButton></Link>
-      } />
+    <div style={{ padding: '1.5rem 2.5rem' }}>
+      <PageHeader title="PORTFOLIO" action={<Link to="/admin/portfolio/new"><AdminButton><Plus size={14} /> Create Project</AdminButton></Link>} />
 
-      <div className="relative mb-6">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ivory-muted" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search projects..."
-          className="w-full bg-charcoal border border-charcoal-border pl-10 pr-4 py-2 text-sm text-ivory focus:border-gold focus:outline-none"
-        />
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search projects..."
+            style={{ width: '100%', background: '#1E1E1E', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem 0.5rem 0.5rem 2.5rem', color: 'white', fontSize: '0.875rem' }} />
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {CATEGORIES.map((f) => (
+            <button key={f} onClick={() => setFilter(f)} style={{ padding: '0.5rem 1rem', fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', borderRadius: '50px', ...(filter === f ? { background: '#D6A856', color: '#090909' } : { background: '#1E1E1E', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' })} }>
+              {f}
+            </button>
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState title="No projects yet." subtitle="Create your first portfolio project." />
+        <EmptyState title="No portfolio projects yet." subtitle="Create your first project to showcase your work." />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(16rem, 1fr))', gap: '1rem' }}>
           {filtered.map((p) => (
-            <div key={p.id} className="bg-charcoal border border-charcoal-border group">
-              <div className="relative aspect-[4/3] overflow-hidden">
-                {p.cover_image && <img src={p.cover_image} alt="" className="w-full h-full object-cover" />}
-                <div className="absolute inset-0 bg-obsidian/0 group-hover:bg-obsidian/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                  <Link to={`/admin/portfolio/${p.id}/edit`}>
-                    <button className="p-2 bg-obsidian/80 text-gold hover:text-ivory transition-colors"><Pencil size={16} /></button>
-                  </Link>
-                  <button onClick={() => handleDelete(p.id)} className="p-2 bg-obsidian/80 text-red-400 hover:text-red-300 transition-colors"><Trash2 size={16} /></button>
-                </div>
+            <AdminCard key={p.id} style={{ position: 'relative' }}>
+              <img src={p.cover_image} alt={p.title} style={{ width: '100%', height: '8rem', objectFit: 'cover', marginBottom: '0.75rem' }} />
+              <span style={{ fontSize: '0.5625rem', color: '#D6A856' }}>{p.category}{p.year ? ` • ${p.year}` : ''}</span>
+              <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1.125rem', marginTop: '0.25rem' }}>{p.title}</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                <Link to={`/admin/portfolio/${p.id}/edit`} style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: '0.25rem' }}>Edit</Link>
+                <button onClick={() => handleDelete(p)} style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#f87171', color: 'white', border: 'none', borderRadius: '0.25rem' }}>Delete</button>
               </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-ivory-muted uppercase tracking-wider">{p.category}{p.year ? ` • ${p.year}` : ''}</span>
-                  {p.published ? <StatusBadge status="published" /> : <StatusBadge status="draft" />}
-                </div>
-                <h3 className="font-serif text-lg text-ivory">{p.title}</h3>
-              </div>
-            </div>
+            </AdminCard>
           ))}
         </div>
       )}
+      {toast && <Toast message={toast} />}
     </div>
   );
 }
+export default PortfolioAdmin;
+

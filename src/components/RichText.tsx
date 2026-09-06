@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { RichTextContent, RichTextInline, RichTextNode } from '@/lib/types';
 
 export function RichText({ content, className }: { content: RichTextContent | null; className?: string }) {
@@ -50,6 +51,15 @@ function renderInlines(inlines: RichTextInline[]): React.ReactNode {
       return <span key={i}>{el}</span>;
     }
     if (inline.type === 'link') {
+      const isInternal = inline.href.startsWith('/');
+      if (isInternal) {
+        return (
+          <Link key={i} to={inline.href}
+            className="text-gold link-underline">
+            {renderInlines(inline.children)}
+          </Link>
+        );
+      }
       return (
         <a key={i} href={inline.href} target="_blank" rel="noopener noreferrer"
           className="text-gold link-underline">

@@ -1,51 +1,61 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Pencil, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminButton, AdminInput, AdminTextarea, AdminToggle, AdminLoading, EmptyState, Toast } from '@/components/admin/AdminUI';
-import type { Section, Page } from '@/lib/types';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, AdminSelect, Toast } from '@/components/admin/AdminUI';
 
-export function CMSPageEditor({ pageSlug, pageTitle }: { pageSlug: string; pageTitle: string }) {
-  const [page, setPage] = useState<Page | null>(null);
-  const [sections, setSections] = useState<Section[]>([]);
+export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
+  const [page, setPage] = useState<any>(null);
+  const [sections, setSections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<Section | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+  const [form, setForm] = useState({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true });
   const [toast, setToast] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const { data: pageData } = await supabase.from('pages').select('*').eq('slug', pageSlug).maybeSingle();
-    setPage(pageData as Page | null);
-    if (pageData) {
-      const { data: secData } = await supabase.from('sections').select('*').eq('page_id', pageData.id).order('sort_order');
-      setSections((secData || []) as Section[]);
+    const { data: p } = await supabase.from('pages').select('*').eq('slug', pageSlug).single();
+    if (p) {
+      setPage(p);
+      const { data: s } = await supabase.from('sections').select('*').eq('page_id', p.id).order('sort_order');
+      setSections((s || []) as any[]);
     }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [pageSlug]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this section?')) return;
-    await supabase.from('sections').delete().eq('id', id);
-    load();
-    setToast('Section deleted');
+  const handleSave = async () => {
+    const payload = { ...form, page_id: page?.id };
+    if (editing) {
+      await supabase.from('sections').update(payload).eq('id', editing.id);
+    } else {
+      await supabase.from('sections').insert(payload);
+    }
+    load(); setShowForm(false); setEditing(null); setForm({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true });
+    setToast('Saved');
     setTimeout(() => setToast(null), 3000);
   };
 
-  const moveSection = async (section: Section, dir: 'up' | 'down') => {
-    const idx = sections.findIndex((s) => s.id === section.id);
-    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= sections.length) return;
-    const swap = sections[swapIdx];
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this section?')) return;
+    await supabase.from('sections').delete().eq('id', id);
+    load(); setToast('Deleted'); setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleReorder = async (id: string, direction: 'up' | 'down') => {
+    const idx = sections.findIndex(s => s.id === id);
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= sections.length) return;
+    const [a, b] = [sections[idx], sections[targetIdx]];
     await Promise.all([
-      supabase.from('sections').update({ sort_order: swap.sort_order }).eq('id', section.id),
-      supabase.from('sections').update({ sort_order: section.sort_order }).eq('id', swap.id),
+      supabase.from('sections').update({ sort_order: b.sort_order }).eq('id', a.id),
+      supabase.from('sections').update({ sort_order: a.sort_order }).eq('id', b.id),
     ]);
     load();
   };
 
-  const togglePublish = async (section: Section) => {
+  const handleTogglePublish = async (section: any) => {
     await supabase.from('sections').update({ published: !section.published }).eq('id', section.id);
     load();
   };
@@ -53,111 +63,65 @@ export function CMSPageEditor({ pageSlug, pageTitle }: { pageSlug: string; pageT
   if (loading) return <AdminLoading />;
 
   return (
-    <div className="p-6 md:p-10">
-      <PageHeader title={pageTitle} action={
-        <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus size={14} /> Add Section</AdminButton>
+    <div style={{ padding: '1.5rem 2.5rem' }}>
+      <PageHeader title={pageSlug.toUpperCase()} action={
+        <AdminButton onClick={() => { setEditing(null); setForm({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true }); setShowForm(true); }}><Plus size={14} /> Add Section</AdminButton>
       } />
 
       {sections.length === 0 ? (
-        <EmptyState title="No sections yet." subtitle="Add content sections to build this page." />
+        <AdminCard><p style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>No sections yet. Click "Add Section" to create one.</p></AdminCard>
       ) : (
-        <div className="space-y-3">
-          {sections.map((s, i) => (
-            <div key={s.id} className="bg-charcoal border border-charcoal-border p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-gold">{String(i + 1).padStart(2, '0')}</span>
-                    {s.published ? (
-                      <span className="text-[10px] uppercase tracking-wider text-green-400 border border-green-900 px-2 py-0.5">Published</span>
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-wider text-zinc-400 border border-zinc-800 px-2 py-0.5">Hidden</span>
-                    )}
-                  </div>
-                  {s.title && <p className="text-sm text-ivory font-medium">{s.title}</p>}
-                  {s.subtitle && <p className="text-xs text-ivory-muted mt-1">{s.subtitle}</p>}
-                  {s.image_url && <img src={s.image_url} alt="" className="w-24 h-16 object-cover mt-2" />}
-                </div>
-                <div className="flex gap-1">
-                  <button onClick={() => moveSection(s, 'up')} disabled={i === 0} className="text-ivory-muted hover:text-gold p-1 disabled:opacity-30"><ArrowUp size={14} /></button>
-                  <button onClick={() => moveSection(s, 'down')} disabled={i === sections.length - 1} className="text-ivory-muted hover:text-gold p-1 disabled:opacity-30"><ArrowDown size={14} /></button>
-                  <button onClick={() => togglePublish(s)} className="text-ivory-muted hover:text-gold p-1"><Pencil size={14} /></button>
-                  <button onClick={() => { setEditing(s); setShowForm(true); }} className="text-ivory-muted hover:text-gold p-1"><Pencil size={14} /></button>
-                  <button onClick={() => handleDelete(s.id)} className="text-ivory-muted hover:text-red-400 p-1"><Trash2 size={14} /></button>
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {sections.map((section, i) => (
+            <AdminCard key={section.id} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto auto auto', gap: '1rem', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.4)' }}>0{i + 1}</span>
+              <div>
+                <p style={{ fontWeight: 500 }}>{section.title}</p>
+                {section.subtitle && <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>{section.subtitle}</p>}
               </div>
-            </div>
+              <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', ...(section.published ? { color: '#D6A856' } : { color: 'rgba(255,255,255,0.4)' })} }>
+                {section.published ? 'Published' : 'Hidden'}
+              </span>
+              {section.image_url && <img src={section.image_url} alt={section.image_alt} style={{ width: '4rem', height: '2.5rem', objectFit: 'cover' }} />}
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <AdminButton variant="ghost" size="sm" onClick={() => handleReorder(section.id, 'up')} disabled={i === 0}><ChevronUp size={14} /></AdminButton>
+                <AdminButton variant="ghost" size="sm" onClick={() => handleReorder(section.id, 'down')} disabled={i === sections.length - 1}><ChevronDown size={14} /></AdminButton>
+                <AdminButton variant="ghost" size="sm" onClick={() => { setEditing(section); setForm(section); setShowForm(true); }}><Pencil size={14} /> Edit</AdminButton>
+                <AdminButton variant="ghost" size="sm" onClick={() => handleTogglePublish(section)}>{section.published ? <EyeOff size={14} style={{ color: 'rgba(255,255,255,0.4)' }} /> : <Eye size={14} style={{ color: '#D6A856' }} />}</AdminButton>
+                <AdminButton variant="ghost" size="sm" onClick={() => handleDelete(section.id)}><Trash2 size={14} style={{ color: '#f87171' }} /></AdminButton>
+              </div>
+            </AdminCard>
           ))}
         </div>
       )}
 
-      {showForm && page && (
-        <SectionForm
-          pageId={page.id}
-          section={editing}
-          sortOrder={editing ? editing.sort_order : sections.length}
-          onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); load(); }}
-        />
+      {showForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <AdminCard style={{ width: '100%', maxWidth: '48rem', maxHeight: '90vh', overflow: 'auto' }}>
+            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1.5rem', marginBottom: '1.5rem' }}>{editing ? 'Edit Section' : 'New Section'}</h2>
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <AdminInput label="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+              <AdminInput label="Subtitle" value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} />
+              <AdminTextarea label="Body (JSON or text)" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} rows={6} />
+              <AdminInput label="Image URL" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+              <AdminInput label="Image Alt" value={form.image_alt} onChange={(e) => setForm({ ...form, image_alt: e.target.value })} />
+              <AdminSelect label="Layout" value={form.layout} onChange={(e) => setForm({ ...form, layout: e.target.value })}>
+                <option value="default">Default</option>
+                <option value="split">Split</option>
+                <option value="full">Full Width</option>
+              </AdminSelect>
+              <AdminToggle label="Published" checked={form.published} onChange={(v) => setForm({ ...form, published: v })} />
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <AdminButton variant="ghost" onClick={() => setShowForm(false)}>Cancel</AdminButton>
+                <AdminButton type="submit">Save</AdminButton>
+              </div>
+            </form>
+          </AdminCard>
+        </div>
       )}
       {toast && <Toast message={toast} />}
     </div>
   );
 }
+export default CMSPageEditor;
 
-function SectionForm({ pageId, section, sortOrder, onClose, onSaved }: {
-  pageId: string; section: Section | null; sortOrder: number; onClose: () => void; onSaved: () => void;
-}) {
-  const [form, setForm] = useState({
-    title: section?.title || '', subtitle: section?.subtitle || '',
-    image_url: section?.image_url || '', image_alt: section?.image_alt || '',
-    layout: section?.layout || 'default', published: section?.published ?? true,
-    sort_order: section?.sort_order ?? sortOrder,
-  });
-  const [bodyText, setBodyText] = useState(
-    section?.body ? JSON.stringify(section.body, null, 2) : ''
-  );
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    let body = null;
-    if (bodyText) {
-      try { body = JSON.parse(bodyText); } catch { body = { text: bodyText }; }
-    }
-    const payload = { ...form, page_id: pageId, body };
-
-    if (section) {
-      await supabase.from('sections').update(payload).eq('id', section.id);
-    } else {
-      await supabase.from('sections').insert(payload);
-    }
-    setSaving(false);
-    onSaved();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 bg-obsidian/80 flex items-center justify-center p-6" onClick={onClose}>
-      <div className="bg-charcoal border border-charcoal-border p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-serif text-xl text-ivory">{section ? 'Edit Section' : 'Add Section'}</h2>
-          <button onClick={onClose} className="text-ivory-muted hover:text-ivory"><X size={20} /></button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <AdminInput label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
-          <AdminInput label="Subtitle" value={form.subtitle} onChange={(v) => setForm({ ...form, subtitle: v })} />
-          <AdminTextarea label="Body (JSON or plain text)" value={bodyText} onChange={setBodyText} rows={5} />
-          <AdminInput label="Image URL" value={form.image_url} onChange={(v) => setForm({ ...form, image_url: v })} />
-          <AdminInput label="Image Alt Text" value={form.image_alt} onChange={(v) => setForm({ ...form, image_alt: v })} />
-          <AdminInput label="Layout" value={form.layout} onChange={(v) => setForm({ ...form, layout: v })} />
-          <AdminToggle label="Published" checked={form.published} onChange={(v) => setForm({ ...form, published: v })} />
-          <div className="flex gap-3 pt-2">
-            <AdminButton type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</AdminButton>
-            <button onClick={onClose}><AdminButton variant="ghost">Cancel</AdminButton></button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}

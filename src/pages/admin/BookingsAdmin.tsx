@@ -1,183 +1,143 @@
 import { useEffect, useState } from 'react';
-import { Search, X, Mail, Phone, Calendar, MapPin, Users, DollarSign, MessageCircle } from 'lucide-react';
+import { Search, ChevronDown, Trash2, X, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, StatusBadge, AdminLoading, EmptyState, AdminButton, AdminTextarea, Toast } from '@/components/admin/AdminUI';
-import type { Booking, BookingStatus } from '@/lib/types';
-import { BOOKING_STATUSES } from '@/lib/types';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminTextarea, StatusBadge, Toast } from '@/components/admin/AdminUI';
+
+const BOOKING_STATUSES = ['new', 'contacted', 'quoted', 'confirmed', 'completed', 'cancelled'];
 
 export function BookingsAdmin() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<string>('all');
-  const [selected, setSelected] = useState<Booking | null>(null);
-  const [notes, setNotes] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const load = async () => {
-    setLoading(true);
     const { data } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
-    setBookings((data || []) as Booking[]);
+    setBookings(data || []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const updateStatus = async (id: string, status: BookingStatus) => {
+  const handleStatusChange = async (id: string, status: string) => {
     await supabase.from('bookings').update({ status }).eq('id', id);
-    load();
-    if (selected?.id === id) setSelected({ ...selected, status });
-    setToast('Status updated');
+    setBookings(bookings.map(b => b.id === id ? { ...b, status } : b));
+    setToast(`Status updated to ${status}`);
     setTimeout(() => setToast(null), 3000);
   };
 
-  const saveNotes = async () => {
-    if (!selected) return;
-    await supabase.from('bookings').update({ notes }).eq('id', selected.id);
+  const handleSaveNotes = async (id: string, notes: string) => {
+    await supabase.from('bookings').update({ notes }).eq('id', id);
     setToast('Notes saved');
     setTimeout(() => setToast(null), 3000);
-    load();
   };
 
-  const filtered = bookings.filter((b) => {
-    const matchSearch = !search || b.client_name.toLowerCase().includes(search.toLowerCase()) || b.email.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === 'all' || b.status === filter;
-    return matchSearch && matchFilter;
+  const filtered = bookings.filter(b => {
+    if (search && !b.client_name.toLowerCase().includes(search.toLowerCase()) && !b.email.toLowerCase().includes(search.toLowerCase())) return false;
+    if (statusFilter !== 'All' && b.status !== statusFilter) return false;
+    return true;
   });
 
   if (loading) return <AdminLoading />;
 
   return (
-    <div className="p-6 md:p-10">
-      <PageHeader title="Bookings & Inquiries" />
+    <div style={{ padding: '1.5rem 2.5rem' }}>
+      <PageHeader title="BOOKINGS" />
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ivory-muted" />
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '24rem' }}>
+          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email..."
-            className="w-full bg-charcoal border border-charcoal-border pl-10 pr-4 py-2 text-sm text-ivory focus:border-gold focus:outline-none" />
+            style={{ width: '100%', background: '#1E1E1E', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem 0.5rem 0.5rem 2.5rem', color: 'white' }} />
         </div>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}
-          className="bg-charcoal border border-charcoal-border px-4 py-2 text-sm text-ivory focus:border-gold focus:outline-none cursor-pointer">
-          <option value="all" className="bg-charcoal">All Statuses</option>
-          {BOOKING_STATUSES.map((s) => <option key={s} value={s} className="bg-charcoal">{s.replace('_', ' ')}</option>)}
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ background: '#1E1E1E', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem 1rem', color: 'white' }}>
+          <option value="All">All</option>
+          {BOOKING_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState title="No inquiries yet." subtitle="Booking submissions will appear here." />
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-charcoal-border text-left">
-                <th className="py-3 px-4 text-xs uppercase tracking-wider text-ivory-muted">Client</th>
-                <th className="py-3 px-4 text-xs uppercase tracking-wider text-ivory-muted hidden md:table-cell">Event Type</th>
-                <th className="py-3 px-4 text-xs uppercase tracking-wider text-ivory-muted hidden lg:table-cell">Date</th>
-                <th className="py-3 px-4 text-xs uppercase tracking-wider text-ivory-muted hidden lg:table-cell">Submitted</th>
-                <th className="py-3 px-4 text-xs uppercase tracking-wider text-ivory-muted">Status</th>
-                <th className="py-3 px-4"></th>
+      <AdminCard padding={false}>
+        <table style={{ width: '100%', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Client</th>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Event Type</th>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Date</th>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Submitted</th>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Status</th>
+              <th style={{ padding: '0.75rem 1rem', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((b) => (
+              <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <p style={{ fontWeight: 500 }}>{b.client_name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>{b.email}</p>
+                </td>
+                <td style={{ padding: '0.75rem 1rem' }}>{b.event_type}</td>
+                <td style={{ padding: '0.75rem 1rem', color: 'rgba(255,255,255,0.6)' }}>{b.event_date ? new Date(b.event_date).toLocaleDateString() : 'TBA'}</td>
+                <td style={{ padding: '0.75rem 1rem', color: 'rgba(255,255,255,0.4)' }}>{new Date(b.created_at).toLocaleDateString()}</td>
+                <td style={{ padding: '0.75rem 1rem' }}><StatusBadge status={b.status} /></td>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <button onClick={() => setSelectedBooking(b)} style={{ background: 'none', border: 'none', color: '#D6A856', fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    View <ArrowRight size={12} />
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b) => (
-                <tr key={b.id} className="border-b border-charcoal-border hover:bg-charcoal transition-colors cursor-pointer" onClick={() => { setSelected(b); setNotes(b.notes || ''); }}>
-                  <td className="py-3 px-4">
-                    <p className="text-sm text-ivory">{b.client_name}</p>
-                    <p className="text-xs text-ivory-muted">{b.email}</p>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-ivory-muted hidden md:table-cell">{b.event_type}</td>
-                  <td className="py-3 px-4 text-sm text-ivory-muted hidden lg:table-cell">
-                    {b.event_date ? new Date(b.event_date).toLocaleDateString() : '—'}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-ivory-muted hidden lg:table-cell">
-                    {new Date(b.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4"><StatusBadge status={b.status} /></td>
-                  <td className="py-3 px-4 text-xs text-gold">View →</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </AdminCard>
 
-      {/* Detail drawer */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setSelected(null)}>
-          <div className="absolute inset-0 bg-obsidian/60" />
-          <div className="relative w-full max-w-md bg-charcoal border-l border-charcoal-border h-full overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-charcoal border-b border-charcoal-border px-6 py-4 flex items-center justify-between">
-              <h2 className="font-serif text-lg text-ivory">Inquiry Details</h2>
-              <button onClick={() => setSelected(null)} className="text-ivory-muted hover:text-ivory"><X size={20} /></button>
+      {selectedBooking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '1.5rem' }}>
+          <div style={{ width: '100%', maxWidth: '28rem', background: '#090909', height: '100%', overflow: 'auto', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1.25rem' }}>{selectedBooking.client_name}</h2>
+              <button onClick={() => setSelectedBooking(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
             </div>
-            <div className="p-6 space-y-5">
-              <div>
-                <h3 className="font-serif text-xl text-ivory mb-1">{selected.client_name}</h3>
-                <StatusBadge status={selected.status} />
+            <StatusBadge status={selectedBooking.status} />
+            <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Email</span> <p>{selectedBooking.email}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Phone</span> <p>{selectedBooking.phone}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Event Type</span> <p>{selectedBooking.event_type}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Preferred Date</span> <p>{selectedBooking.event_date ? new Date(selectedBooking.event_date).toLocaleDateString() : 'TBA'}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Location</span> <p>{selectedBooking.location}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Guests</span> <p>{selectedBooking.guest_count}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Budget</span> <p>{selectedBooking.budget}</p></div>
+              <div><span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Submitted</span> <p>{new Date(selectedBooking.created_at).toLocaleString()}</p></div>
+            </div>
+
+            <div style={{ marginTop: '2rem' }}>
+              <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1rem', marginBottom: '0.5rem' }}>Message</h3>
+              <p style={{ color: 'rgba(255,255,255,0.6)', whiteSpace: 'preWrap' }}>{selectedBooking.message}</p>
+            </div>
+
+            <div style={{ marginTop: '2rem' }}>
+              <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1rem', marginBottom: '0.5rem' }}>Status</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {BOOKING_STATUSES.map(s => (
+                  <button key={s} onClick={() => handleStatusChange(selectedBooking.id, s)} style={{ padding: '0.375rem 0.75rem', borderRadius: '50px', fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', ...(selectedBooking.status === s ? { background: '#D6A856', color: '#090909' } : { background: 'rgba(255,255,255,0.1)', color: 'white' })} }>
+                    {s}
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="space-y-3">
-                <DetailRow icon={Mail} label="Email" value={selected.email} />
-                {selected.phone && <DetailRow icon={Phone} label="Phone" value={selected.phone} />}
-                <DetailRow icon={MessageCircle} label="Event Type" value={selected.event_type} />
-                {selected.event_date && <DetailRow icon={Calendar} label="Preferred Date" value={new Date(selected.event_date).toLocaleDateString()} />}
-                {selected.location && <DetailRow icon={MapPin} label="Location" value={selected.location} />}
-                {selected.guest_count && <DetailRow icon={Users} label="Guest Count" value={String(selected.guest_count)} />}
-                {selected.budget && <DetailRow icon={DollarSign} label="Budget" value={selected.budget} />}
-                {selected.referral && <DetailRow icon={MessageCircle} label="Referral" value={selected.referral} />}
-              </div>
-
-              {selected.message && (
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-ivory-muted mb-2">Message</p>
-                  <p className="text-sm text-ivory leading-relaxed">{selected.message}</p>
-                </div>
-              )}
-
-              {/* Status changer */}
-              <div>
-                <p className="text-xs uppercase tracking-wider text-ivory-muted mb-2">Update Status</p>
-                <div className="flex flex-wrap gap-2">
-                  {BOOKING_STATUSES.map((s) => (
-                    <button key={s} onClick={() => updateStatus(selected.id, s)}
-                      className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition-colors ${
-                        selected.status === s ? 'bg-gold text-obsidian border-gold' : 'border-charcoal-border text-ivory-muted hover:text-ivory hover:border-gold'
-                      }`}>
-                      {s.replace('_', ' ')}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <p className="text-xs uppercase tracking-wider text-ivory-muted mb-2">Internal Notes</p>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4}
-                  className="w-full bg-obsidian border border-charcoal-border px-3 py-2 text-sm text-ivory focus:border-gold focus:outline-none resize-none" />
-                <div className="mt-2"><AdminButton onClick={saveNotes}>Save Notes</AdminButton></div>
-              </div>
-
-              <p className="text-xs text-ivory-muted pt-4 border-t border-charcoal-border">
-                Submitted: {new Date(selected.created_at).toLocaleString()}
-              </p>
+            <div style={{ marginTop: '2rem' }}>
+              <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1rem', marginBottom: '0.5rem' }}>Internal Notes</h3>
+              <AdminTextarea value={selectedBooking.notes || ''} onChange={(e) => handleSaveNotes(selectedBooking.id, e.target.value)} rows={4} placeholder="Add internal notes..." />
             </div>
           </div>
         </div>
       )}
+
       {toast && <Toast message={toast} />}
     </div>
   );
 }
+export default BookingsAdmin;
 
-function DetailRow({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <Icon size={16} className="text-gold shrink-0" />
-      <div>
-        <p className="text-xs text-ivory-muted">{label}</p>
-        <p className="text-sm text-ivory">{value}</p>
-      </div>
-    </div>
-  );
-}

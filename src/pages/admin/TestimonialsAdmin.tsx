@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X, Search } from 'lucide-react';
+import { Trash2, Plus, Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminButton, AdminInput, AdminTextarea, AdminToggle, StatusBadge, AdminLoading, EmptyState, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, StatusBadge, Toast } from '@/components/admin/AdminUI';
 import type { Testimonial } from '@/lib/types';
 
 export function TestimonialsAdmin() {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editing, setEditing] = useState<Testimonial | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Testimonial | null>(null);
+  const [form, setForm] = useState({ client_name: '', quote: '', event_type: '', location: '', image_url: '', published: true });
   const [toast, setToast] = useState<string | null>(null);
 
   const load = async () => {
-    setLoading(true);
     const { data } = await supabase.from('testimonials').select('*').order('sort_order');
     setItems((data || []) as Testimonial[]);
     setLoading(false);
@@ -21,109 +21,77 @@ export function TestimonialsAdmin() {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this testimonial?')) return;
-    await supabase.from('testimonials').delete().eq('id', id);
-    load();
-    setToast('Testimonial deleted');
+  const handleSave = async () => {
+    if (editing) {
+      await supabase.from('testimonials').update(form).eq('id', editing.id);
+    } else {
+      await supabase.from('testimonials').insert(form);
+    }
+    load(); setShowForm(false); setEditing(null); setForm({ client_name: '', quote: '', event_type: '', location: '', image_url: '', published: true });
+    setToast('Saved');
     setTimeout(() => setToast(null), 3000);
   };
 
-  const filtered = items.filter((t) => !search || t.client_name.toLowerCase().includes(search.toLowerCase()));
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this testimonial?')) return;
+    await supabase.from('testimonials').delete().eq('id', id);
+    load(); setToast('Deleted'); setTimeout(() => setToast(null), 3000);
+  };
 
   if (loading) return <AdminLoading />;
 
   return (
-    <div className="p-6 md:p-10">
-      <PageHeader title="Testimonials" action={
-        <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus size={14} /> Add Testimonial</AdminButton>
-      } />
+    <div style={{ padding: '1.5rem 2.5rem' }}>
+      <PageHeader title="TESTIMONIALS" action={<AdminButton onClick={() => { setEditing(null); setForm({ client_name: '', quote: '', event_type: '', location: '', image_url: '', published: true }); setShowForm(true); }}><Plus size={14} /> Add Testimonial</AdminButton>} />
 
-      <div className="relative mb-6">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ivory-muted" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search testimonials..."
-          className="w-full bg-charcoal border border-charcoal-border pl-10 pr-4 py-2 text-sm text-ivory focus:border-gold focus:outline-none" />
+      <div style={{ marginBottom: '1.5rem' }}>
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by client name..." style={{ width: '100%', maxWidth: '24rem', background: '#1E1E1E', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem 0.75rem', color: 'white' }} />
       </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState title="No testimonials yet." />
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((t) => (
-            <div key={t.id} className="bg-charcoal border border-charcoal-border p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <p className="font-serif text-lg italic text-ivory mb-2">"{t.quote}"</p>
-                  <p className="text-sm text-gold">{t.client_name}</p>
-                  <p className="text-xs text-ivory-muted">{t.event_type}{t.location && ` • ${t.location}`}</p>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  {t.published ? <StatusBadge status="published" /> : <StatusBadge status="draft" />}
-                  <div className="flex gap-1">
-                    <button onClick={() => { setEditing(t); setShowForm(true); }} className="text-ivory-muted hover:text-gold p-1"><Pencil size={16} /></button>
-                    <button onClick={() => handleDelete(t.id)} className="text-ivory-muted hover:text-red-400 p-1"><Trash2 size={16} /></button>
-                  </div>
-                </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {items.filter(t => t.client_name.toLowerCase().includes(search.toLowerCase())).map((t) => (
+          <AdminCard key={t.id} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <p style={{ fontFamily: 'Fraunces, Georgia, serif', fontStyle: 'italic', color: 'rgba(255,255,255,0.6)', fontSize: '1.125rem' }}>"{t.quote}"</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                <p style={{ fontWeight: 500 }}>{t.client_name}</p>
+                {t.event_type && <span style={{ fontSize: '0.75rem', color: '#D6A856' }}>{t.event_type}</span>}
+                {t.location && <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>{t.location}</span>}
+                <StatusBadge status={t.published ? 'published' : 'draft'} />
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <AdminButton variant="ghost" size="sm" onClick={() => { setEditing(t); setForm(t); setShowForm(true); }}><Edit size={14} /> Edit</AdminButton>
+              <AdminButton variant="ghost" size="sm" onClick={() => handleDelete(t.id)}><Trash2 size={14} style={{ color: '#f87171' }} /></AdminButton>
+            </div>
+          </AdminCard>
+        ))}
+      </div>
+
+      {items.length === 0 && <AdminCard><p style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.4)' }}>No testimonials yet.</p></AdminCard>}
 
       {showForm && (
-        <TestimonialForm
-          item={editing}
-          onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); load(); }}
-        />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <AdminCard style={{ width: '100%', maxWidth: '36rem', maxHeight: '90vh', overflow: 'auto' }}>
+            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1.5rem', marginBottom: '1.5rem' }}>{editing ? 'Edit Testimonial' : 'New Testimonial'}</h2>
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <AdminInput label="Client Name" value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} required />
+              <AdminTextarea label="Quote" value={form.quote} onChange={(e) => setForm({ ...form, quote: e.target.value })} rows={4} required />
+              <AdminInput label="Event Type" value={form.event_type} onChange={(e) => setForm({ ...form, event_type: e.target.value })} />
+              <AdminInput label="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              <AdminInput label="Image URL" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+              <AdminToggle label="Published" checked={form.published} onChange={(v) => setForm({ ...form, published: v })} />
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <AdminButton variant="ghost" onClick={() => setShowForm(false)}>Cancel</AdminButton>
+                <AdminButton type="submit">Save</AdminButton>
+              </div>
+            </form>
+          </AdminCard>
+        </div>
       )}
       {toast && <Toast message={toast} />}
     </div>
   );
 }
+export default TestimonialsAdmin;
 
-function TestimonialForm({ item, onClose, onSaved }: { item: Testimonial | null; onClose: () => void; onSaved: () => void }) {
-  const [form, setForm] = useState({
-    client_name: item?.client_name || '', quote: item?.quote || '', event_type: item?.event_type || '',
-    location: item?.location || '', image_url: item?.image_url || '', published: item?.published ?? true,
-    sort_order: item?.sort_order ?? 0,
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    if (item) {
-      await supabase.from('testimonials').update(form).eq('id', item.id);
-    } else {
-      await supabase.from('testimonials').insert(form);
-    }
-    setSaving(false);
-    onSaved();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 bg-obsidian/80 flex items-center justify-center p-6" onClick={onClose}>
-      <div className="bg-charcoal border border-charcoal-border p-6 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-serif text-xl text-ivory">{item ? 'Edit Testimonial' : 'Add Testimonial'}</h2>
-          <button onClick={onClose} className="text-ivory-muted hover:text-ivory"><X size={20} /></button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <AdminInput label="Client Name" value={form.client_name} onChange={(v) => setForm({ ...form, client_name: v })} required />
-          <AdminTextarea label="Quote" value={form.quote} onChange={(v) => setForm({ ...form, quote: v })} rows={3} required />
-          <div className="grid grid-cols-2 gap-4">
-            <AdminInput label="Event Type" value={form.event_type} onChange={(v) => setForm({ ...form, event_type: v })} />
-            <AdminInput label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-          </div>
-          <AdminInput label="Image URL" value={form.image_url} onChange={(v) => setForm({ ...form, image_url: v })} />
-          <AdminToggle label="Published" checked={form.published} onChange={(v) => setForm({ ...form, published: v })} />
-          <div className="flex gap-3 pt-2">
-            <AdminButton type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</AdminButton>
-            <button onClick={onClose}><AdminButton variant="ghost">Cancel</AdminButton></button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
