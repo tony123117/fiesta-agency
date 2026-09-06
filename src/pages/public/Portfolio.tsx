@@ -280,7 +280,20 @@ function P03Gallery({ projects, loading }: { projects: PortfolioProject[]; loadi
           .port-gallery-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
         @media (max-width: 640px) {
-          .port-gallery-grid { grid-template-columns: 1fr !important; }
+          .port-gallery-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 16px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .port-gallery-grid::-webkit-scrollbar { display: none; }
+          .port-gallery-grid > * {
+            flex: 0 0 75% !important;
+            scroll-snap-align: start !important;
+          }
         }
       `}</style>
     </section>
@@ -552,7 +565,20 @@ function P05DarkGallery({ projects }: { projects: PortfolioProject[] }) {
           .port-dark-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
         @media (max-width: 640px) {
-          .port-dark-grid { grid-template-columns: 1fr !important; }
+          .port-dark-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 12px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .port-dark-grid::-webkit-scrollbar { display: none; }
+          .port-dark-grid > * {
+            flex: 0 0 70% !important;
+            scroll-snap-align: start !important;
+          }
         }
       `}</style>
     </section>

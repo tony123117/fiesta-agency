@@ -408,7 +408,22 @@ function E04Upcoming({ events: evts, loading }: { events: EventItem[]; loading: 
 
       <style>{`
         @media (max-width: 1024px) { .evt-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-        @media (max-width: 640px) { .evt-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 640px) {
+          .evt-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 16px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .evt-grid::-webkit-scrollbar { display: none; }
+          .evt-grid > * {
+            flex: 0 0 80% !important;
+            scroll-snap-align: start !important;
+          }
+        }
       `}</style>
     </section>
   );
@@ -558,7 +573,22 @@ function E05Past({ events: evts, loading }: { events: EventItem[]; loading: bool
 
       <style>{`
         @media (max-width: 1024px) { .evt-past-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-        @media (max-width: 640px) { .evt-past-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 640px) {
+          .evt-past-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 12px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .evt-past-grid::-webkit-scrollbar { display: none; }
+          .evt-past-grid > * {
+            flex: 0 0 75% !important;
+            scroll-snap-align: start !important;
+          }
+        }
       `}</style>
     </section>
   );

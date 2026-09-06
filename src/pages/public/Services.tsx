@@ -99,7 +99,7 @@ function S01Hero() {
         paddingTop: 'clamp(90px, 12vw, 160px)',
         paddingBottom: 'clamp(50px, 6vw, 80px)',
       }}>
-        <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start', flexDirection: 'row' }}>
+        <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start', flexDirection: 'row' }} className="svc-hero-inner">
           {/* Left: Text — 45% */}
           <div style={{ flex: '0 0 45%' }}>
             <Reveal delay={0} visible={visible}>
@@ -243,7 +243,20 @@ function S02Featured({ services: svcItems, loading }: { services: Array<{ id: st
 
       <style>{`
         @media (max-width: 768px) {
-          .svc-featured-grid { grid-template-columns: 1fr !important; }
+          .svc-featured-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 16px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .svc-featured-grid::-webkit-scrollbar { display: none; }
+          .svc-featured-grid > * {
+            flex: 0 0 80% !important;
+            scroll-snap-align: start !important;
+          }
         }
       `}</style>
     </section>
