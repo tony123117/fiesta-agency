@@ -311,9 +311,9 @@ function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }:
   const [hovered, setHovered] = useState(false);
 
   return (
-    <section style={{ position: 'relative', overflow: 'hidden', height: 'clamp(280px, 38vh, 380px)', minHeight: '260px' }}>
+    <section style={{ position: 'relative', overflow: 'hidden', height: 'clamp(300px, 40vh, 400px)', minHeight: '280px' }}>
       {/* Background image */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         <img
           src={heroImage}
           alt="Elegant event celebration with warm atmospheric lighting"
@@ -324,23 +324,30 @@ function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }:
       {/* Overlay */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.6) 100%)',
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.7) 100%)',
       }} />
       {/* Content */}
       <div style={{
         position: 'relative', zIndex: 10, height: '100%',
-        display: 'flex', alignItems: 'center',
-        maxWidth: '1320px', margin: '0 auto',
-        paddingLeft: 'clamp(20px, 4vw, 48px)',
-        paddingRight: 'clamp(20px, 4vw, 48px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        paddingLeft: 'clamp(24px, 5vw, 48px)',
+        paddingRight: 'clamp(24px, 5vw, 48px)',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '680px' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center' as const,
+          gap: '20px',
+          maxWidth: '640px',
+        }}>
           <h2 style={{
             fontFamily: '"Fraunces", Georgia, serif',
-            fontSize: 'clamp(1.8rem, 4vw, 3.2rem)',
-            fontWeight: 300,
-            lineHeight: 1.05,
+            fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)',
+            fontWeight: 400,
+            lineHeight: 1.0,
             color: '#F8F5EF',
+            whiteSpace: 'pre-line' as const,
           }}>
             {headingLines.map((line, i) => (
               <span key={i}>
@@ -351,43 +358,42 @@ function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }:
           </h2>
           <p style={{
             fontFamily: '"Manrope", system-ui, sans-serif',
-            fontSize: 'clamp(0.8rem, 0.95vw, 0.9rem)',
+            fontSize: 'clamp(0.78rem, 0.9vw, 0.88rem)',
             lineHeight: 1.7,
             color: 'rgba(248,245,239,0.55)',
-            maxWidth: '480px',
+            maxWidth: '440px',
           }}>
             {subtext}
           </p>
-          <div>
-            <Link
-              to={buttonUrl}
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 28px',
-                fontFamily: '"Manrope", system-ui, sans-serif',
-                fontSize: '0.65rem',
-                fontWeight: 600,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.14em',
-                color: '#090909',
-                backgroundColor: '#D6A54A',
-                textDecoration: 'none',
-                border: 'none',
-                transition: 'background-color 250ms ease',
-                ...(hovered ? { backgroundColor: '#C99738' } : {}),
-              }}
-            >
-              {buttonLabel}
-              <ArrowRight size={14} strokeWidth={2} style={{
-                transition: 'transform 250ms ease',
-                transform: hovered ? 'translateX(3px)' : 'translateX(0)',
-              }} />
-            </Link>
-          </div>
+          <Link
+            to={buttonUrl}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginTop: '4px',
+              padding: '14px 32px',
+              fontFamily: '"Manrope", system-ui, sans-serif',
+              fontSize: '0.65rem',
+              fontWeight: 600,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.14em',
+              color: '#090909',
+              backgroundColor: '#D6A54A',
+              textDecoration: 'none',
+              border: 'none',
+              transition: 'background-color 250ms ease',
+              ...(hovered ? { backgroundColor: '#C99738' } : {}),
+            }}
+          >
+            {buttonLabel}
+            <ArrowRight size={14} strokeWidth={2} style={{
+              transition: 'transform 250ms ease',
+              transform: hovered ? 'translateX(3px)' : 'translateX(0)',
+            }} />
+          </Link>
         </div>
       </div>
     </section>

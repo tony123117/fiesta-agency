@@ -6,6 +6,16 @@ import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
 import type { Service } from '@/lib/types';
 
+/* ─── PAGE LOAD INTRO ─── */
+function useIntro() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+  return ready;
+}
+
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 /* ─── DEFAULT DATA ─── */
@@ -40,13 +50,28 @@ const PROCESS_STEPS = [
 ];
 
 const CTA_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80';
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80';
+const HERO_IMAGE_SECONDARY = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80';
+
+const STATS = [
+  { number: '200+', label: 'EVENTS PRODUCED' },
+  { number: '8', label: 'YEARS OF EXPERIENCE' },
+  { number: '5K+', label: 'GUESTS SERVED' },
+  { number: '100%', label: 'CLIENT SATISFACTION' },
+];
+
+const TESTIMONIALS = [
+  { quote: 'Fiesta turned our wedding into something we could never have imagined. Every guest said it was the most beautiful event they had ever attended.', author: 'SARAH & MICHEL', role: 'Wedding, Kigali' },
+    { quote: 'Professional, creative, and genuinely passionate. They don\u2019t just plan events \u2014 they create experiences that stay with you.', author: 'DAVID NZAMUHO', role: 'Corporate Summit' },
+  { quote: 'The energy they brought to our concert was unreal. From stage design to sound production — absolute perfection.', author: 'JEAN-PASCAL', role: 'Live Show Production' },
+];
 
 /* ─── SERVICES PAGE ─── */
 
 export function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const intro = useIntro();
 
   useDocumentMeta({
     title: 'Services | Fiesta Agency Rwanda',
@@ -73,36 +98,51 @@ export function Services() {
     : FEATURED_DEFAULTS;
 
   return (
-    <>
-      <S01Hero />
+    <div style={{
+      opacity: intro ? 1 : 0,
+      transform: intro ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)',
+      overflow: 'hidden',
+      width: '100%',
+      maxWidth: '100vw',
+    }}>
+      <S01Hero intro={intro} />
       <S02Featured services={featuredDisplay} loading={loading} />
+      <S07Stats intro={intro} />
       <S03Directory />
       <S04Standard />
       <S05Process />
+      <S08Testimonials />
       <S06CTA />
-    </>
+    </div>
   );
 }
 
 /* ─── 01 — HERO ─── */
 
-function S01Hero() {
+function S01Hero({ intro }: { intro: boolean }) {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
-    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden' }}>
+    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden', width: '100%' }}>
       <div style={{
         margin: '0 auto',
         maxWidth: '1200px',
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
-        paddingTop: 'clamp(90px, 12vw, 160px)',
-        paddingBottom: 'clamp(50px, 6vw, 80px)',
+        paddingTop: 'clamp(100px, 14vw, 180px)',
+        paddingBottom: 'clamp(60px, 8vw, 100px)',
+        overflow: 'hidden',
       }}>
-        <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start', flexDirection: 'row' }} className="svc-hero-inner">
-          {/* Left: Text — 45% */}
-          <div style={{ flex: '0 0 45%' }}>
-            <Reveal delay={0} visible={visible}>
+        <div className="svc-hero-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 'clamp(32px, 4vw, 56px)',
+          alignItems: 'center',
+        }}>
+          {/* Left: Text */}
+          <Reveal delay={0.15} visible={visible}>
+            <div style={{ maxWidth: '520px' }}>
               <p style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: '11px',
@@ -111,23 +151,24 @@ function S01Hero() {
                 fontWeight: 600,
                 color: '#D6A54A',
                 marginBottom: '20px',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(12px)',
+                transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s',
               }}>OUR SERVICES</p>
-            </Reveal>
-            <Reveal delay={0.08} visible={visible}>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.5rem, 5vw, 3.75rem)',
+                fontSize: 'clamp(2.2rem, 5vw, 4rem)',
                 lineHeight: 0.92,
                 fontWeight: 400,
                 color: '#F7F4ED',
                 whiteSpace: 'pre-line' as const,
-                maxWidth: '500px',
                 marginBottom: '24px',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(16px)',
+                transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s',
               }}>
                 {"EVERY DETAIL\nCRAFTED TO\nPERFECTION."}
               </h1>
-            </Reveal>
-            <Reveal delay={0.16} visible={visible}>
               <p style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
@@ -135,28 +176,56 @@ function S01Hero() {
                 color: '#C7C2B9',
                 maxWidth: '380px',
                 marginBottom: '28px',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(14px)',
+                transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s',
               }}>
                 From concept to execution, we offer end-to-end event solutions tailored to your vision. Whatever the occasion, we make it extraordinary.
               </p>
-            </Reveal>
-            <Reveal delay={0.22} visible={visible}>
-              <div style={{ width: '50px', height: '2px', backgroundColor: '#D6A54A' }} />
-            </Reveal>
-          </div>
+              <div style={{
+                width: '50px', height: '2px', backgroundColor: '#D6A54A',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'scaleX(1)' : 'scaleX(0)',
+                transformOrigin: 'left',
+                transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s',
+              }} />
+            </div>
+          </Reveal>
 
-          {/* Right: Image — 55% */}
-          <Reveal delay={0.12} visible={visible}>
-            <div style={{ flex: 1, overflow: 'hidden' }}>
+          {/* Right: Two editorial images */}
+          <Reveal delay={0.2} visible={visible}>
+            <div className="svc-hero-images" style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'clamp(8px, 1vw, 12px)',
+              overflow: 'hidden',
+              minWidth: 0,
+            }}>
               <img
                 src={HERO_IMAGE}
                 alt="Luxury event setup with elegant décor and warm lighting"
                 style={{
                   width: '100%',
-                  height: 'clamp(300px, 30vw, 380px)',
+                  minWidth: 0,
+                  height: 'clamp(320px, 38vw, 460px)',
                   objectFit: 'cover',
                   display: 'block',
-                  transform: visible ? 'scale(1)' : 'scale(1.04)',
-                  transition: `transform 1.2s ${E}`,
+                  transform: visible ? 'scale(1)' : 'scale(1.05)',
+                  transition: `transform 1.4s ${E} 0.25s`,
+                }}
+                loading="eager"
+              />
+              <img
+                src={HERO_IMAGE_SECONDARY}
+                alt="Event production and live audience atmosphere"
+                style={{
+                  width: '100%',
+                  minWidth: 0,
+                  height: 'clamp(320px, 38vw, 460px)',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: visible ? 'scale(1)' : 'scale(1.05)',
+                  transition: `transform 1.4s ${E} 0.4s`,
                 }}
                 loading="eager"
               />
@@ -166,13 +235,8 @@ function S01Hero() {
       </div>
 
       <style>{`
-        @media (max-width: 1024px) {
-          .svc-hero-inner { flex-direction: column !important; }
-          .svc-hero-left { flex: none !important; width: 100% !important; }
-        }
-        @media (max-width: 768px) {
-          .svc-hero-inner { flex-direction: column !important; }
-          .svc-hero-left { flex: none !important; width: 100% !important; }
+        @media (min-width: 768px) {
+          .svc-hero-grid { grid-template-columns: 42% 1fr !important; }
         }
       `}</style>
     </section>
@@ -189,6 +253,7 @@ function S02Featured({ services: svcItems, loading }: { services: Array<{ id: st
       backgroundColor: '#F1EDE3',
       paddingTop: 'clamp(80px, 10vw, 140px)',
       paddingBottom: 'clamp(80px, 10vw, 140px)',
+      overflow: 'hidden',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -375,6 +440,7 @@ function S03Directory() {
       backgroundColor: '#090909',
       paddingTop: 'clamp(80px, 10vw, 140px)',
       paddingBottom: 'clamp(80px, 10vw, 140px)',
+      overflow: 'hidden',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -513,6 +579,7 @@ function S04Standard() {
       backgroundColor: '#F1EDE3',
       paddingTop: 'clamp(80px, 10vw, 140px)',
       paddingBottom: 'clamp(80px, 10vw, 140px)',
+      overflow: 'hidden',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -615,6 +682,7 @@ function S05Process() {
       backgroundColor: '#FFFFFF',
       paddingTop: 'clamp(70px, 9vw, 120px)',
       paddingBottom: 'clamp(70px, 9vw, 120px)',
+      overflow: 'hidden',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -780,6 +848,194 @@ function S05Process() {
   );
 }
 
+/* ─── 07 — STATS ─── */
+
+function S07Stats({ intro }: { intro: boolean }) {
+  const { ref, visible } = useReveal({ threshold: 0.1 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#090909',
+      paddingTop: 'clamp(60px, 8vw, 100px)',
+      paddingBottom: 'clamp(60px, 8vw, 100px)',
+      borderTop: '1px solid rgba(247,244,237,0.06)',
+      borderBottom: '1px solid rgba(247,244,237,0.06)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <div className="svc-stats-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'clamp(24px, 3vw, 40px)',
+        }}>
+          {STATS.map((stat, i) => (
+            <div key={stat.label} style={{
+              textAlign: 'center' as const,
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'translateY(0)' : 'translateY(20px)',
+              transition: `opacity 0.7s ${E} ${0.1 + i * 0.08}s, transform 0.7s ${E} ${0.1 + i * 0.08}s`,
+            }}>
+              <span style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                fontWeight: 400,
+                color: '#D6A54A',
+                lineHeight: 1,
+                display: 'block',
+                marginBottom: '8px',
+              }}>{stat.number}</span>
+              <span style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.6rem',
+                fontWeight: 600,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.16em',
+                color: 'rgba(247,244,237,0.4)',
+              }}>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .svc-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ─── 08 — TESTIMONIALS ─── */
+
+function S08Testimonials() {
+  const { ref, visible } = useReveal({ threshold: 0.08 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#101010',
+      paddingTop: 'clamp(80px, 10vw, 140px)',
+      paddingBottom: 'clamp(80px, 10vw, 140px)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <Reveal delay={0} visible={visible}>
+          <div style={{ marginBottom: 'clamp(48px, 6vw, 80px)' }}>
+            <p style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              fontWeight: 600,
+              color: '#D6A54A',
+              marginBottom: '20px',
+            }}>WHAT THEY SAY</p>
+            <h2 style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#F7F4ED',
+            }}>WORDS FROM<br />OUR CLIENTS.</h2>
+          </div>
+        </Reveal>
+
+        <div className="svc-testi-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 'clamp(24px, 3vw, 40px)',
+        }}>
+          {TESTIMONIALS.map((t, i) => (
+            <TestimonialCard key={t.author} testimonial={t} index={i} visible={visible} />
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .svc-testi-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 20px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .svc-testi-grid::-webkit-scrollbar { display: none; }
+          .svc-testi-grid > * {
+            flex: 0 0 80% !important;
+            scroll-snap-align: start !important;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function TestimonialCard({ testimonial, index, visible }: {
+  testimonial: { quote: string; author: string; role: string };
+  index: number;
+  visible: boolean;
+}) {
+  return (
+    <div style={{
+      borderLeft: '2px solid rgba(214,165,74,0.2)',
+      paddingLeft: 'clamp(20px, 2.5vw, 32px)',
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(20px)',
+      transition: `opacity 0.7s ${E} ${0.15 + index * 0.1}s, transform 0.7s ${E} ${0.15 + index * 0.1}s`,
+    }}>
+      <span style={{
+        fontFamily: "'Fraunces', Georgia, serif",
+        fontSize: '2.5rem',
+        fontWeight: 400,
+        color: 'rgba(214,165,74,0.2)',
+        lineHeight: 1,
+        display: 'block',
+        marginBottom: '16px',
+      }}>&ldquo;</span>
+      <p style={{
+        fontFamily: "'Fraunces', Georgia, serif",
+        fontSize: 'clamp(1rem, 1.3vw, 1.2rem)',
+        fontWeight: 400,
+        fontStyle: 'italic',
+        color: '#F7F4ED',
+        lineHeight: 1.5,
+        marginBottom: '24px',
+      }}>{testimonial.quote}</p>
+      <div>
+        <p style={{
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.12em',
+          color: '#F7F4ED',
+          marginBottom: '2px',
+        }}>{testimonial.author}</p>
+        <p style={{
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: '0.6rem',
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.1em',
+          color: 'rgba(247,244,237,0.35)',
+        }}>{testimonial.role}</p>
+      </div>
+    </div>
+  );
+}
+
 /* ─── 06 — CINEMATIC CTA ─── */
 
 function S06CTA() {
@@ -790,9 +1046,10 @@ function S06CTA() {
       position: 'relative',
       overflow: 'hidden',
       height: 'clamp(320px, 42vh, 420px)',
+      width: '100%',
     }}>
       {/* Background image */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         <img
           src={CTA_IMAGE}
           alt="Elegant outdoor celebration with warm atmospheric lighting"
