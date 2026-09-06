@@ -319,8 +319,16 @@ function S02Featured({ services: svcItems, loading }: { services: Array<{ id: st
           }
           .svc-featured-grid::-webkit-scrollbar { display: none; }
           .svc-featured-grid > * {
-            flex: 0 0 80% !important;
+            flex: 0 0 72% !important;
             scroll-snap-align: start !important;
+          }
+          .svc-featured-card {
+            height: 420px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .svc-featured-card {
+            height: 460px !important;
           }
         }
       `}</style>
@@ -338,11 +346,12 @@ function FeaturedCard({ service, index, visible, delay }: {
 
   return (
     <div
+      className="svc-featured-card"
       style={{
         position: 'relative',
         overflow: 'hidden',
         cursor: 'default',
-        height: 'clamp(320px, 30vw, 380px)',
+        height: 'clamp(360px, 34vw, 400px)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',
         transition: `opacity 0.7s ${E} ${delay}s, transform 0.7s ${E} ${delay}s`,
