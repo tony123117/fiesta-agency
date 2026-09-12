@@ -59,6 +59,7 @@ export type SectionType =
   | 'cinematic-image'
   | 'team-members'
   | 'image-carousel'
+  | 'blocks'
   | 'services-hero'
   | 'services-featured'
   | 'services-directory'
@@ -77,6 +78,7 @@ export interface HeroSlide {
   id: string;
   image: string;
   mobile_image: string | null;
+  image_alt: string;
   eyebrow: string;
   headline: string;
   highlight_word: string;
@@ -361,6 +363,20 @@ export interface AboutClosingContent {
   background_image_alt?: string;
 }
 
+export interface BlocksContent {
+  blocks: Array<{
+    id: string;
+    type: string;
+    content: Record<string, unknown>;
+    sort_order: number;
+    responsive: {
+      desktop: { visible: boolean };
+      tablet: { visible: boolean };
+      mobile: { visible: boolean };
+    };
+  }>;
+}
+
 export type SectionContentMap = {
   'hero-carousel': HeroCarouselContent;
   'brand-statement': BrandStatementContent;
@@ -377,6 +393,7 @@ export type SectionContentMap = {
   'cinematic-image': CinematicImageContent;
   'team-members': TeamMembersContent;
   'image-carousel': ImageCarouselContent;
+  'blocks': BlocksContent;
   'services-hero': ServicesHeroContent;
   'services-featured': ServicesFeaturedContent;
   'services-directory': ServicesDirectoryContent;

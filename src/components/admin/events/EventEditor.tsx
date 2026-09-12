@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Upload, X, Plus, ExternalLink, Image } from 'lucide-react';
-import { PageHeader, AdminLoading, AdminInput, AdminTextarea, AdminSelect, AdminToggle, AdminButton, Toast } from '@/components/admin/AdminUI';
+import { AdminLoading, AdminInput, AdminTextarea, AdminSelect, AdminToggle, AdminButton, Toast } from '@/components/admin/AdminUI';
 import { MediaPicker } from '@/components/admin/media';
 import { getEvent, createEvent, updateEvent, deleteEvent } from '@/lib/eventsService';
+import { generateSlug } from '@/lib/slug';
 import { supabase } from '@/lib/supabase';
 import { EVENT_CATEGORIES } from '@/lib/types';
 import type { EventItem, MediaItem } from '@/lib/types';
@@ -25,18 +26,25 @@ export function EventEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [lineupInput, setLineupInput] = useState('');
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(isEdit);
 
   useEffect(() => {
     if (!isEdit || !id) return;
     setLoading(true);
     getEvent(id).then((data) => {
-      setEvent(data);
+      if (!data) {
+        setLoadError(true);
+        setToast('Event not found');
+      } else {
+        setEvent(data);
+      }
       setLoading(false);
     }).catch(() => {
       setLoading(false);
@@ -45,9 +53,6 @@ export function EventEditor() {
   }, [id, isEdit]);
 
   const update = (fields: Partial<EventItem>) => setEvent((prev) => ({ ...prev, ...fields }));
-
-  const generateSlug = (title: string) =>
-    title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   const handleSave = async (publishImmediately = false) => {
     if (!event.title?.trim()) {
@@ -136,6 +141,15 @@ export function EventEditor() {
 
   if (loading) return <AdminLoading text="Loading event..." />;
 
+  if (loadError) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-[0.85rem] text-red-400/70 mb-3">Event not found</p>
+        <Link to="/admin/events" className="text-[0.7rem] text-gold hover:text-gold-light">Back to events</Link>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Header */}
@@ -184,7 +198,7 @@ export function EventEditor() {
                 value={event.title || ''}
                 onChange={(e) => {
                   const title = e.target.value;
-                  update({ title, slug: generateSlug(title) });
+                  update({ title, ...(!slugTouched ? { slug: generateSlug(title) } : {}) });
                 }}
                 required
                 placeholder="e.g. Fiesta Summer Night"
@@ -193,7 +207,7 @@ export function EventEditor() {
                 label="Slug"
                 name="slug"
                 value={event.slug || ''}
-                onChange={(e) => update({ slug: e.target.value })}
+                onChange={(e) => { setSlugTouched(true); update({ slug: e.target.value }); }}
                 placeholder="auto-generated-from-title"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

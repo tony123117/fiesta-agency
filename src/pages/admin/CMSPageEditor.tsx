@@ -1,25 +1,49 @@
 import { useEffect, useState } from 'react';
 import { Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, AdminSelect, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, AdminSelect, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
+
+interface CMSPage {
+  id: string;
+  slug: string;
+  title: string;
+}
+
+interface CMSSection {
+  id: string;
+  page_id: string;
+  title: string;
+  subtitle: string;
+  body: string;
+  image_url: string;
+  image_alt: string;
+  layout: string;
+  published: boolean;
+  sort_order: number;
+}
 
 export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
-  const [page, setPage] = useState<any>(null);
-  const [sections, setSections] = useState<any[]>([]);
+  const [page, setPage] = useState<CMSPage | null>(null);
+  const [sections, setSections] = useState<CMSSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<any>(null);
+  const [editing, setEditing] = useState<CMSSection | null>(null);
   const [form, setForm] = useState({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true });
   const [toast, setToast] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string }>({ open: false, id: '' });
 
   const load = async () => {
     setLoading(true);
-    const { data: p } = await supabase.from('pages').select('*').eq('slug', pageSlug).single();
-    if (p) {
-      setPage(p);
-      const { data: s } = await supabase.from('sections').select('*').eq('page_id', p.id).order('sort_order');
-      setSections((s || []) as any[]);
+    const { data: p, error: pageError } = await supabase.from('pages').select('*').eq('slug', pageSlug).maybeSingle();
+    if (pageError || !p) {
+      setToast(pageError?.message || 'Page not found');
+      setLoading(false);
+      return;
     }
+    setPage(p);
+    const { data: s } = await supabase.from('sections').select('*').eq('page_id', p.id).order('sort_order');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setSections((s || []) as any[]);
     setLoading(false);
   };
 
@@ -27,19 +51,35 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
 
   const handleSave = async () => {
     const payload = { ...form, page_id: page?.id };
+    let result;
     if (editing) {
-      await supabase.from('sections').update(payload).eq('id', editing.id);
+      result = await supabase.from('sections').update(payload).eq('id', editing.id);
     } else {
-      await supabase.from('sections').insert(payload);
+      result = await supabase.from('sections').insert(payload);
+    }
+    if (result.error) {
+      setToast('Failed to save');
+      setTimeout(() => setToast(null), 3000);
+      return;
     }
     load(); setShowForm(false); setEditing(null); setForm({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true });
     setToast('Saved');
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this section?')) return;
-    await supabase.from('sections').delete().eq('id', id);
+  const handleDelete = (id: string) => {
+    setDeleteConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    const { id } = deleteConfirm;
+    setDeleteConfirm({ open: false, id: '' });
+    const { error } = await supabase.from('sections').delete().eq('id', id);
+    if (error) {
+      setToast('Failed to delete');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     load(); setToast('Deleted'); setTimeout(() => setToast(null), 3000);
   };
 
@@ -48,15 +88,26 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
     const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
     const [a, b] = [sections[idx], sections[targetIdx]];
-    await Promise.all([
+    const results = await Promise.all([
       supabase.from('sections').update({ sort_order: b.sort_order }).eq('id', a.id),
       supabase.from('sections').update({ sort_order: a.sort_order }).eq('id', b.id),
     ]);
+    if (results.some(r => r.error)) {
+      setToast('Failed to reorder');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     load();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleTogglePublish = async (section: any) => {
-    await supabase.from('sections').update({ published: !section.published }).eq('id', section.id);
+    const { error } = await supabase.from('sections').update({ published: !section.published }).eq('id', section.id);
+    if (error) {
+      setToast('Failed to toggle publish');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     load();
   };
 
@@ -119,6 +170,15 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
           </AdminCard>
         </div>
       )}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete section"
+        message="Are you sure you want to delete this section? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: '' })}
+      />
       {toast && <Toast message={toast} />}
     </div>
   );

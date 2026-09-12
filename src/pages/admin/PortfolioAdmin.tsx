@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Trash2, Plus } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminCard, AdminLoading, AdminButton, EmptyState, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, EmptyState, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 import type { PortfolioProject } from '@/lib/types';
 
 const CATEGORIES = ['All', 'Concerts', 'Weddings', 'Corporate', 'Festivals', 'Parties'] as const;
@@ -14,6 +14,7 @@ export function PortfolioAdmin() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
   const [toast, setToast] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: PortfolioProject | null }>({ open: false, item: null });
 
   const load = async () => {
     setLoading(true);
@@ -24,19 +25,28 @@ export function PortfolioAdmin() {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (item: PortfolioProject) => {
-    if (!confirm(`Delete "${item.title}"?`)) return;
-    await supabase.storage.from('media').remove([item.cover_image]);
-    await supabase.from('portfolio_projects').delete().eq('id', item.id);
+  const handleDelete = (item: PortfolioProject) => {
+    setDeleteConfirm({ open: true, item });
+  };
+
+  const confirmDelete = async () => {
+    const item = deleteConfirm.item;
+    if (!item) return;
+    setDeleteConfirm({ open: false, item: null });
+    const storagePath = item.cover_image?.split('/storage/v1/object/public/media/')[1];
+    if (storagePath) {
+      const { error: storageError } = await supabase.storage.from('media').remove([storagePath]);
+      if (storageError && import.meta.env.DEV) console.error('Failed to remove storage file:', storageError);
+    }
+    const { error } = await supabase.from('portfolio_projects').delete().eq('id', item.id);
+    if (error) {
+      setToast('Failed to delete project');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     load();
     setToast('Project deleted');
     setTimeout(() => setToast(null), 3000);
-  };
-
-  const copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
-    setToast('URL copied');
-    setTimeout(() => setToast(null), 2000);
   };
 
   const filtered = projects.filter((p) => {
@@ -83,6 +93,15 @@ export function PortfolioAdmin() {
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete project"
+        message={`Are you sure you want to delete "${deleteConfirm.item?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, item: null })}
+      />
       {toast && <Toast message={toast} />}
     </div>
   );

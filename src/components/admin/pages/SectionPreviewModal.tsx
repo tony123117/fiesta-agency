@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Monitor, Tablet, Smartphone } from 'lucide-react';
 import type { Section } from '@/lib/types';
 import { SectionPreviewRenderer } from './SectionPreviewRenderer';
@@ -23,6 +23,17 @@ export function SectionPreviewModal({
   title?: string;
 }) {
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [open]);
 
   if (!open) return null;
 

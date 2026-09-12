@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, Users, Star, Globe } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 import type { StatsContent } from '@/lib/types';

@@ -1,0 +1,154 @@
+
+    FIESTADashboardPagesServicesEventsPortfolioTestimonialsFAQsBookingsMediaSettingsaarum200909@gmail.comstaffSign OutFIESTAFIESTADashboardPagesServicesEventsPortfolioTestimonialsFAQsBookingsMediaSettingsaarum200909@gmail.comstaffSign OutPagesaarum200909@gmail.comstaffSign OutPAGE BUILDERAboutSavedSave PublishedPage Structure801About Intro···02About Story···03Hero Carousel···04About Foundation···05About Values···06Hero Carousel···07About Why···08About Closing··· Add Section Pattern14401280102476839037543%About Intro — EditingABOUT FIESTAWE DONT JUST
+PLAN EVENTS. WE
+CREATE EXPERIENCES THAT
+STAY WITH YOU
+FOREVER.At Fiesta, we believe every moment has the potential to become extraordinary. From intimate celebrations to large-scale productions, we bring creativity, precision and passion to every detail.OUR MISSIONWe turn ideas into well-crafted experiences by combining creativity, entertainment, production and precision.OUR VISIONBuilding a trusted and creative event company. Creating experiences people remember. Growing across the region.OUR VALUESCreativity. Excellence. Integrity. Passion. Teamwork.
+        /* === 1440px default: 500px text + 40px gap + 740px image = 1280px === */
+        .about-hero-container {
+          width: min(1280px, calc(100vw - 120px));
+        }
+        .about-mvv-container {
+          width: min(1280px, calc(100vw - 120px));
+        }
+        .about-hero-grid {
+          display: flex;
+          flex-direction: row;
+          gap: 40px;
+          align-items: center;
+        }
+        .about-hero-text {
+          width: 500px;
+          flex-shrink: 0;
+        }
+        .about-hero-heading {
+          font-family: 'Fraunces', Georgia, serif;
+          font-size: 58px;
+          line-height: 0.96;
+          letter-spacing: 0.06em;
+          font-weight: 500;
+          color: #151515;
+          white-space: pre-line;
+          max-width: 650px;
+          margin-bottom: 0;
+        }
+        .about-hero-eyebrow {
+          font-family: 'Manrope', system-ui, sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          margin-bottom: 20px;
+          text-transform: uppercase;
+          font-weight: 600;
+          color: #D6A54A;
+        }
+        .about-hero-body {
+          width: 390px;
+          font-family: 'Manrope', system-ui, sans-serif;
+          font-size: 15px;
+          line-height: 1.65;
+          margin-top: 32px;
+          color: #73706A;
+        }
+        .about-hero-image {
+          width: 740px;
+          height: 620px;
+          flex-shrink: 0;
+          overflow: hidden;
+          aspect-ratio: 6 / 5;
+        }
+        .about-mvv-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 40px;
+          padding-top: 40px;
+        }
+        .about-mvv-heading {
+          font-family: 'Manrope', system-ui, sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #151515;
+          margin-bottom: 12px;
+        }
+        .about-mvv-body {
+          font-family: 'Manrope', system-ui, sans-serif;
+          font-size: 14px;
+          line-height: 1.6;
+          color: #73706A;
+        }
+
+        /* === 1280px === */
+        @media (max-width: 1280px) {
+          .about-hero-container { width: calc(100vw - 80px); }
+          .about-mvv-container { width: calc(100vw - 80px); }
+          .about-hero-grid { gap: 32px; }
+          .about-hero-text { width: 440px; }
+          .about-hero-heading { font-size: 52px; max-width: 580px; }
+        }
+
+        /* === 1024px === */
+        @media (max-width: 1024px) {
+          .about-hero-container { width: calc(100vw - 64px); }
+          .about-mvv-container { width: calc(100vw - 64px); }
+          .about-hero-grid {
+            flex-direction: column;
+            gap: 0;
+            align-items: flex-start;
+          }
+          .about-hero-text { width: 42%; }
+          .about-hero-heading { font-size: 46px; max-width: 100%; }
+          .about-hero-body { width: 100%; }
+          .about-hero-image { width: 58%; height: 500px; }
+        }
+
+        /* === 768px — STACK === */
+        @media (max-width: 768px) {
+          .about-hero-container {
+            width: 100%;
+            padding-left: 24px;
+            padding-right: 24px;
+          }
+          .about-mvv-container {
+            width: 100%;
+            padding-left: 24px;
+            padding-right: 24px;
+          }
+          .about-hero-grid {
+            flex-direction: column;
+            gap: 40px;
+            align-items: flex-start;
+          }
+          .about-hero-text { width: 100%; }
+          .about-hero-heading {
+            font-size: 40px;
+            line-height: 1.0;
+            max-width: 100%;
+          }
+          .about-hero-body { width: 100%; }
+          .about-hero-image { width: 100%; height: 360px; }
+          .about-mvv-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+        }
+
+        /* === 390px === */
+        @media (max-width: 390px) {
+          .about-hero-container { padding-left: 24px; padding-right: 24px; }
+          .about-mvv-container { padding-left: 24px; padding-right: 24px; }
+          .about-hero-heading { font-size: 36px; }
+          .about-hero-image { height: 360px; }
+        }
+
+        /* === 375px === */
+        @media (max-width: 375px) {
+          .about-hero-container { padding-left: 22px; padding-right: 22px; }
+          .about-mvv-container { padding-left: 22px; padding-right: 22px; }
+          .about-hero-heading { font-size: 34px; }
+          .about-hero-image { height: 340px; }
+        }
+      OUR STORYBUILT ON PASSION.
+DRIVEN BY PURPOSE.Founded with a vision to transform the event landscape, Fiesta began as a passionate response to the gap between what events could be and what they often were.OUR FOUNDATIONWHAT WE BELIEVE IN.Fiesta takes an initial idea and develops it into a cohesive experience: concept, creative direction, planning, production, and execution — all working together as one vision.OUR VALUESTHE PRINCIPLES BEHIND
+THE EXPERIENCE.01CREATIVITY+02PASSION+03INTEGRITY+04EXCELLENCE+05TEAMWORK+WHY FIESTA?01CREATIVE THINKINGWe approach every event from its own story.02SEAMLESS EXECUTIONWe coordinate the moving parts behind the scenes.03ATTENTION TO DETAILWe care about the details guests may never notice, but always feel.YOUR VISION. OUR EXPERIENCE.LETS CREATE ITEditorEDITINGAbout IntroPublishedSaveSection Title (admin only)No editor available for this section type.Type: about-intro
+    
+  
+

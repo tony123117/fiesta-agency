@@ -12,12 +12,14 @@ export function SectionEditor({
   onUpdateTitle,
   onDirty,
   onPreview,
+  onTogglePublish,
 }: {
   section: Section;
   onUpdate: (content: Record<string, unknown>) => void;
   onUpdateTitle: (title: string) => void;
   onDirty: () => void;
   onPreview?: (content: Record<string, unknown>) => void;
+  onTogglePublish?: () => void;
 }) {
   const [localContent, setLocalContent] = useState<Record<string, unknown>>(section.content || {});
   const [saving, setSaving] = useState(false);
@@ -36,7 +38,7 @@ export function SectionEditor({
   const handleSave = async () => {
     setSaving(true);
     try {
-      onUpdate(localContent);
+      await onUpdate(localContent);
     } finally {
       setSaving(false);
     }
@@ -51,8 +53,12 @@ export function SectionEditor({
   const handleTogglePublish = async () => {
     setPublishing(true);
     try {
-      await toggleSectionVisibility(section.id, !published);
-      setPublished(!published);
+      if (onTogglePublish) {
+        onTogglePublish();
+      } else {
+        await toggleSectionVisibility(section.id, !published);
+        setPublished(!published);
+      }
     } finally {
       setPublishing(false);
     }
@@ -105,7 +111,7 @@ export function SectionEditor({
       </div>
 
       {/* Type-specific editor */}
-      <div className="p-4 flex-1 overflow-y-auto">
+      <div className="p-4 flex-1 overflow-y-auto overflow-x-hidden min-h-0">
         {EditorComponent ? (
           <EditorComponent content={localContent} onChange={handleChange} />
         ) : (

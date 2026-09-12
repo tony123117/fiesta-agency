@@ -5,7 +5,7 @@ const ACTIONS = [
   { label: 'Add Event', to: '/admin/events/new', primary: true },
   { label: 'New Booking', to: '/admin/bookings', primary: false },
   { label: 'Upload Media', to: '/admin/media', primary: false },
-  { label: 'Edit Website', to: '/admin/home', primary: false },
+  { label: 'Edit Website', to: '/admin/pages', primary: false },
 ];
 
 export function QuickActions() {

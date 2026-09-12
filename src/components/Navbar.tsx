@@ -1,27 +1,18 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { getVisibleNavigation } from '@/lib/siteSettingsService';
 import type { SiteSettings } from '@/lib/types';
 
-const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
-
-/* ─── NAVBAR ─── */
-
 export function Navbar({ settings }: { settings?: SiteSettings | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const prefersReducedMotion = usePrefersReducedMotion();
 
   const navLinks = getVisibleNavigation(settings ?? null);
   const brandName = settings?.company_name || 'FIESTA';
   const logoUrl = settings?.logo_url;
 
-  // All public pages have dark heroes — always use light navbar
-  const isDark = true;
-
-  // Scroll detection
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     onScroll();
@@ -29,10 +20,8 @@ export function Navbar({ settings }: { settings?: SiteSettings | null }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -42,76 +31,29 @@ export function Navbar({ settings }: { settings?: SiteSettings | null }) {
 
   return (
     <>
-      {/* ── DESKTOP + MOBILE HEADER ── */}
       <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          backgroundColor: scrolled
-            ? 'rgba(9,9,9,0.92)'
-            : 'transparent',
-          backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
-          transition: 'background-color 350ms ease, backdrop-filter 350ms ease, border-color 350ms ease',
-        }}
+        className={`fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300 ${
+          scrolled
+            ? 'bg-obsidian/[0.92] backdrop-blur-md border-white/[0.06]'
+            : 'bg-transparent border-transparent'
+        }`}
       >
         <nav
-          style={{
-            maxWidth: '1320px',
-            margin: '0 auto',
-            paddingLeft: 'clamp(20px, 4vw, 48px)',
-            paddingRight: 'clamp(20px, 4vw, 48px)',
-            height: 'clamp(64px, 7vw, 80px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
+          className="mx-auto flex h-16 md:h-20 max-w-[1320px] items-center justify-between px-5 md:px-[4vw] lg:px-12"
           role="navigation"
           aria-label="Main navigation"
         >
-          {/* Logo */}
-          <Link
-            to="/"
-            aria-label={`${brandName} — Home`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              textDecoration: 'none',
-              flexShrink: 0,
-            }}
-          >
+          <Link to="/" aria-label={`${brandName} — Home`} className="flex shrink-0 items-center">
             {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt={brandName}
-                style={{ height: 'clamp(28px, 3.5vw, 38px)', width: 'auto', objectFit: 'contain' }}
-              />
+              <img src={logoUrl} alt={brandName} className="h-7 md:h-9 w-auto object-contain" />
             ) : (
-              <span
-                style={{
-                  fontFamily: '"Fraunces", Georgia, serif',
-                  fontSize: 'clamp(1.1rem, 1.6vw, 1.35rem)',
-                  fontWeight: 400,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase' as const,
-                  color: '#F8F5EF',
-                }}
-              >
+              <span className="font-serif text-lg md:text-xl font-normal uppercase tracking-[0.08em] text-ivory">
                 {brandName}
               </span>
             )}
           </Link>
 
-          {/* Desktop nav links */}
-          <div className="nav-desktop-links" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'clamp(20px, 2.5vw, 36px)',
-          }}>
+          <div className="hidden lg:flex items-center gap-6 xl:gap-9">
             {navLinks.map((link) => {
               const active = location.pathname === link.to ||
                 (link.to !== '/' && location.pathname.startsWith(link.to));
@@ -120,130 +62,62 @@ export function Navbar({ settings }: { settings?: SiteSettings | null }) {
                   key={link.to}
                   to={link.to}
                   aria-current={active ? 'page' : undefined}
-                  style={{
-                    fontFamily: '"Manrope", system-ui, sans-serif',
-                    fontSize: '0.68rem',
-                    fontWeight: 500,
-                    textTransform: 'uppercase' as const,
-                    letterSpacing: '0.1em',
-                    textDecoration: 'none',
-                    color: active ? '#D6A54A' : 'rgba(248,245,239,0.65)',
-                    transition: 'color 250ms ease',
-                    position: 'relative' as const,
-                    padding: '4px 0',
-                  }}
-                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = '#D6A54A'; }}
-                  onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = 'rgba(248,245,239,0.65)'; }}
+                  className={`relative py-1 font-sans text-[0.68rem] font-medium uppercase tracking-[0.1em] transition-colors duration-200 ${
+                    active ? 'text-gold' : 'text-ivory/65 hover:text-gold'
+                  }`}
                 >
                   {link.label}
                   {active && (
-                    <span style={{
-                      position: 'absolute',
-                      bottom: '-2px',
-                      left: 0,
-                      width: '18px',
-                      height: '1px',
-                      backgroundColor: '#D6A54A',
-                      display: 'block',
-                    }} />
+                    <span className="absolute -bottom-0.5 left-0 block h-px w-[18px] bg-gold" />
                   )}
                 </Link>
               );
             })}
           </div>
 
-          {/* Desktop CTA button */}
           <Link
             to="/contact"
-            className="nav-desktop-cta"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              fontFamily: '"Manrope", system-ui, sans-serif',
-              fontSize: '0.6rem',
-              fontWeight: 600,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.12em',
-              color: '#090909',
-              backgroundColor: '#D6A54A',
-              textDecoration: 'none',
-              border: 'none',
-              transition: 'background-color 250ms ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#C99738'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#D6A54A'; }}
+            className="hidden lg:inline-flex items-center gap-2 bg-gold px-5 py-2.5 font-sans text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-obsidian transition-colors duration-200 hover:bg-[#C99738]"
           >
-            PLAN YOUR EVENT
+            Plan Your Event
           </Link>
 
-          {/* Mobile hamburger */}
           <button
             type="button"
-            className="nav-mobile-btn"
             onClick={() => setMenuOpen(true)}
             aria-label="Open navigation menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            style={{
-              display: 'none',
-              background: 'none',
-              border: 'none',
-              color: '#F8F5EF',
-              cursor: 'pointer',
-              padding: '8px',
-              marginRight: '-8px',
-              transition: 'color 250ms ease',
-            }}
+            className="-mr-2 flex lg:hidden p-2 text-ivory transition-colors duration-200"
           >
             <Menu size={20} strokeWidth={1.5} />
           </button>
         </nav>
       </header>
 
-      {/* ── MOBILE MENU OVERLAY ── */}
       <MobileMenu
         open={menuOpen}
         onClose={closeMenu}
-        prefersReducedMotion={prefersReducedMotion}
         activePath={location.pathname}
         navLinks={navLinks}
         brandName={brandName}
         logoUrl={logoUrl}
       />
-
-      {/* ── RESPONSIVE ── */}
-      <style>{`
-        .nav-desktop-links { display: flex !important; }
-        .nav-desktop-cta { display: inline-flex !important; }
-        .nav-mobile-btn { display: none !important; }
-        @media (max-width: 1023px) {
-          .nav-desktop-links { display: none !important; }
-          .nav-desktop-cta { display: none !important; }
-          .nav-mobile-btn { display: flex !important; }
-        }
-      `}</style>
     </>
   );
 }
 
-/* ─── MOBILE MENU ─── */
-
-function MobileMenu({ open, onClose, prefersReducedMotion, activePath, navLinks, brandName, logoUrl }: {
+function MobileMenu({ open, onClose, activePath, navLinks, brandName, logoUrl }: {
   open: boolean;
   onClose: () => void;
-  prefersReducedMotion: boolean;
   activePath: string;
   navLinks: { label: string; to: string }[];
   brandName: string;
-  logoUrl: string | null;
+  logoUrl?: string | null;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
-  // Focus trap
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -264,15 +138,12 @@ function MobileMenu({ open, onClose, prefersReducedMotion, activePath, navLinks,
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose]);
 
-  // Focus first link on open
   useEffect(() => {
     if (open) {
       const timer = setTimeout(() => closeButtonRef.current?.focus(), 100);
       return () => clearTimeout(timer);
     }
   }, [open]);
-
-  const dur = prefersReducedMotion ? '0ms' : '450ms';
 
   return (
     <div
@@ -281,111 +152,46 @@ function MobileMenu({ open, onClose, prefersReducedMotion, activePath, navLinks,
       role="dialog"
       aria-modal="true"
       aria-label="Navigation menu"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 60,
-        backgroundColor: '#090909',
-        overflow: 'hidden',
-        opacity: open ? 1 : 0,
-        pointerEvents: open ? 'auto' : 'none',
-        transition: `opacity ${dur} ${EASE}`,
-      }}
+      className={`fixed inset-0 z-[60] overflow-hidden bg-obsidian transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:duration-0 ${
+        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
     >
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        padding: 'clamp(20px, 5vw, 32px)',
-        paddingTop: 'clamp(20px, 5vw, 32px)',
-      }}>
-        {/* Header: brand + close */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 'clamp(40px, 8vw, 64px)',
-        }}>
-          <span style={{
-            fontFamily: '"Fraunces", Georgia, serif',
-            fontSize: 'clamp(1rem, 1.5vw, 1.2rem)',
-            fontWeight: 400,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase' as const,
-            color: '#F8F5EF',
-          }}>
-            {logoUrl ? (
-              <img src={logoUrl} alt={brandName} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
-            ) : (
-              brandName
-            )}
-          </span>
+      <div className="flex h-full flex-col p-5 md:p-8">
+        <div className="mb-12 md:mb-16 flex items-center justify-between">
+          {logoUrl ? (
+            <img src={logoUrl} alt={brandName} className="h-7 w-auto object-contain" />
+          ) : (
+            <span className="font-serif text-base uppercase tracking-[0.06em] text-ivory">{brandName}</span>
+          )}
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close navigation menu"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'rgba(248,245,239,0.5)',
-              cursor: 'pointer',
-              padding: '8px',
-              transition: 'color 250ms ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.5)'; }}
+            className="p-2 text-ivory/50 transition-colors duration-200 hover:text-gold"
           >
             <X size={22} strokeWidth={1.5} />
           </button>
         </div>
 
-        {/* Nav links */}
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }} aria-label="Mobile navigation">
+        <nav className="flex flex-1 flex-col justify-center" aria-label="Mobile navigation">
           {navLinks.map((link, i) => {
             const active = activePath === link.to ||
               (link.to !== '/' && activePath.startsWith(link.to));
             return (
               <Link
-                ref={i === 0 ? firstLinkRef : undefined}
                 key={link.to}
                 to={link.to}
                 onClick={onClose}
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '16px',
-                  padding: 'clamp(14px, 3vw, 20px) 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
-                  textDecoration: 'none',
-                  color: active ? '#D6A54A' : 'rgba(248,245,239,0.65)',
-                  transition: 'color 250ms ease',
-                  opacity: open ? 1 : 0,
-                  transform: open ? 'translateX(0)' : 'translateX(24px)',
-                  transitionProperty: 'opacity, transform, color',
-                  transitionDuration: dur,
-                  transitionTimingFunction: EASE,
-                  transitionDelay: prefersReducedMotion ? '0ms' : `${i * 50}ms`,
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = '#D6A54A'; }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = 'rgba(248,245,239,0.65)'; }}
+                style={{ transitionDelay: open ? `${i * 50}ms` : '0ms' }}
+                className={`flex items-baseline gap-4 border-b border-white/[0.05] py-4 md:py-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:duration-0 ${
+                  open ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'
+                } ${active ? 'text-gold' : 'text-ivory/65 hover:text-gold'}`}
               >
-                <span style={{
-                  fontFamily: '"Fraunces", Georgia, serif',
-                  fontSize: '0.65rem',
-                  fontWeight: 400,
-                  color: 'rgba(214,165,74,0.45)',
-                  minWidth: '18px',
-                }}>
+                <span className="min-w-[18px] font-serif text-[0.65rem] text-gold/45">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span style={{
-                  fontFamily: '"Fraunces", Georgia, serif',
-                  fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',
-                  fontWeight: 300,
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase' as const,
-                }}>
+                <span className="font-serif text-2xl md:text-4xl font-light uppercase tracking-[0.02em]">
                   {link.label}
                 </span>
               </Link>
@@ -393,67 +199,25 @@ function MobileMenu({ open, onClose, prefersReducedMotion, activePath, navLinks,
           })}
         </nav>
 
-        {/* Bottom bar */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          paddingTop: '24px',
-          opacity: open ? 1 : 0,
-          transform: open ? 'translateY(0)' : 'translateY(16px)',
-          transition: `opacity ${dur} ${EASE} ${prefersReducedMotion ? '0ms' : '350ms'}, transform ${dur} ${EASE} ${prefersReducedMotion ? '0ms' : '350ms'}`,
-        }}>
+        <div
+          className={`flex flex-col gap-5 pt-6 transition-all duration-500 delay-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:duration-0 ${
+            open ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+          }`}
+        >
           <Link
             to="/contact"
             onClick={onClose}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '16px 28px',
-              fontFamily: '"Manrope", system-ui, sans-serif',
-              fontSize: '0.65rem',
-              fontWeight: 600,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.14em',
-              color: '#090909',
-              backgroundColor: '#D6A54A',
-              textDecoration: 'none',
-              border: 'none',
-              alignSelf: 'flex-start',
-            }}
+            className="inline-flex items-center gap-2.5 self-start bg-gold px-7 py-4 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-obsidian"
           >
-            PLAN YOUR EVENT
+            Plan Your Event
           </Link>
-          <span style={{
-            fontFamily: '"Manrope", system-ui, sans-serif',
-            fontSize: '0.6rem',
-            fontWeight: 500,
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.12em',
-            color: 'rgba(248,245,239,0.25)',
-          }}>
+          <span className="font-sans text-[0.6rem] font-medium uppercase tracking-[0.12em] text-ivory/25">
             FIESTA AGENCY
           </span>
         </div>
       </div>
     </div>
   );
-}
-
-/* ─── HOOKS ─── */
-
-function usePrefersReducedMotion() {
-  const [prefersReduced, setPrefersReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return prefersReduced;
 }
 
 export default Navbar;

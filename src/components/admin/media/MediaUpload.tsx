@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { AdminButton, Toast } from '@/components/admin/AdminUI';
 import { uploadMedia, formatFileSize } from '@/lib/mediaService';
@@ -18,6 +18,41 @@ export function MediaUpload({ onUploaded }: { onUploaded: (items: MediaItem[]) =
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const blobUrlsRef = useRef<Map<File, string>>(new Map());
+
+  const blobUrls = useMemo(() => {
+    const newMap = new Map<File, string>();
+    for (const f of files) {
+      const existing = blobUrlsRef.current.get(f.file);
+      if (existing) {
+        newMap.set(f.file, existing);
+      }
+    }
+    blobUrlsRef.current = newMap;
+    return newMap;
+  }, [files]);
+
+  useEffect(() => {
+    for (const f of files) {
+      if (!blobUrlsRef.current.has(f.file) && f.file.type.startsWith('image/')) {
+        blobUrlsRef.current.set(f.file, URL.createObjectURL(f.file));
+      }
+    }
+    // Revoke URLs for removed files
+    for (const [file, url] of blobUrlsRef.current) {
+      if (!files.some((f) => f.file === file)) {
+        URL.revokeObjectURL(url);
+        blobUrlsRef.current.delete(file);
+      }
+    }
+  }, [files]);
+
+  useEffect(() => {
+    return () => {
+      for (const url of blobUrlsRef.current.values()) URL.revokeObjectURL(url);
+      blobUrlsRef.current.clear();
+    };
+  }, []);
 
   const addFiles = useCallback((newFiles: FileList | File[]) => {
     const arr = Array.from(newFiles).filter((f) =>
@@ -119,7 +154,7 @@ export function MediaUpload({ onUploaded }: { onUploaded: (items: MediaItem[]) =
               <div key={i} className="flex items-center gap-3 py-2 border-b border-white/[0.04] last:border-0">
                 <div className="w-10 h-10 rounded overflow-hidden bg-white/[0.04] shrink-0">
                   {f.file.type.startsWith('image/') ? (
-                    <img src={URL.createObjectURL(f.file)} alt="" className="w-full h-full object-cover" />
+                    <img src={blobUrls.get(f.file) || ''} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <span className="text-[0.45rem] text-white/20">VID</span>

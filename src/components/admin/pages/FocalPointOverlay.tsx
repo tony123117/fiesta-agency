@@ -8,6 +8,8 @@ interface FocalPointOverlayProps {
   isActive: boolean;
 }
 
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
 export function FocalPointOverlay({
   slides,
   currentSlideIndex,
@@ -26,20 +28,12 @@ export function FocalPointOverlay({
     }
   }, [currentSlideIndex, dragging]);
 
-  const slide = slides[activeSlide];
-  if (!slide || !isActive) return null;
-
-  const focalX = slide.focal_x ?? 0.5;
-  const focalY = slide.focal_y ?? 0.5;
-
-  const clamp = (v: number) => Math.min(1, Math.max(0, v));
-
   const calculateFocal = useCallback((clientX: number, clientY: number) => {
     if (!containerRef.current) return null;
     const rect = containerRef.current.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return null;
-    const x = clamp((clientX - rect.left) / rect.width);
-    const y = clamp((clientY - rect.top) / rect.height);
+    const x = clamp01((clientX - rect.left) / rect.width);
+    const y = clamp01((clientY - rect.top) / rect.height);
     return { x, y };
   }, []);
 
@@ -69,34 +63,41 @@ export function FocalPointOverlay({
     setDragging(false);
   }, [dragging]);
 
-  // Keyboard controls
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const focalX = slides[activeSlide]?.focal_x ?? 0.5;
+    const focalY = slides[activeSlide]?.focal_y ?? 0.5;
     const step = e.shiftKey ? 0.05 : 0.01;
     let newX = focalX;
     let newY = focalY;
 
     switch (e.key) {
       case 'ArrowLeft':
-        newX = clamp(focalX - step);
+        newX = clamp01(focalX - step);
         e.preventDefault();
         break;
       case 'ArrowRight':
-        newX = clamp(focalX + step);
+        newX = clamp01(focalX + step);
         e.preventDefault();
         break;
       case 'ArrowUp':
-        newY = clamp(focalY - step);
+        newY = clamp01(focalY - step);
         e.preventDefault();
         break;
       case 'ArrowDown':
-        newY = clamp(focalY + step);
+        newY = clamp01(focalY + step);
         e.preventDefault();
         break;
       default:
         return;
     }
     onChange(activeSlide, newX, newY);
-  }, [focalX, focalY, onChange, activeSlide]);
+  }, [activeSlide, onChange, slides]);
+
+  const slide = slides[activeSlide];
+  if (!slide || !isActive) return null;
+
+  const focalX = slide.focal_x ?? 0.5;
+  const focalY = slide.focal_y ?? 0.5;
 
   return (
     <div

@@ -1,14 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  X, ArrowLeft, Loader2, Check, AlertCircle, Home, Calendar,
+  X, ArrowLeft, Loader2, AlertCircle, Home, Calendar,
   Briefcase, LayoutGrid, Users, Mail, FileText,
 } from 'lucide-react';
 import { AdminInput } from '@/components/admin/AdminUI';
 import { createPage } from '@/lib/pagesService';
+import { generateSlug } from '@/lib/slug';
 import { createSection, updateSection } from '@/lib/sectionsService';
 import { getPageBySlug } from '@/lib/pagesService';
-import { PAGE_TEMPLATES, getTemplateById, type PageTemplate } from '@/lib/pageTemplates';
+import { PAGE_TEMPLATES, type PageTemplate } from '@/lib/pageTemplates';
 import { SectionThumbnail } from './SectionThumbnail';
 import type { SectionType } from '@/lib/types';
 
@@ -55,19 +56,16 @@ export default function CreatePageModal({ open, onClose }: CreatePageModalProps)
     }
   }, [open]);
 
-  const slugify = (text: string) =>
-    text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
   const handleTitleChange = (value: string) => {
     setTitle(value);
     if (selectedTemplate) {
-      setSlug(slugify(value));
+      setSlug(generateSlug(value));
     }
     setSlugError('');
   };
 
   const handleSlugChange = (value: string) => {
-    setSlug(slugify(value));
+    setSlug(generateSlug(value));
     setSlugError('');
   };
 
@@ -113,17 +111,11 @@ export default function CreatePageModal({ open, onClose }: CreatePageModalProps)
       }
 
       navigate(`/admin/pages/${page.id}`);
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Failed to create page:', err);
       setError('Failed to create page. Please try again.');
       setView('configure');
       setCreating(false);
-    }
-  };
-
-  const handlePreviewKeyDown = (e: React.KeyboardEvent, template: PageTemplate) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setPreviewTemplate(template);
     }
   };
 

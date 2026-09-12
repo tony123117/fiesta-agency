@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Plus, X } from 'lucide-react';
-import { AdminInput, AdminTextarea } from '@/components/admin/AdminUI';
+import { Plus, X, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import { MediaPicker } from '@/components/admin/media';
 
 export function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
@@ -75,6 +74,9 @@ export function ListManager<T extends { id: string }>({
   renderItem: (item: T, index: number, update: (fields: Partial<T>) => void, remove: () => void) => React.ReactNode;
   label: string;
 }) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+
   const handleUpdate = (index: number, fields: Partial<T>) => {
     const updated = items.map((item, i) => i === index ? { ...item, ...fields } : item);
     onChange(updated);
@@ -84,12 +86,83 @@ export function ListManager<T extends { id: string }>({
     onChange(items.filter((_, i) => i !== index));
   };
 
+  const moveItem = (from: number, to: number) => {
+    if (to < 0 || to >= items.length) return;
+    const updated = [...items];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    onChange(updated);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    const card = (e.target as HTMLElement).closest('[data-card-index]');
+    if (card) e.dataTransfer.setDragImage(card as HTMLElement, 20, 20);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, toIndex: number) => {
+    e.preventDefault();
+    const fromIndex = dragIndex;
+    setDragIndex(null);
+    setOverIndex(null);
+    if (fromIndex === null || fromIndex === toIndex) return;
+    moveItem(fromIndex, toIndex);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setOverIndex(null);
+  };
+
   return (
     <div className="space-y-3">
       {items.map((item, i) => (
-        <div key={item.id} className="border border-white/[0.06] rounded p-3 space-y-3">
+        <div
+          key={item.id}
+          data-card-index={i}
+          className={`border rounded p-3 space-y-3 transition-colors ${
+            overIndex === i && dragIndex !== null && dragIndex !== i
+              ? 'border-gold/40 bg-gold/[0.03]'
+              : 'border-white/[0.06]'
+          }`}
+          draggable
+          onDragStart={(e) => handleDragStart(e, i)}
+          onDragOver={(e) => handleDragOver(e, i)}
+          onDrop={(e) => handleDrop(e, i)}
+          onDragEnd={handleDragEnd}
+          style={{ userSelect: 'none' }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[0.55rem] font-semibold text-white/20">{i + 1}</span>
+            <div className="flex items-center gap-1.5">
+              <GripVertical size={12} className="text-white/20" />
+              <span className="text-[0.55rem] font-semibold text-white/20">{i + 1}</span>
+              <div className="flex items-center ml-1">
+                <button
+                  onClick={() => moveItem(i, i - 1)}
+                  disabled={i === 0}
+                  className="text-white/15 hover:text-white/50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors p-0.5"
+                  aria-label={`Move ${label} up`}
+                >
+                  <ChevronUp size={11} strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => moveItem(i, i + 1)}
+                  disabled={i === items.length - 1}
+                  className="text-white/15 hover:text-white/50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors p-0.5"
+                  aria-label={`Move ${label} down`}
+                >
+                  <ChevronDown size={11} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
             <button onClick={() => handleRemove(i)} className="text-white/15 hover:text-red-400/60 transition-colors" aria-label={`Remove ${label} ${i + 1}`}>
               <X size={12} strokeWidth={1.5} />
             </button>

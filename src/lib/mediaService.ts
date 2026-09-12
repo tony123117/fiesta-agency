@@ -29,10 +29,10 @@ export async function getMedia(filters?: MediaFilters): Promise<MediaItem[]> {
   return (data || []) as MediaItem[];
 }
 
-export async function getMediaById(id: string): Promise<MediaItem> {
-  const { data, error } = await supabase.from('media').select('*').eq('id', id).single();
+export async function getMediaById(id: string): Promise<MediaItem | null> {
+  const { data, error } = await supabase.from('media').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as MediaItem;
+  return data as MediaItem | null;
 }
 
 export async function uploadMedia(
@@ -105,8 +105,9 @@ export async function updateMedia(id: string, updates: Partial<Pick<MediaItem, '
 }
 
 export async function deleteMedia(id: string): Promise<void> {
-  const { data: item, error: fetchError } = await supabase.from('media').select('storage_path').eq('id', id).single();
+  const { data: item, error: fetchError } = await supabase.from('media').select('storage_path').eq('id', id).maybeSingle();
   if (fetchError) throw fetchError;
+  if (!item) throw new Error('Media item not found');
 
   // Delete from storage first
   const { error: storageError } = await supabase.storage.from('media').remove([item.storage_path]);

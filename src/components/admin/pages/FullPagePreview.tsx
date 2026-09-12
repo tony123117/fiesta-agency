@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Monitor, Tablet, Smartphone } from 'lucide-react';
 import type { Page, Section } from '@/lib/types';
 import { SectionRenderer } from '@/components/public/SectionRenderer';
@@ -20,6 +20,17 @@ const VIEWPORT_WIDTHS: Record<ViewportSize, string> = {
 
 export default function FullPagePreview({ open, page, sections, onClose }: FullPagePreviewProps) {
   const [viewport, setViewport] = useState<ViewportSize>('desktop');
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [open]);
 
   if (!open) return null;
 

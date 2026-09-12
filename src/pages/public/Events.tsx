@@ -21,6 +21,16 @@ const FALLBACK_EVENTS: EventItem[] = [
   { id: 'f6', title: 'New Year Eve Concert', slug: 'new-year-eve-concert', description: 'Ring in the new year with an unforgettable night of music.', category: 'Concert', event_date: '2024-12-31', location: 'Kigali Arena', cover_image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80', cover_alt: 'Night concert with stage lights', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 5, created_at: '', updated_at: '' },
   { id: 'f7', title: 'Rooftop Party Night', slug: 'rooftop-party-night', description: 'An exclusive rooftop celebration under the city lights.', category: 'Private', event_date: '2025-01-18', location: 'Ubumwe Grande Hotel', cover_image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80', cover_alt: 'Rooftop party with city skyline', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 6, created_at: '', updated_at: '' },
   { id: 'f8', title: 'Kigali Music Festival', slug: 'kigali-music-festival', description: 'A three-day music festival celebrating African talent.', category: 'Festival', event_date: '2025-07-10', location: 'BD Life Centre', cover_image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80', cover_alt: 'Music festival crowd at sunset', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 7, created_at: '', updated_at: '' },
+  { id: 'f9', title: 'Tech Innovation Conference', slug: 'tech-innovation-conference', description: 'Where founders, investors, and technologists shape the future of African tech.', category: 'Corporate', event_date: '2025-08-22', location: 'Kigali Convention Centre', cover_image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80', cover_alt: 'Modern conference hall with attendees', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 8, created_at: '', updated_at: '' },
+  { id: 'f10', title: 'Sunset Garden Wedding', slug: 'sunset-garden-wedding', description: 'A breathtaking garden ceremony as the sun sets over the hills.', category: 'Wedding', event_date: '2025-09-06', location: 'Serena Hotel Kigali', cover_image: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80', cover_alt: 'Garden wedding at golden hour', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 9, created_at: '', updated_at: '' },
+  { id: 'f11', title: 'Jazz & Wine Evening', slug: 'jazz-wine-evening', description: 'An intimate evening of smooth jazz and curated wine selections.', category: 'Private', event_date: '2025-10-14', location: 'Marriott Kigali', cover_image: 'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=800&q=80', cover_alt: 'Jazz performance with wine glasses', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 10, created_at: '', updated_at: '' },
+  { id: 'f12', title: 'Kigali Fashion Week', slug: 'kigali-fashion-week', description: 'A week-long celebration of African fashion design and runway artistry.', category: 'Festival', event_date: '2025-11-20', location: 'Kigali Arena', cover_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80', cover_alt: 'Fashion runway show with models', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 11, created_at: '', updated_at: '' },
+  { id: 'f13', title: 'Annual Charity Gala', slug: 'annual-charity-gala', description: 'A black-tie evening raising funds for education across Rwanda.', category: 'Corporate', event_date: '2025-12-05', location: 'Radisson Blu Kigali', cover_image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80', cover_alt: 'Charity gala with elegant decor', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 12, created_at: '', updated_at: '' },
+  { id: 'f14', title: 'Independence Day Concert', slug: 'independence-day-concert', description: 'A grand celebration of Rwandan independence with top artists.', category: 'Concert', event_date: '2025-07-04', location: 'Amahoro Stadium', cover_image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80', cover_alt: 'Stadium concert with fireworks', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 13, created_at: '', updated_at: '' },
+  { id: 'f15', title: 'Luxury Birthday Celebration', slug: 'luxury-birthday-celebration', description: 'A milestone birthday party with bespoke décor and live band.', category: 'Private', event_date: '2025-05-10', location: 'Four Seasons Resort', cover_image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80', cover_alt: 'Elegant birthday celebration setup', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 14, created_at: '', updated_at: '' },
+  { id: 'f16', title: 'East African Food Festival', slug: 'east-african-food-festival', description: 'A culinary journey through the flavors of East Africa.', category: 'Festival', event_date: '2025-04-26', location: 'Garden City Mall', cover_image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80', cover_alt: 'Food festival with vibrant stalls', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 15, created_at: '', updated_at: '' },
+  { id: 'f17', title: 'Startup Pitch Night', slug: 'startup-pitch-night', description: 'An electric evening where founders pitch to top investors.', category: 'Corporate', event_date: '2025-03-15', location: 'Norrsken House Kigali', cover_image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80', cover_alt: 'Pitch event with audience', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'completed', featured: false, published: true, sort_order: 16, created_at: '', updated_at: '' },
+  { id: 'f18', title: 'Acoustic Sunset Sessions', slug: 'acoustic-sunset-sessions', description: 'Live acoustic performances as the sun dips below the horizon.', category: 'Concert', event_date: '2025-06-28', location: 'Lake Kivu Marina', cover_image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800&q=80', cover_alt: 'Acoustic performance at sunset', gallery: [], lineup: [], ticket_url: null, registration_url: null, status: 'upcoming', featured: false, published: true, sort_order: 17, created_at: '', updated_at: '' },
 ];
 
 /* ─── EVENTS PAGE ─── */
@@ -61,19 +71,13 @@ export function Events() {
     return upcoming.filter((e) => e.category?.toLowerCase() === cat);
   }, [upcoming, activeFilter]);
 
-  const filteredPast = useMemo(() => {
-    if (activeFilter === 'ALL') return past;
-    const cat = activeFilter.toLowerCase();
-    return past.filter((e) => e.category?.toLowerCase() === cat);
-  }, [past, activeFilter]);
-
   return (
     <>
       <E01Hero />
       <E02Filter active={activeFilter} onChange={setActiveFilter} />
       {featured && <E03Featured event={featured} />}
       <E04Upcoming events={filteredUpcoming} loading={loading} />
-      <E05Past events={filteredPast} loading={loading} />
+      <E05Past events={past} loading={loading} />
       <E06Editorial />
       <E07CTA />
     </>
@@ -235,12 +239,15 @@ function E03Featured({ event }: { event: EventItem }) {
       backgroundColor: '#F1EDE3',
       paddingTop: 'clamp(60px, 8vw, 100px)',
       paddingBottom: 'clamp(80px, 10vw, 120px)',
-    }}>
+      position: 'relative',
+    }} className="grain">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
+        position: 'relative',
+        zIndex: 2,
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
           className="evt-featured-grid"
@@ -522,12 +529,15 @@ function E05Past({ events: evts, loading }: { events: EventItem[]; loading: bool
       backgroundColor: '#090909',
       paddingTop: 'clamp(80px, 10vw, 130px)',
       paddingBottom: 'clamp(80px, 10vw, 130px)',
-    }}>
+      position: 'relative',
+    }} className="grain">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
+        position: 'relative',
+        zIndex: 2,
       }}>
         <Reveal delay={0} visible={visible}>
           <div style={{ marginBottom: 'clamp(36px, 5vw, 56px)' }}>
@@ -687,12 +697,15 @@ function E06Editorial() {
       backgroundColor: '#F1EDE3',
       paddingTop: 'clamp(80px, 10vw, 130px)',
       paddingBottom: 'clamp(80px, 10vw, 130px)',
-    }}>
+      position: 'relative',
+    }} className="grain">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
+        position: 'relative',
+        zIndex: 2,
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
           className="evt-editorial-grid"
@@ -770,13 +783,13 @@ function E07CTA() {
     <section ref={ref} style={{
       position: 'relative',
       overflow: 'hidden',
-      height: 'clamp(300px, 40vh, 400px)',
-    }}>
+      height: 'clamp(320px, 42vh, 440px)',
+    }} className="grain">
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
           src={CTA_IMAGE}
           alt="Elegant outdoor celebration with warm atmospheric lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'contrast(1.05) saturate(0.85)' }}
           loading="lazy"
         />
       </div>
@@ -784,7 +797,7 @@ function E07CTA() {
         position: 'absolute',
         inset: 0,
         pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.55) 100%)',
       }} />
       <div style={{
         position: 'relative',
@@ -801,6 +814,15 @@ function E07CTA() {
         transform: visible ? 'translateY(0)' : 'translateY(28px)',
         transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
       }}>
+        <p style={{
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: '11px',
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase' as const,
+          fontWeight: 600,
+          color: '#D6A54A',
+          marginBottom: '20px',
+        }}>LET&apos;S CREATE TOGETHER</p>
         <h2 style={{
           fontFamily: "'Fraunces', Georgia, serif",
           fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',

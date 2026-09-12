@@ -13,7 +13,10 @@ export interface PageHistoryState {
   };
 }
 
-export function usePageHistory(initial: PageHistoryState) {
+export function usePageHistory(
+  initial: PageHistoryState,
+  onUndoRedo?: (action: 'undo' | 'redo') => void
+) {
   const [past, setPast] = useState<PageHistoryState[]>([]);
   const [present, setPresent] = useState<PageHistoryState>(initial);
   const [future, setFuture] = useState<PageHistoryState[]>([]);
@@ -57,7 +60,8 @@ export function usePageHistory(initial: PageHistoryState) {
     setFuture((f) => [present, ...f].slice(0, MAX_HISTORY));
     setPresent(prev);
     skipNextRef.current = true;
-  }, [canUndo, past, present]);
+    onUndoRedo?.('undo');
+  }, [canUndo, past, present, onUndoRedo]);
 
   const redo = useCallback(() => {
     if (!canRedo) return;
@@ -66,7 +70,8 @@ export function usePageHistory(initial: PageHistoryState) {
     setPast((p) => [...p, present].slice(-MAX_HISTORY));
     setPresent(next);
     skipNextRef.current = true;
-  }, [canRedo, future, present]);
+    onUndoRedo?.('redo');
+  }, [canRedo, future, present, onUndoRedo]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -85,6 +90,13 @@ export function usePageHistory(initial: PageHistoryState) {
     return () => window.removeEventListener('keydown', handler);
   }, [undo, redo]);
 
+  const resetHistory = useCallback((newPresent: PageHistoryState) => {
+    setPast([]);
+    setPresent(newPresent);
+    setFuture([]);
+    skipNextRef.current = true;
+  }, []);
+
   return {
     present,
     canUndo,
@@ -94,5 +106,6 @@ export function usePageHistory(initial: PageHistoryState) {
     updateSections,
     updatePageFields,
     pushState,
+    resetHistory,
   };
 }

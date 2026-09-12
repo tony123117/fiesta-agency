@@ -49,11 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // If we already have a profile for this user, don't re-fetch or reset loading
+    if (profile && profile.id === session.user.id) return;
+
     let active = true;
     setLoading(true);
 
     (async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)

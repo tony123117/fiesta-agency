@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Search, Upload, X, Check } from 'lucide-react';
 import { AdminButton, Toast } from '@/components/admin/AdminUI';
 import { MediaUpload } from './MediaUpload';
-import { getMedia, uploadMedia, formatFileSize, isImageMime } from '@/lib/mediaService';
+import { getMedia, isImageMime } from '@/lib/mediaService';
 import type { MediaItem } from '@/lib/types';
 
 interface MediaPickerProps {

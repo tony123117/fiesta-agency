@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Grid3X3, List } from 'lucide-react';
-import { PageHeader, AdminLoading, AdminButton, EmptyState, Toast } from '@/components/admin/AdminUI';
+import { Search } from 'lucide-react';
+import { AdminLoading, AdminButton, EmptyState, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 import { MediaGridItem } from './MediaGridItem';
 import { MediaUpload } from './MediaUpload';
 import { MediaDetail } from './MediaDetail';
@@ -20,6 +20,7 @@ export function MediaLibrary() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [detailItem, setDetailItem] = useState<MediaItem | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: MediaItem | null }>({ open: false, item: null });
 
   const loadMedia = useCallback(async () => {
     setLoading(true);
@@ -45,8 +46,14 @@ export function MediaLibrary() {
     });
   };
 
-  const handleDelete = async (item: MediaItem) => {
-    if (!confirm(`Delete "${item.name}"?\n\nThis file will be permanently removed from storage.`)) return;
+  const handleDelete = (item: MediaItem) => {
+    setDeleteConfirm({ open: true, item });
+  };
+
+  const confirmDelete = async () => {
+    const item = deleteConfirm.item;
+    if (!item) return;
+    setDeleteConfirm({ open: false, item: null });
     try {
       await deleteMedia(item.id);
       setItems((prev) => prev.filter((i) => i.id !== item.id));
@@ -173,6 +180,16 @@ export function MediaLibrary() {
           onUpdated={handleDetailUpdated}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete media"
+        message={`Are you sure you want to delete "${deleteConfirm.item?.name}"? This file will be permanently removed from storage.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, item: null })}
+      />
 
       {toast && <Toast message={toast} />}
     </div>

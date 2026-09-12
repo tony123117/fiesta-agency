@@ -19,7 +19,7 @@ function RichTextNodeView({ node }: { node: RichTextNode }) {
         return <h2 className="font-serif text-2xl md:text-3xl font-light text-ivory mt-8 mb-4">{renderInlines(node.children)}</h2>;
       }
       return <h3 className="font-serif text-xl md:text-2xl font-light text-ivory mt-6 mb-3">{renderInlines(node.children)}</h3>;
-    case 'list':
+    case 'list': {
       const Tag = node.ordered ? 'ol' : 'ul';
       return (
         <Tag className={`mb-4 ${node.ordered ? 'list-decimal' : 'list-none'} space-y-2 pl-0`}>
@@ -31,6 +31,7 @@ function RichTextNodeView({ node }: { node: RichTextNode }) {
           ))}
         </Tag>
       );
+    }
     case 'quote':
       return (
         <blockquote className="border-l-2 border-gold pl-6 my-6 font-serif text-lg italic text-ivory-muted">

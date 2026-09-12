@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { PageHeader, AdminButton, AdminLoading, AdminModal, EmptyState, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminButton, AdminLoading, AdminModal, EmptyState, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 import { ServiceFilters } from '@/components/admin/services/ServiceFilters';
 import { ServiceListItem } from '@/components/admin/services/ServiceListItem';
 import { ServiceEditor } from '@/components/admin/services/ServiceEditor';
@@ -19,6 +19,7 @@ export function ServicesCMSAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: '', title: '' });
 
   // Filters
   const [search, setSearch] = useState('');
@@ -34,8 +35,10 @@ export function ServicesCMSAdmin() {
     setLoading(true);
     setError(null);
     try {
-      const [sortField, sortDir] = sortBy.split('_');
-      const field = sortField === 'sort' ? 'sort_order' : sortField;
+      const lastUnderscore = sortBy.lastIndexOf('_');
+      const sortField = sortBy.substring(0, lastUnderscore);
+      const sortDir = sortBy.substring(lastUnderscore + 1);
+      const field = sortField === 'sort_order' ? 'sort_order' : sortField;
       const ascending = sortDir === 'asc';
       const data = await getServices(
         { search, published: publishedFilter, featured: featuredFilter },
@@ -51,9 +54,14 @@ export function ServicesCMSAdmin() {
 
   useEffect(() => { loadServices(); }, [loadServices]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     const svc = services.find((s) => s.id === id);
-    if (!confirm(`Delete "${svc?.title || 'this service'}"?\n\nThis will remove the service from the CMS.`)) return;
+    setDeleteConfirm({ open: true, id, title: svc?.title || 'this service' });
+  };
+
+  const confirmDelete = async () => {
+    const { id } = deleteConfirm;
+    setDeleteConfirm({ open: false, id: '', title: '' });
     try {
       await deleteService(id);
       setServices(services.filter((s) => s.id !== id));
@@ -142,6 +150,7 @@ export function ServicesCMSAdmin() {
   };
 
   const handleSaved = (saved: Service) => {
+    const wasEditing = !!editingService;
     if (editingService) {
       setServices(services.map((s) => (s.id === saved.id ? saved : s)));
     } else {
@@ -149,7 +158,7 @@ export function ServicesCMSAdmin() {
     }
     setShowEditor(false);
     setEditingService(null);
-    setToast(editingService ? 'Service saved' : 'Service created');
+    setToast(wasEditing ? 'Service saved' : 'Service created');
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -243,6 +252,16 @@ export function ServicesCMSAdmin() {
           onClosed={() => { setShowEditor(false); setEditingService(null); }}
         />
       </AdminModal>
+
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete service"
+        message={`Are you sure you want to delete "${deleteConfirm.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: '', title: '' })}
+      />
 
       {toast && <Toast message={toast} />}
     </div>

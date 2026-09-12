@@ -81,7 +81,7 @@ export function WebsiteSnapshot() {
 
       <div className="mt-4 flex justify-end">
         <Link
-          to="/admin/home"
+          to="/admin/pages"
           className="group inline-flex items-center gap-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-white/20 hover:text-gold/60 transition-colors"
         >
           Manage Content <ArrowRight size={10} strokeWidth={1.5} className="group-hover:translate-x-0.5 transition-transform" />

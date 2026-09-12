@@ -2,19 +2,40 @@ import { supabase } from '@/lib/supabase';
 import type { Section, SectionType } from '@/lib/types';
 import { getDefaultContent } from '@/lib/sectionTypes';
 
+const SECTION_COLUMNS = 'id, page_id, title, section_type, content, sort_order, published, subtitle, body, image_url, image_alt, layout';
+
 export async function getSections(pageId: string): Promise<Section[]> {
   const { data, error } = await supabase.from('sections')
-    .select('*')
+    .select(SECTION_COLUMNS)
     .eq('page_id', pageId)
     .order('sort_order');
   if (error) throw error;
-  return (data || []) as Section[];
+  const sections = (data || []) as Section[];
+
+  // Fix duplicate sort_orders caused by concurrent creates (race condition).
+  // Reindex sequentially and persist if any sort_order drifted.
+  let needsFix = false;
+  const reindexed = sections.map((s, i) => {
+    if (s.sort_order !== i) { needsFix = true; return { ...s, sort_order: i }; }
+    return s;
+  });
+  if (needsFix) {
+    await Promise.all(
+      reindexed.map((s) =>
+        supabase.from('sections').update({ sort_order: s.sort_order }).eq('id', s.id)
+      )
+    );
+    return reindexed;
+  }
+  return sections;
 }
 
-export async function getSection(id: string): Promise<Section> {
-  const { data, error } = await supabase.from('sections').select('*').eq('id', id).single();
+export async function getSection(id: string): Promise<Section | null> {
+  const { data, error } = await supabase.from('sections')
+    .select(SECTION_COLUMNS)
+    .eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as Section;
+  return data as Section | null;
 }
 
 export async function createSection(pageId: string, type: SectionType, title?: string): Promise<Section> {
@@ -36,13 +57,13 @@ export async function createSection(pageId: string, type: SectionType, title?: s
     published: true,
   };
 
-  const { data, error } = await supabase.from('sections').insert(record).select('*').single();
+  const { data, error } = await supabase.from('sections').insert(record).select(SECTION_COLUMNS).single();
   if (error) throw error;
   return data as Section;
 }
 
 export async function updateSection(id: string, updates: Partial<Pick<Section, 'title' | 'subtitle' | 'content' | 'published' | 'layout' | 'section_type' | 'sort_order'>>): Promise<Section> {
-  const { data, error } = await supabase.from('sections').update(updates).eq('id', id).select('*').single();
+  const { data, error } = await supabase.from('sections').update(updates).eq('id', id).select(SECTION_COLUMNS).single();
   if (error) throw error;
   return data as Section;
 }
@@ -53,12 +74,13 @@ export async function deleteSection(id: string): Promise<void> {
 }
 
 export async function duplicateSection(section: Section): Promise<Section> {
-  const { id, created_at, updated_at, ...rest } = section;
+  const { created_at, updated_at, ...rest } = section;
+  void created_at; void updated_at;
   const record = {
     ...rest,
     title: `${rest.title || 'Section'} (Copy)`,
   };
-  const { data, error } = await supabase.from('sections').insert(record).select('*').single();
+  const { data, error } = await supabase.from('sections').insert(record).select(SECTION_COLUMNS).single();
   if (error) throw error;
   return data as Section;
 }

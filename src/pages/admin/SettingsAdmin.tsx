@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Loader2, Plus, Trash2, ChevronUp, ChevronDown, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+
+
 import { PageHeader, AdminLoading, AdminInput, AdminTextarea, AdminButton, AdminCard, AdminToggle, Toast } from '@/components/admin/AdminUI';
 import { MediaPicker } from '@/components/admin/media/MediaPicker';
 import { getDefaultNavigation, getDefaultFooterGroups, getDefaultFooterCTA, getSiteSettings, updateSiteSettings } from '@/lib/siteSettingsService';
@@ -113,7 +114,7 @@ export function SettingsAdmin() {
         open={logoPickerOpen}
         onClose={() => setLogoPickerOpen(false)}
         onSelect={(items: MediaItem[]) => {
-          if (items[0]) update('logo_url', items[0].url);
+          if (items[0]) update('logo_url', items[0].public_url);
           setLogoPickerOpen(false);
         }}
       />
@@ -121,7 +122,7 @@ export function SettingsAdmin() {
         open={ogPickerOpen}
         onClose={() => setOgPickerOpen(false)}
         onSelect={(items: MediaItem[]) => {
-          if (items[0]) update('og_image_url', items[0].url);
+          if (items[0]) update('og_image_url', items[0].public_url);
           setOgPickerOpen(false);
         }}
       />
@@ -129,7 +130,7 @@ export function SettingsAdmin() {
         open={footerImagePickerOpen}
         onClose={() => setFooterImagePickerOpen(false)}
         onSelect={(items: MediaItem[]) => {
-          if (items[0]) update('footer_hero_image', items[0].url);
+          if (items[0]) update('footer_hero_image', items[0].public_url);
           setFooterImagePickerOpen(false);
         }}
       />
@@ -142,10 +143,10 @@ export function SettingsAdmin() {
 /* ═══════════════════════════════════════════════
    IDENTITY TAB
    ═══════════════════════════════════════════════ */
-function IdentityTab({ settings, update, logoPickerOpen, setLogoPickerOpen }: {
+function IdentityTab({ settings, update, setLogoPickerOpen }: {
   settings: SiteSettings;
   update: (field: keyof SiteSettings, value: unknown) => void;
-  logoPickerOpen: boolean;
+  logoPickerOpen?: boolean;
   setLogoPickerOpen: (v: boolean) => void;
 }) {
   return (
@@ -338,10 +339,10 @@ function SocialTab({ settings, update }: {
 /* ═══════════════════════════════════════════════
    FOOTER TAB
    ═══════════════════════════════════════════════ */
-function FooterTab({ settings, update, footerImagePickerOpen, setFooterImagePickerOpen }: {
+function FooterTab({ settings, update, setFooterImagePickerOpen }: {
   settings: SiteSettings;
   update: (field: keyof SiteSettings, value: unknown) => void;
-  footerImagePickerOpen: boolean;
+  footerImagePickerOpen?: boolean;
   setFooterImagePickerOpen: (v: boolean) => void;
 }) {
   const cta: FooterCTA = settings.footer_cta || getDefaultFooterCTA();
@@ -500,10 +501,10 @@ function FooterTab({ settings, update, footerImagePickerOpen, setFooterImagePick
 /* ═══════════════════════════════════════════════
    SEO TAB
    ═══════════════════════════════════════════════ */
-function SEOTab({ settings, update, ogPickerOpen, setOgPickerOpen }: {
+function SEOTab({ settings, update, setOgPickerOpen }: {
   settings: SiteSettings;
   update: (field: keyof SiteSettings, value: unknown) => void;
-  ogPickerOpen: boolean;
+  ogPickerOpen?: boolean;
   setOgPickerOpen: (v: boolean) => void;
 }) {
   return (

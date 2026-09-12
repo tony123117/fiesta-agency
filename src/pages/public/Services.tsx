@@ -859,7 +859,8 @@ function S05Process() {
 
 /* ─── 07 — STATS ─── */
 
-function S07Stats({ intro }: { intro: boolean }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function S07Stats(_props: { intro?: boolean }) {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (

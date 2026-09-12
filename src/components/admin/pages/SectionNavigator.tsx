@@ -1,4 +1,3 @@
-import { SectionType } from '@/lib/sectionTypes';
 import { SECTION_TYPES } from '@/lib/sectionTypes';
 import type { Section } from '@/lib/types';
 
@@ -10,7 +9,7 @@ interface SectionNavigatorProps {
 
 function getSectionLabel(section: Section): string {
   if (section.title) return section.title;
-  const config = SECTION_TYPES[section.section_type as SectionType];
+  const config = SECTION_TYPES.find((s) => s.type === section.section_type);
   return config?.label || section.section_type || 'Section';
 }
 
@@ -23,7 +22,6 @@ export default function SectionNavigator({ sections, activeSectionIndex, onSelec
         Sections
       </h3>
       {sections.map((section, index) => {
-        const config = SECTION_TYPES[section.section_type as SectionType];
         const isActive = index === activeSectionIndex;
         return (
           <button

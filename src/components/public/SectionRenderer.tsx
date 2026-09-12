@@ -14,6 +14,8 @@ import { EditorialListRenderer } from './EditorialListRenderer';
 import { CinematicImageRenderer } from './CinematicImageRenderer';
 import { TeamMembersRenderer } from './TeamMembersRenderer';
 import { ImageCarouselRenderer } from './ImageCarouselRenderer';
+import { BlocksSectionRenderer } from './BlocksSectionRenderer';
+import type { BlocksSectionRendererToolbarProps } from './BlocksSectionRenderer';
 import { ServicesHero } from './services/ServicesHero';
 import { ServicesFeatured } from './services/ServicesFeatured';
 import { ServicesDirectory } from './services/ServicesDirectory';
@@ -27,8 +29,53 @@ import { AboutFoundation } from './about/AboutFoundation';
 import { AboutValues } from './about/AboutValues';
 import { AboutWhy } from './about/AboutWhy';
 import { AboutClosing } from './about/AboutClosing';
+import type { BlockResponsiveBreakpoint } from '@/lib/blockTypes';
+import type { LayoutSelection } from '@/hooks/useLayoutOperations';
+import type { LayoutBlockDragState } from '@/lib/layoutTypes';
 
-const renderers: Record<SectionType, React.ComponentType<{ content: unknown }>> = {
+export interface SectionRendererBlockSelection {
+  selectedBlockId?: string | null;
+  hoveredBlockId?: string | null;
+  onSelectBlock?: (id: string | null) => void;
+  onHoverBlock?: (id: string | null) => void;
+  blockDragSectionId?: string | null;
+  blockDragBlockId?: string | null;
+  blockDropTargetSectionId?: string | null;
+  blockDropTargetIndex?: number | null;
+  onBlockDragStart?: (sectionId: string, blockId: string, fromIndex: number) => void;
+  onBlockDragOver?: (sectionId: string, toIndex: number) => void;
+  onBlockDrop?: () => void;
+  onBlockDragEnd?: () => void;
+  blockToolbar?: BlocksSectionRendererToolbarProps;
+  viewport?: BlockResponsiveBreakpoint;
+  layoutSelection?: LayoutSelection | null;
+  onSelectLayout?: (selection: LayoutSelection | null) => void;
+  // Cross-column drag
+  layoutDragState?: LayoutBlockDragState | null;
+  onLayoutBlockDragStart?: (sectionId: string, blockId: string, containerId: string, rowId: string, columnId: string, index: number) => void;
+  onLayoutBlockDragOver?: (containerId: string, rowId: string, columnId: string, index: number) => void;
+  onLayoutBlockDrop?: () => void;
+  onLayoutBlockDragEnd?: () => void;
+  // Column resize
+  columnResizeState?: {
+    sectionId: string;
+    containerId: string;
+    rowId: string;
+    colId1: string;
+    colId2: string;
+    initialWidth1: number;
+    initialWidth2: number;
+    currentWidth1: number;
+    currentWidth2: number;
+    viewport: 'desktop' | 'tablet' | 'mobile';
+  } | null;
+  onColumnResizeStart?: (sectionId: string, containerId: string, rowId: string, colId1: string, colId2: string, width1: number, width2: number, viewport: 'desktop' | 'tablet' | 'mobile') => void;
+  onColumnResizeMove?: (width1: number, width2: number) => void;
+  onColumnResizeCommit?: () => void;
+  onColumnResizeCancel?: () => void;
+}
+
+const renderers: Record<SectionType, React.ComponentType<{ content: unknown; sectionId?: string } & SectionRendererBlockSelection>> = {
   'hero-carousel': HeroCarousel,
   'brand-statement': CMSBrandStatement,
   'services-editorial': ServicesRenderer,
@@ -44,6 +91,7 @@ const renderers: Record<SectionType, React.ComponentType<{ content: unknown }>> 
   'cinematic-image': CinematicImageRenderer,
   'team-members': TeamMembersRenderer,
   'image-carousel': ImageCarouselRenderer,
+  'blocks': BlocksSectionRenderer,
   'services-hero': ServicesHero,
   'services-featured': ServicesFeatured,
   'services-directory': ServicesDirectory,
@@ -59,7 +107,7 @@ const renderers: Record<SectionType, React.ComponentType<{ content: unknown }>> 
   'about-closing': AboutClosing,
 };
 
-export function SectionRenderer({ section }: { section: Section }) {
+export function SectionRenderer({ section, selectedBlockId, hoveredBlockId, onSelectBlock, onHoverBlock, blockDragSectionId, blockDragBlockId, blockDropTargetSectionId, blockDropTargetIndex, onBlockDragStart, onBlockDragOver, onBlockDrop, onBlockDragEnd, blockToolbar, viewport, layoutSelection, onSelectLayout, layoutDragState, onLayoutBlockDragStart, onLayoutBlockDragOver, onLayoutBlockDrop, onLayoutBlockDragEnd, columnResizeState, onColumnResizeStart, onColumnResizeMove, onColumnResizeCommit, onColumnResizeCancel }: { section: Section } & SectionRendererBlockSelection) {
   if (!section.published) return null;
 
   const type = section.section_type as SectionType;
@@ -67,5 +115,5 @@ export function SectionRenderer({ section }: { section: Section }) {
 
   if (!Renderer) return null;
 
-  return <Renderer content={section.content} />;
+  return <Renderer content={section.content} sectionId={section.id} selectedBlockId={selectedBlockId} hoveredBlockId={hoveredBlockId} onSelectBlock={onSelectBlock} onHoverBlock={onHoverBlock} blockDragSectionId={blockDragSectionId} blockDragBlockId={blockDragBlockId} blockDropTargetSectionId={blockDropTargetSectionId} blockDropTargetIndex={blockDropTargetIndex} onBlockDragStart={onBlockDragStart} onBlockDragOver={onBlockDragOver} onBlockDrop={onBlockDrop} onBlockDragEnd={onBlockDragEnd} blockToolbar={blockToolbar} viewport={viewport} layoutSelection={layoutSelection} onSelectLayout={onSelectLayout} layoutDragState={layoutDragState} onLayoutBlockDragStart={onLayoutBlockDragStart} onLayoutBlockDragOver={onLayoutBlockDragOver} onLayoutBlockDrop={onLayoutBlockDrop} onLayoutBlockDragEnd={onLayoutBlockDragEnd} columnResizeState={columnResizeState} onColumnResizeStart={onColumnResizeStart} onColumnResizeMove={onColumnResizeMove} onColumnResizeCommit={onColumnResizeCommit} onColumnResizeCancel={onColumnResizeCancel} />;
 }

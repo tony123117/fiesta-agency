@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Trash2, Eye, EyeOff, Copy } from 'lucide-react';
-import { StatusBadge } from '@/components/admin/AdminUI';
+import { StatusBadge, ConfirmDialog } from '@/components/admin/AdminUI';
 import type { EventItem } from '@/lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -24,6 +24,7 @@ export function EventListItem({
   onDuplicate: (id: string) => void;
 }) {
   const [imgError, setImgError] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const date = event.event_date ? new Date(event.event_date) : null;
   const day = date ? date.getDate() : null;
   const month = date ? date.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase() : null;
@@ -140,17 +141,22 @@ export function EventListItem({
           <ArrowRight size={10} strokeWidth={1.5} className="group-hover/edit:translate-x-0.5 transition-transform" />
         </Link>
         <button
-          onClick={() => {
-            if (confirm(`Delete "${event.title}"?\n\nThis action cannot be undone.`)) {
-              onDelete(event.id);
-            }
-          }}
+          onClick={() => setDeleteConfirm(true)}
           className="flex items-center justify-center w-7 h-7 rounded text-white/10 hover:text-red-400/60 transition-colors"
           title="Delete event"
           aria-label={`Delete ${event.title}`}
         >
           <Trash2 size={12} strokeWidth={1.5} />
         </button>
+        <ConfirmDialog
+          open={deleteConfirm}
+          title="Delete event"
+          message={`Are you sure you want to delete "${event.title}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          variant="danger"
+          onConfirm={() => { setDeleteConfirm(false); onDelete(event.id); }}
+          onCancel={() => setDeleteConfirm(false)}
+        />
       </div>
     </div>
   );

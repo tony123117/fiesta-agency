@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { Link, useLocation, Outlet, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Image, MessageSquare, HelpCircle,
-  Briefcase, Inbox, Settings, LogOut, Menu, X, FileText, Users,
+  Briefcase, Inbox, Settings, LogOut, Menu, X, FileText,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useAdminSidebar } from '@/components/admin/AdminUI';
@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { label: 'Services', to: '/admin/services', icon: Briefcase },
   { label: 'Events', to: '/admin/events', icon: Calendar },
   { label: 'Portfolio', to: '/admin/portfolio', icon: Image },
-  { label: 'Team', to: '/admin/team', icon: Users },
+
   { label: 'Testimonials', to: '/admin/testimonials', icon: MessageSquare },
   { label: 'FAQs', to: '/admin/faqs', icon: HelpCircle },
   { label: 'Bookings', to: '/admin/bookings', icon: Inbox },
@@ -22,7 +22,7 @@ const NAV_ITEMS = [
 ];
 
 export function AdminLayout() {
-  const { session, profile, signOut, loading } = useAuth();
+  const { profile, signOut, loading } = useAuth();
   const location = useLocation();
   const { isOpen, setIsOpen } = useAdminSidebar();
 

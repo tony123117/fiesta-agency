@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, Edit, Trash2, Copy, Star, Eye, EyeOff } from 'lucide-react';
+import { ChevronUp, ChevronDown, Star, Eye, EyeOff } from 'lucide-react';
 import { AdminButton, AdminDropdown, StatusBadge } from '@/components/admin/AdminUI';
 import type { Service } from '@/lib/types';
 

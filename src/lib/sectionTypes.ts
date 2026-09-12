@@ -41,7 +41,7 @@ export const SECTION_TYPES: SectionTypeConfig[] = [
     defaultVariant: 'default',
     defaultContent: {
       slides: [{
-        id: uid(), image: '', mobile_image: null, eyebrow: '', headline: '', highlight_word: '',
+        id: uid(), image: '', mobile_image: null, image_alt: '', eyebrow: '', headline: '', highlight_word: '',
         description: '', cta_text: '', cta_url: '', secondary_cta_text: '',
         secondary_cta_url: '', focal_x: 0.5, focal_y: 0.5,
       }],
@@ -243,6 +243,19 @@ export const SECTION_TYPES: SectionTypeConfig[] = [
     defaultVariant: 'default',
     defaultContent: { heading: null, description: null, images: [] },
     previewContent: DEMO_IMAGE_CAROUSEL,
+  },
+  {
+    type: 'blocks',
+    label: 'Blocks',
+    description: 'Visual block editor — heading, text, image, button, spacer',
+    group: 'content',
+    icon: 'LayoutTemplate',
+    variants: [
+      { id: 'default', label: 'Default', description: '自由布局 block editor' },
+    ],
+    defaultVariant: 'default',
+    defaultContent: { blocks: [] },
+    previewContent: { blocks: [] },
   },
   {
     type: 'services-hero',

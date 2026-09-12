@@ -14,13 +14,14 @@ import { EditorialListEditor } from './editors/EditorialListEditor';
 import { CinematicImageEditor } from './editors/CinematicImageEditor';
 import { TeamMembersEditor } from './editors/TeamMembersEditor';
 import { ImageCarouselEditor } from './editors/ImageCarouselEditor';
+import { BlocksSectionEditor } from './BlocksSectionEditor';
 
 export interface SectionEditorProps {
   content: Record<string, unknown>;
   onChange: (content: Record<string, unknown>) => void;
 }
 
-export const sectionEditorRegistry: Record<SectionType, React.ComponentType<SectionEditorProps>> = {
+export const sectionEditorRegistry: Partial<Record<SectionType, React.ComponentType<SectionEditorProps>>> = {
   'hero-carousel': HeroCarouselEditor,
   'brand-statement': BrandStatementEditor,
   'services-editorial': ServicesEditorialEditor,
@@ -36,4 +37,5 @@ export const sectionEditorRegistry: Record<SectionType, React.ComponentType<Sect
   'cinematic-image': CinematicImageEditor,
   'team-members': TeamMembersEditor,
   'image-carousel': ImageCarouselEditor,
+  'blocks': BlocksSectionEditor,
 };

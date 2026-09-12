@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { AdminInput, AdminTextarea } from '@/components/admin/AdminUI';
 import { FieldGroup, ImageField, ListManager, uid } from './EditorHelpers';
@@ -8,21 +7,12 @@ export function HeroCarouselEditor({ content, onChange }: { content: Record<stri
   const data = content as unknown as HeroCarouselContent;
   const slides = data.slides || [];
 
-  const updateSlide = (i: number, fields: Partial<HeroSlide>) => {
-    const updated = slides.map((s, idx) => idx === i ? { ...s, ...fields } : s);
-    onChange({ ...data, slides: updated });
-  };
-
   const addSlide = () => {
     onChange({ ...data, slides: [...slides, {
       id: uid(), image: '', mobile_image: null, eyebrow: '', headline: '', highlight_word: '',
       description: '', cta_text: '', cta_url: '', secondary_cta_text: '',
       secondary_cta_url: '', focal_x: 0.5, focal_y: 0.5,
     }] });
-  };
-
-  const removeSlide = (i: number) => {
-    onChange({ ...data, slides: slides.filter((_, idx) => idx !== i) });
   };
 
   const moveSlide = (i: number, dir: -1 | 1) => {

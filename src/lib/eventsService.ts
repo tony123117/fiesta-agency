@@ -43,21 +43,21 @@ export async function getEvents(filters?: EventFilters, sort?: EventSort) {
 }
 
 export async function getEvent(id: string) {
-  const { data, error } = await supabase.from('events').select('*').eq('id', id).single();
+  const { data, error } = await supabase.from('events').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as EventItem;
+  return data as EventItem | null;
 }
 
 export async function getEventBySlug(slug: string) {
-  const { data, error } = await supabase.from('events').select('*').eq('slug', slug).single();
+  const { data, error } = await supabase.from('events').select('*').eq('slug', slug).maybeSingle();
   if (error) throw error;
-  return data as EventItem;
+  return data as EventItem | null;
 }
 
 export async function createEvent(event: Partial<EventItem>) {
-  const slug = event.title
+  const slug = event.slug || (event.title
     ? event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    : '';
+    : '');
   const payload = { ...event, slug };
   const { data, error } = await supabase.from('events').insert(payload).select('*').single();
   if (error) throw error;
@@ -94,7 +94,9 @@ export async function updateEventStatus(id: string, status: EventItem['status'])
 
 export async function duplicateEvent(id: string) {
   const original = await getEvent(id);
-  const { id: _id, created_at, updated_at, ...rest } = original;
+  if (!original) throw new Error('Event not found');
+  const { created_at, updated_at, ...rest } = original;
+  void created_at; void updated_at;
   const slug = `${rest.slug}-copy-${Date.now()}`;
   const payload = { ...rest, title: `${rest.title} (Copy)`, slug, published: false, featured: false };
   const { data, error } = await supabase.from('events').insert(payload).select('*').single();

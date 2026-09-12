@@ -1,6 +1,6 @@
 import type { SectionType } from '@/lib/types';
 
-const thumbnails: Record<SectionType, React.ReactNode> = {
+const thumbnails: Partial<Record<SectionType, React.ReactNode>> = {
   'hero-carousel': (
     <div className="w-full h-full bg-obsidian relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-charcoal/40 to-charcoal/80" />
@@ -149,7 +149,11 @@ const thumbnails: Record<SectionType, React.ReactNode> = {
 export function SectionThumbnail({ type }: { type: SectionType }) {
   return (
     <div className="w-full aspect-[4/3] rounded overflow-hidden border border-white/[0.04]">
-      {thumbnails[type]}
+      {thumbnails[type] ?? (
+        <div className="w-full h-full bg-charcoal/40 flex items-center justify-center text-[10px] text-white/20">
+          {type}
+        </div>
+      )}
     </div>
   );
 }

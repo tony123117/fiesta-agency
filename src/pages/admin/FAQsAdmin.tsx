@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Trash2, Plus, Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, StatusBadge, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, StatusBadge, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 import type { FAQ } from '@/lib/types';
 
 export function FAQsAdmin() {
@@ -11,6 +11,7 @@ export function FAQsAdmin() {
   const [editing, setEditing] = useState<FAQ | null>(null);
   const [form, setForm] = useState({ question: '', answer: '', category: 'General', published: true });
   const [toast, setToast] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string }>({ open: false, id: '' });
 
   const load = async () => {
     const { data } = await supabase.from('faqs').select('*').order('sort_order');
@@ -21,19 +22,35 @@ export function FAQsAdmin() {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
+    let result;
     if (editing) {
-      await supabase.from('faqs').update(form).eq('id', editing.id);
+      result = await supabase.from('faqs').update(form).eq('id', editing.id);
     } else {
-      await supabase.from('faqs').insert(form);
+      result = await supabase.from('faqs').insert(form);
+    }
+    if (result.error) {
+      setToast('Failed to save');
+      setTimeout(() => setToast(null), 3000);
+      return;
     }
     load(); setShowForm(false); setEditing(null); setForm({ question: '', answer: '', category: 'General', published: true });
     setToast('Saved');
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this FAQ?')) return;
-    await supabase.from('faqs').delete().eq('id', id);
+  const handleDelete = (id: string) => {
+    setDeleteConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    const { id } = deleteConfirm;
+    setDeleteConfirm({ open: false, id: '' });
+    const { error } = await supabase.from('faqs').delete().eq('id', id);
+    if (error) {
+      setToast('Failed to delete');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     load(); setToast('Deleted'); setTimeout(() => setToast(null), 3000);
   };
 
@@ -79,6 +96,15 @@ export function FAQsAdmin() {
           </AdminCard>
         </div>
       )}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete FAQ"
+        message="Are you sure you want to delete this FAQ? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: '' })}
+      />
       {toast && <Toast message={toast} />}
     </div>
   );

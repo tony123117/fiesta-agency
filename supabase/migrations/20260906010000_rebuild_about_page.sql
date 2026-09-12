@@ -27,7 +27,7 @@ VALUES
     'about-intro',
     '{
       "eyebrow": "ABOUT FIESTA",
-      "heading": "WE DON'\''T JUST\nPLAN EVENTS.\nWE CREATE\nEXPERIENCES THAT\nSTAY WITH YOU\nFOREVER.",
+      "heading": "WE DON''T JUST\nPLAN EVENTS.\nWE CREATE\nEXPERIENCES THAT\nSTAY WITH YOU\nFOREVER.",
       "body": "At Fiesta, we believe every moment has the potential to become extraordinary. From intimate celebrations to large-scale productions, we bring creativity, precision and passion to every detail.",
       "cta_text": "OUR APPROACH",
       "cta_url": "#",
@@ -158,7 +158,7 @@ VALUES
     'about-closing',
     '{
       "heading": "YOUR VISION.\nOUR EXPERIENCE.",
-      "cta_text": "LET'\''S CREATE IT",
+      "cta_text": "LET''S CREATE IT",
       "cta_url": "/contact",
       "background_image": "",
       "background_image_alt": ""

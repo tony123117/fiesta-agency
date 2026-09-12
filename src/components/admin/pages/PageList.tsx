@@ -1,17 +1,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ExternalLink } from 'lucide-react';
-import { PageHeader, AdminLoading, AdminButton, EmptyState, Toast } from '@/components/admin/AdminUI';
+import { ExternalLink } from 'lucide-react';
+import { AdminLoading, AdminButton, EmptyState, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 import { getPages, deletePage, publishPage, unpublishPage } from '@/lib/pagesService';
 import { getSections } from '@/lib/sectionsService';
 import CreatePageModal from './CreatePageModal';
-import type { Page, Section } from '@/lib/types';
+import type { Page } from '@/lib/types';
 
 export function PageList() {
   const [pages, setPages] = useState<(Page & { section_count: number })[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; variant?: 'success' | 'error' | 'warning' | 'info' } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; page: Page | null }>({ open: false, page: null });
 
   const loadPages = useCallback(async () => {
     setLoading(true);
@@ -25,7 +26,7 @@ export function PageList() {
       );
       setPages(withCounts);
     } catch {
-      setToast('Failed to load pages');
+      setToast({ message: 'Failed to load pages', variant: 'error' });
       setTimeout(() => setToast(null), 3000);
     } finally {
       setLoading(false);
@@ -39,30 +40,30 @@ export function PageList() {
       if (page.published) {
         await unpublishPage(page.id);
         setPages((prev) => prev.map((p) => p.id === page.id ? { ...p, published: false } : p));
-        setToast('Page unpublished');
+        setToast({ message: 'Page unpublished', variant: 'success' });
       } else {
         await publishPage(page.id);
         setPages((prev) => prev.map((p) => p.id === page.id ? { ...p, published: true } : p));
-        setToast('Page published');
+        setToast({ message: 'Page published', variant: 'success' });
       }
       setTimeout(() => setToast(null), 3000);
     } catch {
-      setToast('Update failed');
+      setToast({ message: 'Update failed', variant: 'error' });
       setTimeout(() => setToast(null), 3000);
     }
   };
 
-  const handleDelete = async (page: Page) => {
-    if (!confirm(`Delete "${page.title}"?\n\nAll sections will be removed.`)) return;
+  const confirmDelete = async () => {
+    const page = deleteConfirm.page;
+    if (!page) return;
     try {
       await deletePage(page.id);
       setPages((prev) => prev.filter((p) => p.id !== page.id));
-      setToast('Page deleted');
-      setTimeout(() => setToast(null), 3000);
+      setToast({ message: 'Page deleted', variant: 'success' });
     } catch {
-      setToast('Delete failed');
-      setTimeout(() => setToast(null), 3000);
+      setToast({ message: 'Delete failed', variant: 'error' });
     }
+    setDeleteConfirm({ open: false, page: null });
   };
 
   if (loading) return <AdminLoading text="Loading pages..." />;
@@ -141,7 +142,17 @@ export function PageList() {
         </div>
       )}
 
-      {toast && <Toast message={toast} />}
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
+
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Delete page"
+        message={`Are you sure you want to delete "${deleteConfirm.page?.title ?? ''}"? All sections will be permanently removed.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, page: null })}
+      />
 
       <CreatePageModal
         open={showCreateModal}

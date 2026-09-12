@@ -4,12 +4,8 @@ import { Instagram, Facebook, Music, ArrowRight, Mail, Phone, MapPin } from 'luc
 import { getVisibleFooterGroups, getFooterCTA } from '@/lib/siteSettingsService';
 import type { SiteSettings } from '@/lib/types';
 
-const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
-
-const FALLBACK_CTA_HEADING = "READY TO CREATE SOMETHING\nEXTRAORDINARY?";
+const FALLBACK_CTA_HEADING = 'READY TO CREATE SOMETHING\nEXTRAORDINARY?';
 const FALLBACK_CTA_SUBTEXT = 'From intimate celebrations to large-scale productions, we bring creative direction, planning and execution together under one roof.';
-
-/* ─── FOOTER ─── */
 
 export function Footer({ settings }: { settings: SiteSettings | null }) {
   const brandName = settings?.company_name || 'FIESTA';
@@ -33,7 +29,6 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
 
   return (
     <>
-      {/* ═══ 01 — CINEMATIC CTA ═══ */}
       {footerCTA.visible && (
         <FooterCTA
           headingLines={headingLines}
@@ -44,124 +39,38 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
         />
       )}
 
-      {/* ═══ 02 — MAIN FOOTER ═══ */}
-      <footer style={{ backgroundColor: '#090909', color: '#F8F5EF' }}>
-        <div style={{
-          maxWidth: '1320px',
-          margin: '0 auto',
-          paddingLeft: 'clamp(20px, 4vw, 48px)',
-          paddingRight: 'clamp(20px, 4vw, 48px)',
-        }}>
-          {/* Main content grid */}
-          <div className="footer-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 'clamp(32px, 4vw, 56px)',
-            paddingTop: 'clamp(60px, 8vw, 100px)',
-            paddingBottom: 'clamp(48px, 6vw, 72px)',
-          }}>
-            {/* Col 1: Brand */}
-            <div className="footer-brand">
-              <Link to="/" aria-label={`${brandName} — Home`} style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>
+      <footer className="bg-obsidian text-ivory">
+        <div className="mx-auto max-w-[1320px] px-5 md:px-[4vw] lg:px-12">
+          <div className="grid grid-cols-1 gap-9 py-14 sm:grid-cols-2 md:gap-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-14 lg:py-24">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <Link to="/" aria-label={`${brandName} — Home`} className="mb-5 inline-block">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={brandName} style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+                  <img src={logoUrl} alt={brandName} className="h-8 w-auto object-contain" />
                 ) : (
-                  <span style={{
-                    fontFamily: '"Fraunces", Georgia, serif',
-                    fontSize: 'clamp(1.5rem, 2.5vw, 2rem)',
-                    fontWeight: 400,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase' as const,
-                    color: '#F8F5EF',
-                  }}>
+                  <span className="font-serif text-2xl md:text-3xl font-normal uppercase tracking-[0.04em] text-ivory">
                     {brandName}
                   </span>
                 )}
               </Link>
-              <p style={{
-                fontFamily: '"Manrope", system-ui, sans-serif',
-                fontSize: '0.78rem',
-                lineHeight: 1.75,
-                color: 'rgba(248,245,239,0.4)',
-                maxWidth: '260px',
-                marginBottom: '24px',
-              }}>
+              <p className="mb-6 max-w-[260px] font-sans text-[0.78rem] leading-[1.75] text-ivory/40">
                 {settings?.footer_text || 'Creating extraordinary events that leave lasting impressions.'}
               </p>
-              {/* Social icons */}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {instagram && (
-                  <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{
-                    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none', color: 'rgba(248,245,239,0.4)',
-                    transition: 'border-color 250ms ease, color 250ms ease',
-                  }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(214,165,74,0.4)'; e.currentTarget.style.color = '#D6A54A'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(248,245,239,0.4)'; }}
-                  >
-                    <Instagram size={14} strokeWidth={1.5} />
-                  </a>
-                )}
-                {facebook && (
-                  <a href={facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" style={{
-                    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none', color: 'rgba(248,245,239,0.4)',
-                    transition: 'border-color 250ms ease, color 250ms ease',
-                  }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(214,165,74,0.4)'; e.currentTarget.style.color = '#D6A54A'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(248,245,239,0.4)'; }}
-                  >
-                    <Facebook size={14} strokeWidth={1.5} />
-                  </a>
-                )}
-                {tiktok && (
-                  <a href={tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok" style={{
-                    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none', color: 'rgba(248,245,239,0.4)',
-                    transition: 'border-color 250ms ease, color 250ms ease',
-                  }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(214,165,74,0.4)'; e.currentTarget.style.color = '#D6A54A'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(248,245,239,0.4)'; }}
-                  >
-                    <Music size={14} strokeWidth={1.5} />
-                  </a>
-                )}
+              <div className="flex gap-2.5">
+                {instagram && <SocialLink href={instagram} label="Instagram"><Instagram size={14} strokeWidth={1.5} /></SocialLink>}
+                {facebook && <SocialLink href={facebook} label="Facebook"><Facebook size={14} strokeWidth={1.5} /></SocialLink>}
+                {tiktok && <SocialLink href={tiktok} label="TikTok"><Music size={14} strokeWidth={1.5} /></SocialLink>}
               </div>
             </div>
 
-            {/* Col 2+: Dynamic footer groups */}
-            {footerGroups.map((group, gi) => (
-              <div key={group.title} className="footer-group">
-                <span style={{
-                  fontFamily: '"Manrope", system-ui, sans-serif',
-                  fontSize: '0.6rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase' as const,
-                  letterSpacing: '0.16em',
-                  color: 'rgba(248,245,239,0.3)',
-                  display: 'block',
-                  marginBottom: '20px',
-                }}>
-                  {group.title}
-                </span>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {footerGroups.map((group) => (
+              <div key={group.title}>
+                <FooterHeading>{group.title}</FooterHeading>
+                <ul className="m-0 list-none p-0">
                   {group.links.map((link) => (
-                    <li key={link.label} style={{ marginBottom: '10px' }}>
+                    <li key={link.label} className="mb-2.5">
                       <Link
                         to={link.to}
-                        style={{
-                          fontFamily: '"Manrope", system-ui, sans-serif',
-                          fontSize: '0.8rem',
-                          color: 'rgba(248,245,239,0.45)',
-                          textDecoration: 'none',
-                          lineHeight: 1.7,
-                          transition: 'color 250ms ease',
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.45)'; }}
+                        className="font-sans text-[0.8rem] leading-[1.7] text-ivory/45 transition-colors duration-200 hover:text-gold"
                       >
                         {link.label}
                       </Link>
@@ -171,135 +80,89 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
               </div>
             ))}
 
-            {/* Contact column */}
-            <div className="footer-contact">
-              <span style={{
-                fontFamily: '"Manrope", system-ui, sans-serif',
-                fontSize: '0.6rem',
-                fontWeight: 600,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.16em',
-                color: 'rgba(248,245,239,0.3)',
-                display: 'block',
-                marginBottom: '20px',
-              }}>
-                CONTACT
-              </span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="sm:col-span-2 lg:col-span-1">
+              <FooterHeading>Contact</FooterHeading>
+              <div className="flex flex-col gap-3.5">
                 {address && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <MapPin size={12} strokeWidth={1.5} style={{ color: 'rgba(214,165,74,0.4)', marginTop: '3px', flexShrink: 0 }} />
-                    <span style={{ fontFamily: '"Manrope", system-ui, sans-serif', fontSize: '0.78rem', color: 'rgba(248,245,239,0.4)', lineHeight: 1.65 }}>
-                      {address}
-                    </span>
-                  </div>
+                  <ContactLine icon={<MapPin size={12} strokeWidth={1.5} />}>
+                    <span className="font-sans text-[0.78rem] leading-[1.65] text-ivory/40">{address}</span>
+                  </ContactLine>
                 )}
                 {phone && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <Phone size={12} strokeWidth={1.5} style={{ color: 'rgba(214,165,74,0.4)', marginTop: '3px', flexShrink: 0 }} />
-                    <a href={`tel:${phone.replace(/\s/g, '')}`} style={{
-                      fontFamily: '"Manrope", system-ui, sans-serif', fontSize: '0.78rem', color: 'rgba(248,245,239,0.4)',
-                      textDecoration: 'none', lineHeight: 1.65, transition: 'color 250ms ease',
-                    }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.4)'; }}
+                  <ContactLine icon={<Phone size={12} strokeWidth={1.5} />}>
+                    <a
+                      href={`tel:${phone.replace(/\s/g, '')}`}
+                      className="font-sans text-[0.78rem] leading-[1.65] text-ivory/40 transition-colors duration-200 hover:text-gold"
                     >
                       {phone}
                     </a>
-                  </div>
+                  </ContactLine>
                 )}
                 {email && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <Mail size={12} strokeWidth={1.5} style={{ color: 'rgba(214,165,74,0.4)', marginTop: '3px', flexShrink: 0 }} />
-                    <a href={`mailto:${email}`} style={{
-                      fontFamily: '"Manrope", system-ui, sans-serif', fontSize: '0.78rem', color: 'rgba(248,245,239,0.4)',
-                      textDecoration: 'none', lineHeight: 1.65, transition: 'color 250ms ease',
-                    }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.4)'; }}
+                  <ContactLine icon={<Mail size={12} strokeWidth={1.5} />}>
+                    <a
+                      href={`mailto:${email}`}
+                      className="font-sans text-[0.78rem] leading-[1.65] text-ivory/40 transition-colors duration-200 hover:text-gold"
                     >
                       {email}
                     </a>
-                  </div>
+                  </ContactLine>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
+          <div className="h-px bg-white/[0.06]" />
 
-          {/* ═══ 03 — BOTTOM LEGAL BAR ═══ */}
-          <div className="footer-legal" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingTop: 'clamp(20px, 2.5vw, 28px)',
-            paddingBottom: 'clamp(20px, 2.5vw, 28px)',
-          }}>
-            <p style={{
-              fontFamily: '"Manrope", system-ui, sans-serif',
-              fontSize: '0.58rem',
-              color: 'rgba(248,245,239,0.2)',
-              letterSpacing: '0.1em',
-            }}>
+          <div className="flex flex-col items-start gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-sans text-[0.58rem] tracking-[0.1em] text-ivory/20">
               {settings?.copyright_text || '© 2026 Fiesta Agency. All Rights Reserved.'}
             </p>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <Link to="/privacy" style={{
-                fontFamily: '"Manrope", system-ui, sans-serif',
-                fontSize: '0.58rem',
-                color: 'rgba(248,245,239,0.2)',
-                letterSpacing: '0.1em',
-                textDecoration: 'none',
-                transition: 'color 250ms ease',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(214,165,74,0.5)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.2)'; }}
-              >
+            <div className="flex gap-5">
+              <Link to="/privacy" className="font-sans text-[0.58rem] tracking-[0.1em] text-ivory/20 transition-colors duration-200 hover:text-gold/50">
                 Privacy Policy
               </Link>
-              <Link to="/terms" style={{
-                fontFamily: '"Manrope", system-ui, sans-serif',
-                fontSize: '0.58rem',
-                color: 'rgba(248,245,239,0.2)',
-                letterSpacing: '0.1em',
-                textDecoration: 'none',
-                transition: 'color 250ms ease',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(214,165,74,0.5)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(248,245,239,0.2)'; }}
-              >
+              <Link to="/terms" className="font-sans text-[0.58rem] tracking-[0.1em] text-ivory/20 transition-colors duration-200 hover:text-gold/50">
                 Terms &amp; Conditions
               </Link>
             </div>
           </div>
         </div>
       </footer>
-
-      {/* ── RESPONSIVE ── */}
-      <style>{`
-        .footer-grid { grid-template-columns: 1.4fr repeat(3, 1fr) !important; }
-        .footer-brand { grid-column: span 1; }
-        .footer-group { grid-column: span 1; }
-        .footer-contact { grid-column: span 1; }
-        @media (max-width: 1023px) {
-          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 36px !important; }
-          .footer-brand { grid-column: span 2; }
-          .footer-contact { grid-column: span 2; }
-        }
-        @media (max-width: 640px) {
-          .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .footer-brand { grid-column: span 1; }
-          .footer-contact { grid-column: span 1; }
-          .footer-legal { flex-direction: column !important; gap: 12px !important; align-items: flex-start !important; }
-        }
-      `}</style>
     </>
   );
 }
 
-/* ─── FOOTER CTA SECTION ─── */
+function FooterHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="mb-5 block font-sans text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-ivory/30">
+      {children}
+    </span>
+  );
+}
+
+function SocialLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="flex h-8 w-8 items-center justify-center border border-white/10 text-ivory/40 transition-colors duration-200 hover:border-gold/40 hover:text-gold"
+    >
+      {children}
+    </a>
+  );
+}
+
+function ContactLine({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <span className="mt-[3px] shrink-0 text-gold/40">{icon}</span>
+      {children}
+    </div>
+  );
+}
 
 function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }: {
   headingLines: string[];
@@ -311,44 +174,19 @@ function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }:
   const [hovered, setHovered] = useState(false);
 
   return (
-    <section style={{ position: 'relative', overflow: 'hidden', height: 'clamp(300px, 40vh, 400px)', minHeight: '280px' }}>
-      {/* Background image */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+    <section className="relative overflow-hidden" style={{ height: 'clamp(300px, 40vh, 400px)', minHeight: '280px' }}>
+      <div className="absolute inset-0 overflow-hidden">
         <img
           src={heroImage}
           alt="Elegant event celebration with warm atmospheric lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          className="block h-full w-full object-cover"
           loading="lazy"
         />
       </div>
-      {/* Overlay */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.7) 100%)',
-      }} />
-      {/* Content */}
-      <div style={{
-        position: 'relative', zIndex: 10, height: '100%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        paddingLeft: 'clamp(24px, 5vw, 48px)',
-        paddingRight: 'clamp(24px, 5vw, 48px)',
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center' as const,
-          gap: '20px',
-          maxWidth: '640px',
-        }}>
-          <h2 style={{
-            fontFamily: '"Fraunces", Georgia, serif',
-            fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)',
-            fontWeight: 400,
-            lineHeight: 1.0,
-            color: '#F8F5EF',
-            whiteSpace: 'pre-line' as const,
-          }}>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+      <div className="relative z-10 flex h-full items-center justify-center px-6 md:px-12">
+        <div className="flex max-w-[640px] flex-col items-center gap-5 text-center">
+          <h2 className="whitespace-pre-line font-serif font-light leading-none text-ivory" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)' }}>
             {headingLines.map((line, i) => (
               <span key={i}>
                 {line}
@@ -356,43 +194,17 @@ function FooterCTA({ headingLines, subtext, buttonLabel, buttonUrl, heroImage }:
               </span>
             ))}
           </h2>
-          <p style={{
-            fontFamily: '"Manrope", system-ui, sans-serif',
-            fontSize: 'clamp(0.78rem, 0.9vw, 0.88rem)',
-            lineHeight: 1.7,
-            color: 'rgba(248,245,239,0.55)',
-            maxWidth: '440px',
-          }}>
+          <p className="max-w-[440px] font-sans text-ivory/55 leading-[1.7]" style={{ fontSize: 'clamp(0.78rem, 0.9vw, 0.88rem)' }}>
             {subtext}
           </p>
           <Link
             to={buttonUrl}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              marginTop: '4px',
-              padding: '14px 32px',
-              fontFamily: '"Manrope", system-ui, sans-serif',
-              fontSize: '0.65rem',
-              fontWeight: 600,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.14em',
-              color: '#090909',
-              backgroundColor: '#D6A54A',
-              textDecoration: 'none',
-              border: 'none',
-              transition: 'background-color 250ms ease',
-              ...(hovered ? { backgroundColor: '#C99738' } : {}),
-            }}
+            className="mt-1 inline-flex items-center gap-2.5 bg-gold px-8 py-3.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-obsidian transition-colors duration-200 hover:bg-[#C99738]"
           >
             {buttonLabel}
-            <ArrowRight size={14} strokeWidth={2} style={{
-              transition: 'transform 250ms ease',
-              transform: hovered ? 'translateX(3px)' : 'translateX(0)',
-            }} />
+            <ArrowRight size={14} strokeWidth={2} className={`transition-transform duration-200 ${hovered ? 'translate-x-1' : ''}`} />
           </Link>
         </div>
       </div>

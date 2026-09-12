@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+
 import { PageHeader, AdminLoading, AdminButton, Toast, EmptyState } from '@/components/admin/AdminUI';
 import { EventFilters } from '@/components/admin/events/EventFilters';
 import { EventListItem } from '@/components/admin/events/EventListItem';
@@ -24,8 +24,10 @@ export function EventList() {
     setLoading(true);
     setError(null);
     try {
-      const [sortField, sortDir] = sortBy.split('_');
-      const field = sortField === 'event' ? 'event_date' : sortField;
+      const lastUnderscore = sortBy.lastIndexOf('_');
+      const sortField = sortBy.substring(0, lastUnderscore);
+      const sortDir = sortBy.substring(lastUnderscore + 1);
+      const field = sortField === 'event_date' ? 'event_date' : sortField;
       const ascending = sortDir === 'asc';
       const data = await getEvents(
         { search, status: statusFilter, published: publishedFilter, featured: featuredFilter },
@@ -44,7 +46,7 @@ export function EventList() {
   const handleDelete = async (id: string) => {
     try {
       await deleteEvent(id);
-      setEvents(events.filter((e) => e.id !== id));
+      setEvents((prev) => prev.filter((e) => e.id !== id));
       setToast('Event deleted');
       setTimeout(() => setToast(null), 3000);
     } catch {
@@ -56,7 +58,7 @@ export function EventList() {
   const handleTogglePublished = async (id: string, published: boolean) => {
     try {
       const updated = await updateEvent(id, { published });
-      setEvents(events.map((e) => e.id === id ? { ...e, published: updated.published } : e));
+      setEvents((prev) => prev.map((e) => e.id === id ? { ...e, published: updated.published } : e));
       setToast(published ? 'Event published' : 'Event unpublished');
       setTimeout(() => setToast(null), 3000);
     } catch {
@@ -68,7 +70,7 @@ export function EventList() {
   const handleToggleFeatured = async (id: string, featured: boolean) => {
     try {
       const updated = await toggleFeatured(id, featured);
-      setEvents(events.map((e) => e.id === id ? { ...e, featured: updated.featured } : e));
+      setEvents((prev) => prev.map((e) => e.id === id ? { ...e, featured: updated.featured } : e));
     } catch {
       setToast('Update failed');
       setTimeout(() => setToast(null), 3000);
@@ -78,7 +80,7 @@ export function EventList() {
   const handleDuplicate = async (id: string) => {
     try {
       const dup = await duplicateEvent(id);
-      setEvents([...events, dup]);
+      setEvents((prev) => [...prev, dup]);
       setToast('Event duplicated');
       setTimeout(() => setToast(null), 3000);
     } catch {

@@ -11,11 +11,13 @@ interface Stat {
 
 export function DashboardStats() {
   const [stats, setStats] = useState<Stat[] | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const [upcomingRes, newBookingRes, pastRes, portfolioRes, eventsWithDates] = await Promise.all([
+      try {
+        const [upcomingRes, newBookingRes, pastRes, portfolioRes, eventsWithDates] = await Promise.all([
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'upcoming').eq('published', true),
         supabase.from('bookings').select('id', { count: 'exact', head: true }).eq('status', 'new'),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'completed').eq('published', true),
@@ -54,11 +56,23 @@ export function DashboardStats() {
         { num: String(pastCount).padStart(2, '0'), label: 'PAST EVENTS', supporting: pastText, to: '/admin/events' },
         { num: String(portfolioCount).padStart(2, '0'), label: 'PORTFOLIO ITEMS', supporting: portfolioText, to: '/admin/portfolio' },
       ]);
+      } catch {
+        if (!active) return;
+        setError(true);
+      }
     })();
     return () => { active = false; };
   }, []);
 
   if (!stats) {
+    if (error) {
+      return (
+        <div className="py-12 text-center mb-12 md:mb-16">
+          <p className="text-[0.85rem] text-red-400/70 mb-3">Failed to load dashboard stats</p>
+          <button onClick={() => window.location.reload()} className="text-[0.7rem] text-gold hover:text-gold-light">Retry</button>
+        </div>
+      );
+    }
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.04] mb-12 md:mb-16">
         {Array.from({ length: 4 }).map((_, i) => (

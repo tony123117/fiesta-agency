@@ -1,4 +1,4 @@
-import { AdminInput, AdminTextarea, AdminSelect } from '@/components/admin/AdminUI';
+import { AdminInput, AdminSelect } from '@/components/admin/AdminUI';
 import { FieldGroup, ListManager, uid } from './EditorHelpers';
 import type { StatsContent, StatItem } from '@/lib/types';
 

@@ -28,14 +28,12 @@ export function AddSectionModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSelect: (type: SectionType) => void;
+  onSelect: (type: SectionType, variant?: string) => void;
 }) {
   const [activeGroup, setActiveGroup] = useState<string>('FEATURED');
   const [selectedType, setSelectedType] = useState<SectionType | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string>('default');
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
-
-  if (!open) return null;
 
   const config = selectedType ? getSectionTypeConfig(selectedType) : null;
   const currentGroup = GROUPS.find((g) => g.label === activeGroup) || GROUPS[0];
@@ -60,6 +58,8 @@ export function AddSectionModal({
     };
   }, [selectedType]);
 
+  if (!open) return null;
+
   const handleBack = () => {
     setSelectedType(null);
     setSelectedVariant('default');
@@ -67,7 +67,7 @@ export function AddSectionModal({
 
   const handleAdd = () => {
     if (!selectedType) return;
-    onSelect(selectedType);
+    onSelect(selectedType, selectedVariant);
     setSelectedType(null);
     setSelectedVariant('default');
   };

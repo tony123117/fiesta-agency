@@ -1,21 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { HeroCarouselContent } from '@/lib/types';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
-
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return reduced;
-}
 
 export function HeroCarousel({ content }: { content: unknown }) {
   const data = content as HeroCarouselContent;
@@ -24,7 +13,6 @@ export function HeroCarousel({ content }: { content: unknown }) {
   const [isPaused, setIsPaused] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [textVisible, setTextVisible] = useState(true);
-  const [imageReady, setImageReady] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
   const touchStartX = useRef(0);
@@ -59,9 +47,8 @@ export function HeroCarousel({ content }: { content: unknown }) {
   }, [isPaused, next, isTransitioning, slides.length]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setImageReady(true), 100);
-    const t2 = setTimeout(() => setContentVisible(true), 300);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t = setTimeout(() => setContentVisible(true), 300);
+    return () => { clearTimeout(t); };
   }, []);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -105,7 +92,6 @@ export function HeroCarousel({ content }: { content: unknown }) {
       aria-roledescription="carousel"
       aria-label="Featured experiences"
     >
-      {/* Background images */}
       {slides.map((s, i) => {
         const active = i === current;
         return (
@@ -131,7 +117,6 @@ export function HeroCarousel({ content }: { content: unknown }) {
                 }}
                 loading={i === 0 ? 'eager' : 'lazy'}
                 fetchPriority={i === 0 ? 'high' : undefined}
-                onLoad={() => { if (i === 0) setImageReady(true); }}
               />
             )}
             {s.image && (
@@ -147,14 +132,12 @@ export function HeroCarousel({ content }: { content: unknown }) {
                 }}
                 loading={i === 0 ? 'eager' : 'lazy'}
                 fetchPriority={i === 0 ? 'high' : undefined}
-                onLoad={() => { if (i === 0) setImageReady(true); }}
               />
             )}
           </div>
         );
       })}
 
-      {/* Gradient overlays */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -170,11 +153,7 @@ export function HeroCarousel({ content }: { content: unknown }) {
         }}
       />
 
-      {/* Content */}
-      <div
-        className="relative h-full mx-auto max-w-[1280px]"
-        style={{ zIndex: 10 }}
-      >
+      <div className="relative h-full mx-auto max-w-[1280px]" style={{ zIndex: 10 }}>
         <div
           className="h-full flex flex-col justify-center px-5 md:px-[4vw] lg:px-[5vw]"
           style={{
@@ -183,17 +162,12 @@ export function HeroCarousel({ content }: { content: unknown }) {
           }}
         >
           <div className="max-w-[860px]">
-            {/* Eyebrow */}
             {slide.eyebrow && (
-              <span
-                className="label-gold block mb-6 md:mb-8"
-                style={textStyle('0ms')}
-              >
+              <span className="label-gold block mb-6 md:mb-8" style={textStyle('0ms')}>
                 {slide.eyebrow}
               </span>
             )}
 
-            {/* Headline */}
             {slide.headline && (
               <h1
                 className="font-serif font-light text-ivory tracking-tight text-balance mb-6 md:mb-8"
@@ -226,21 +200,13 @@ export function HeroCarousel({ content }: { content: unknown }) {
               </h1>
             )}
 
-            {/* Supporting copy */}
             {slide.description && (
-              <p
-                className="text-base text-ivory/80 leading-[1.8] max-w-[420px] mb-8 md:mb-10"
-                style={textStyle('160ms')}
-              >
+              <p className="text-base text-ivory/80 leading-[1.8] max-w-[420px] mb-8 md:mb-10" style={textStyle('160ms')}>
                 {slide.description}
               </p>
             )}
 
-            {/* CTA buttons */}
-            <div
-              className="flex flex-col sm:flex-row gap-4 sm:gap-5"
-              style={textStyle('240ms')}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-5" style={textStyle('240ms')}>
               {slide.cta_text && (
                 <Link to={slide.cta_url || '/plan-your-event'} className="btn-primary group">
                   {slide.cta_text}
@@ -258,7 +224,6 @@ export function HeroCarousel({ content }: { content: unknown }) {
         </div>
       </div>
 
-      {/* Slide counter + progress bar (bottom-left) */}
       {slides.length > 1 && (
         <div
           className="absolute left-5 md:left-[4vw] lg:left-[5vw] bottom-[40px] md:bottom-[48px] flex items-center gap-4"
@@ -282,7 +247,23 @@ export function HeroCarousel({ content }: { content: unknown }) {
         </div>
       )}
 
-      {/* Arrow controls (bottom-right) */}
+      {/* Dot indicators — visible on touch/mobile where the arrow controls are hidden */}
+      {slides.length > 1 && (
+        <div className="absolute right-5 bottom-[40px] flex lg:hidden items-center gap-2" style={{ zIndex: 20 }}>
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => goTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={i === current}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === current ? 'w-5 bg-gold' : 'w-1.5 bg-white/30'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
       {slides.length > 1 && (
         <div
           className="absolute right-5 md:right-[4vw] lg:right-[5vw] bottom-[40px] md:bottom-[48px] hidden lg:flex items-center gap-1"
@@ -307,3 +288,5 @@ export function HeroCarousel({ content }: { content: unknown }) {
     </section>
   );
 }
+
+export default HeroCarousel;

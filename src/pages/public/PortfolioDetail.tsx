@@ -311,7 +311,7 @@ export function PortfolioDetail() {
                 transition: `opacity 0.9s ${EASE} 0.1s, transform 0.9s ${EASE} 0.1s`,
               }}
             >
-              {related.map((rel, i) => (
+              {related.map((rel) => (
                 <Link key={rel.id} to={`/portfolio/${rel.slug}`} className="group block">
                   <div className="relative overflow-hidden" style={{ borderRadius: '6px', aspectRatio: '4/5', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(245,242,234,0.06)', transition: `border-color 0.4s ${EASE}, transform 0.4s ${EASE}, box-shadow 0.4s ${EASE}` }}>
                     <img

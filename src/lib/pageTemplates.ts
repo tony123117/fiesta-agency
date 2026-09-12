@@ -46,7 +46,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
         title: 'Hero',
         content: {
           slides: [{
-            id: uid(), image: '', mobile_image: null,
+            id: uid(), image: '', mobile_image: null, image_alt: '',
             eyebrow: 'Welcome to Fiesta',
             headline: 'Your Headline Goes Here',
             highlight_word: '',
@@ -129,7 +129,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
         title: 'Event Hero',
         content: {
           slides: [{
-            id: uid(), image: '', mobile_image: null,
+            id: uid(), image: '', mobile_image: null, image_alt: '',
             eyebrow: 'Upcoming Event',
             headline: 'Event Name Goes Here',
             description: 'Event date, location, and a brief tagline.',
@@ -268,7 +268,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
         title: 'Hero',
         content: {
           slides: [{
-            id: uid(), image: '', mobile_image: null,
+            id: uid(), image: '', mobile_image: null, image_alt: '',
             eyebrow: 'Our Work',
             headline: 'Portfolio',
             description: 'A curated collection of our projects and creative work.',
@@ -420,7 +420,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
         title: 'Hero',
         content: {
           slides: [{
-            id: uid(), image: '', mobile_image: null,
+            id: uid(), image: '', mobile_image: null, image_alt: '',
             eyebrow: 'Get in Touch',
             headline: 'Contact Us',
             description: 'We\'d love to hear from you.',

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AdminButton, AdminInput, AdminTextarea, AdminToggle, Toast } from '@/components/admin/AdminUI';
 import { ImageField } from '@/components/admin/pages/editors/EditorHelpers';
-import { createService, updateService, generateServiceSlug } from '@/lib/servicesService';
+import { createService, updateService } from '@/lib/servicesService';
+import { generateSlug } from '@/lib/slug';
 import type { Service } from '@/lib/types';
 
 interface ServiceEditorProps {
@@ -24,6 +25,7 @@ export function ServiceEditor({ service, onSaved, onClosed }: ServiceEditorProps
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [slugTouched, setSlugTouched] = useState(!!service);
 
   useEffect(() => {
     if (service) {
@@ -50,6 +52,7 @@ export function ServiceEditor({ service, onSaved, onClosed }: ServiceEditorProps
       });
     }
     setErrors({});
+    setSlugTouched(!!service);
   }, [service]);
 
   const validate = (): boolean => {
@@ -71,7 +74,7 @@ export function ServiceEditor({ service, onSaved, onClosed }: ServiceEditorProps
         const created = await createService(form);
         onSaved(created);
       }
-    } catch (err) {
+    } catch {
       setToast('Failed to save service');
       setTimeout(() => setToast(null), 3000);
     } finally {
@@ -100,7 +103,7 @@ export function ServiceEditor({ service, onSaved, onClosed }: ServiceEditorProps
             setForm((f) => ({
               ...f,
               title,
-              slug: f.slug || generateServiceSlug(title),
+              ...(!slugTouched ? { slug: generateSlug(title) } : {}),
             }));
           }}
           required
@@ -112,7 +115,7 @@ export function ServiceEditor({ service, onSaved, onClosed }: ServiceEditorProps
           label="Slug"
           name="slug"
           value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
+          onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: e.target.value }); }}
           required
           placeholder="event-production"
           error={errors.slug}

@@ -45,7 +45,7 @@ export function PageRenderer({ slug, onHasContent, onPageLoaded }: PageRendererP
     return () => { cancelled = true; };
   }, [slug, onHasContent, onPageLoaded]);
 
-  if (loading) return null;
+  if (loading) return <PageSkeleton />;
   if (sections.length === 0) return null;
 
   return (
@@ -56,3 +56,22 @@ export function PageRenderer({ slug, onHasContent, onPageLoaded }: PageRendererP
     </>
   );
 }
+
+function PageSkeleton() {
+  return (
+    <div
+      className="w-full bg-obsidian animate-pulse"
+      style={{ height: 'clamp(800px, 96vh, 1000px)' }}
+      aria-hidden="true"
+    >
+      <div className="mx-auto flex h-full max-w-[1280px] flex-col justify-center px-5 md:px-[4vw] lg:px-[5vw]">
+        <div className="mb-8 h-3 w-40 rounded bg-white/10" />
+        <div className="mb-4 h-16 w-full max-w-[700px] rounded bg-white/10 md:h-20" />
+        <div className="mb-10 h-16 w-full max-w-[500px] rounded bg-white/10 md:h-20" />
+        <div className="h-4 w-full max-w-[380px] rounded bg-white/[0.07]" />
+      </div>
+    </div>
+  );
+}
+
+export default PageRenderer;

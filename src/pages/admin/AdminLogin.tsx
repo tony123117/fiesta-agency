@@ -10,7 +10,6 @@ export function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -76,24 +75,6 @@ export function AdminLogin() {
               className="w-full bg-transparent border-b border-white/[0.12] px-0 py-3 text-[0.85rem] text-ivory placeholder:text-white/20 focus:border-gold/40 focus:outline-none transition-colors"
               placeholder="Enter your password"
             />
-          </div>
-
-          <div className="flex items-center justify-between mt-1">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-3.5 h-3.5 accent-gold"
-              />
-              <span className="text-[0.75rem] text-white/35">Remember me</span>
-            </label>
-            <button
-              type="button"
-              className="text-[0.75rem] text-gold/70 hover:text-gold transition-colors"
-            >
-              Forgot password?
-            </button>
           </div>
 
           {error && (

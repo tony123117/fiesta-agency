@@ -231,3 +231,133 @@
   0%, 100% { opacity: 0.3; transform: scaleY(0.3); }
   50% { opacity: 1; transform: scaleY(1); }
 }
+
+/* ── Grain / Film Texture Overlay ── */
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── Section Rhythm Alternation ── */
+.section-cream {
+  background-color: #F1EDE3;
+  color: #161616;
+}
+
+.section-dark {
+  background-color: #090909;
+  color: #F8F5EF;
+}
+
+.section-charcoal {
+  background-color: #161616;
+  color: #F8F5EF;
+}
+
+/* ── Editorial Display Type ── */
+.display-xl {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(3.5rem, 8vw, 8rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+
+.display-lg {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.75rem, 5.5vw, 5.5rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+}
+
+.display-md {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+/* ── Gold Accent Line ── */
+.rule-gold {
+  width: 48px;
+  height: 2px;
+  background-color: #D6A54A;
+}
+
+.rule-gold-lg {
+  width: 72px;
+  height: 2px;
+  background-color: #D6A54A;
+}
+
+/* ── Image Treatments ── */
+.img-editorial {
+  filter: contrast(1.05) saturate(0.9);
+}
+
+.img-warm {
+  filter: sepia(0.08) contrast(1.02) brightness(0.98);
+}
+
+/* ── Stagger Reveal Delays ── */
+.reveal-stagger > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger > *:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger > *:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger > *:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger > *:nth-child(5) { transition-delay: 320ms; }
+
+/* ── Editorial Pull Quote ── */
+.pull-quote {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: #D6A54A;
+  border-left: 2px solid #D6A54A;
+  padding-left: clamp(16px, 2vw, 28px);
+}
+
+/* ── Stat Number ── */
+.stat-number {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #D6A54A;
+}
+
+/* ── Body Text ── */
+.body-editorial {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+  line-height: 1.75;
+  color: #6F6B63;
+}
+
+.body-editorial-light {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+  line-height: 1.75;
+  color: rgba(248,245,239,0.65);
+}
+
+/* ── Hover Lift ── */
+.hover-lift {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px -16px rgba(0,0,0,0.35);
+}

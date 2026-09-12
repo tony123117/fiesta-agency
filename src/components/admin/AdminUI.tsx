@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { X } from 'lucide-react';
+import { createContext, useContext, useState, useEffect, useRef, Component, type ReactNode, type ErrorInfo } from 'react';
+import { X, CheckCircle, AlertTriangle, XCircle, Info } from 'lucide-react';
 
 /* ══════════════════════════════════════════════════
    SIDEBAR CONTEXT
@@ -124,7 +124,7 @@ export function AdminInput({
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
-  name: string;
+  name?: string;
   error?: string;
 }) {
   return (
@@ -170,7 +170,7 @@ export function AdminTextarea({
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label: string;
-  name: string;
+  name?: string;
   error?: string;
 }) {
   return (
@@ -214,7 +214,7 @@ export function AdminSelect({
   ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement> & {
   label: string;
-  name: string;
+  name?: string;
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
@@ -300,8 +300,11 @@ export function AdminTable({
   emptyTitle = 'No data',
   emptySubtitle = 'There are no items to display.',
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: { key: string; label: string; render?: (item: any) => ReactNode; className?: string }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onRowClick?: (item: any) => void;
   emptyTitle?: string;
   emptySubtitle?: string;
@@ -487,6 +490,91 @@ export function EmptyState({
 }
 
 /* ══════════════════════════════════════════════════
+   CONFIRM DIALOG
+   ══════════════════════════════════════════════════ */
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  variant = 'danger',
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: 'danger' | 'warning' | 'info';
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+      setExiting(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  const confirmStyles = {
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    warning: 'bg-gold hover:bg-gold-light text-obsidian',
+    info: 'bg-white/10 hover:bg-white/15 text-white',
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[150] flex items-center justify-center"
+      style={{ opacity: visible && !exiting ? 1 : 0, transition: 'opacity 150ms ease' }}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+      <div
+        className="relative bg-charcoal border border-white/[0.08] rounded-xl p-6 w-full max-w-sm shadow-2xl"
+        style={{
+          transform: visible && !exiting ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(8px)',
+          transition: 'transform 150ms ease',
+        }}
+      >
+        <h3 className="text-[0.85rem] font-semibold text-white/90 mb-2">{title}</h3>
+        <p className="text-[0.75rem] text-white/50 leading-relaxed mb-6">{message}</p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onCancel}
+            className="px-3 py-1.5 text-[0.7rem] text-white/50 bg-white/[0.04] border border-white/[0.08] rounded-md hover:bg-white/[0.08] hover:text-white/70 transition-colors"
+          >
+            {cancelLabel}
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`px-3 py-1.5 text-[0.7rem] font-medium rounded-md transition-colors ${confirmStyles[variant]}`}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════
    LOADING STATE
    ══════════════════════════════════════════════════ */
 export function AdminLoading({ text = 'Loading...' }: { text?: string }) {
@@ -531,19 +619,63 @@ export function ErrorState({
 /* ══════════════════════════════════════════════════
    TOAST
    ══════════════════════════════════════════════════ */
-export function Toast({ message, onClose }: { message: string; onClose?: () => void }) {
+export function Toast({
+  message,
+  variant = 'info',
+  onClose,
+}: {
+  message: string;
+  variant?: 'success' | 'error' | 'warning' | 'info';
+  onClose?: () => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true));
+  }, []);
+
   useEffect(() => {
     if (!onClose) return;
-    const timer = setTimeout(onClose, 3000);
+    const timer = setTimeout(() => {
+      setExiting(true);
+      setTimeout(onClose, 200);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
+  const handleClose = () => {
+    setExiting(true);
+    setTimeout(() => onClose?.(), 200);
+  };
+
+  const variantStyles = {
+    success: { border: 'border-green-500/20', icon: <CheckCircle size={14} className="text-green-400 shrink-0" strokeWidth={1.5} /> },
+    error: { border: 'border-red-500/20', icon: <XCircle size={14} className="text-red-400 shrink-0" strokeWidth={1.5} /> },
+    warning: { border: 'border-gold/30', icon: <AlertTriangle size={14} className="text-gold shrink-0" strokeWidth={1.5} /> },
+    info: { border: 'border-white/[0.08]', icon: <Info size={14} className="text-white/40 shrink-0" strokeWidth={1.5} /> },
+  };
+
+  const v = variantStyles[variant];
+
   return (
-    <div className="fixed bottom-5 right-5 z-[200] flex items-center gap-3 bg-charcoal border border-white/[0.08] px-4 py-3 rounded-lg shadow-xl">
-      <span className="text-[0.8rem] text-white/70">{message}</span>
+    <div
+      className={`fixed bottom-5 right-5 z-[200] flex items-center gap-2.5 bg-charcoal border ${v.border} px-3.5 py-2.5 rounded-lg shadow-xl max-w-sm`}
+      style={{
+        opacity: visible && !exiting ? 1 : 0,
+        transform: visible && !exiting ? 'translateX(0)' : 'translateX(16px)',
+        transition: 'opacity 200ms ease, transform 200ms ease',
+      }}
+    >
+      {v.icon}
+      <span className="text-[0.75rem] text-white/70 flex-1">{message}</span>
       {onClose && (
-        <button onClick={onClose} className="text-white/30 hover:text-white/60" aria-label="Dismiss">
-          <X size={14} strokeWidth={1.5} />
+        <button
+          onClick={handleClose}
+          className="text-white/20 hover:text-white/50 shrink-0 transition-colors"
+          aria-label="Dismiss"
+        >
+          <X size={13} strokeWidth={1.5} />
         </button>
       )}
     </div>
@@ -589,4 +721,76 @@ export function SearchInput({
       />
     </div>
   );
+}
+
+/* ══════════════════════════════════════════════════
+   ERROR BOUNDARY
+   ══════════════════════════════════════════════════ */
+interface AdminErrorBoundaryProps {
+  children: ReactNode;
+  fallbackTitle?: string;
+  fallbackMessage?: string;
+}
+
+interface AdminErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class AdminErrorBoundary extends Component<AdminErrorBoundaryProps, AdminErrorBoundaryState> {
+  state: AdminErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): AdminErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    if (import.meta.env.DEV) {
+      console.error('[AdminErrorBoundary] Render error:', error);
+      console.error('[AdminErrorBoundary] Component stack:', info.componentStack);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-[calc(100vh-4rem)] flex flex-col -m-6">
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="max-w-md text-center">
+              <div className="w-12 h-12 rounded-full bg-red-400/10 flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle size={20} className="text-red-400/60" />
+              </div>
+              <h2 className="font-serif font-medium text-lg text-ivory mb-2">
+                {this.props.fallbackTitle || 'Something went wrong'}
+              </h2>
+              <p className="text-[0.8rem] text-white/40 mb-1">
+                {this.props.fallbackMessage || 'The page builder encountered an error and could not render.'}
+              </p>
+              {import.meta.env.DEV && this.state.error && (
+                <p className="text-[0.7rem] text-red-400/60 font-mono mt-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded text-left break-all max-h-32 overflow-auto">
+                  {this.state.error.message}
+                </p>
+              )}
+              <div className="flex gap-3 justify-center mt-6">
+                <AdminButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => this.setState({ hasError: false, error: null })}
+                >
+                  Try Again
+                </AdminButton>
+                <AdminButton
+                  size="sm"
+                  onClick={() => { window.location.href = '/admin/pages'; }}
+                >
+                  Back to Pages
+                </AdminButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }

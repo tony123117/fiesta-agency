@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { generateSlug } from '@/lib/slug';
 import type { Service } from '@/lib/types';
 
 export interface ServiceFilters {
@@ -38,19 +39,15 @@ export async function getServices(filters?: ServiceFilters, sort?: ServiceSort) 
 }
 
 export async function getService(id: string) {
-  const { data, error } = await supabase.from('services').select('*').eq('id', id).single();
+  const { data, error } = await supabase.from('services').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as Service;
+  return data as Service | null;
 }
 
 export async function getServiceBySlug(slug: string) {
-  const { data, error } = await supabase.from('services').select('*').eq('slug', slug).single();
+  const { data, error } = await supabase.from('services').select('*').eq('slug', slug).maybeSingle();
   if (error) throw error;
-  return data as Service;
-}
-
-function generateSlug(title: string): string {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return data as Service | null;
 }
 
 export async function createService(service: Partial<Service>) {
@@ -75,7 +72,9 @@ export async function deleteService(id: string) {
 
 export async function duplicateService(id: string) {
   const original = await getService(id);
-  const { id: _id, created_at, updated_at, ...rest } = original;
+  if (!original) throw new Error('Service not found');
+  const { created_at, updated_at, ...rest } = original;
+  void created_at; void updated_at;
   const slug = `${rest.slug}-copy-${Date.now()}`;
   const payload = { ...rest, title: `${rest.title} (Copy)`, slug, published: false };
   const { data, error } = await supabase.from('services').insert(payload).select('*').single();

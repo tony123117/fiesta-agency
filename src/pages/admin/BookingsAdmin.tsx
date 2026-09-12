@@ -1,41 +1,90 @@
-import { useEffect, useState } from 'react';
-import { Search, ChevronDown, Trash2, X, ArrowRight } from 'lucide-react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminTextarea, StatusBadge, Toast } from '@/components/admin/AdminUI';
+import { PageHeader, AdminCard, AdminLoading, AdminTextarea, StatusBadge, Toast } from '@/components/admin/AdminUI';
 
-const BOOKING_STATUSES = ['new', 'contacted', 'quoted', 'confirmed', 'completed', 'cancelled'];
+const BOOKING_STATUSES = ['new', 'contacted', 'quoted', 'confirmed', 'completed', 'cancelled'] as const;
+
+interface Booking {
+  id: string;
+  client_name: string;
+  email: string;
+  phone: string;
+  event_type: string;
+  event_date: string | null;
+  location: string;
+  guest_count: number;
+  budget: string;
+  message: string;
+  notes: string;
+  status: string;
+  created_at: string;
+}
 
 export function BookingsAdmin() {
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState('');
+  const notesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedSaveNotes = useCallback((id: string, notes: string) => {
+    if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
+    notesTimerRef.current = setTimeout(() => {
+      handleSaveNotes(id, notes);
+    }, 500);
+  }, []);
 
   const load = async () => {
-    const { data } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
+    if (error) {
+      setToast('Failed to load bookings');
+      setTimeout(() => setToast(null), 3000);
+    }
     setBookings(data || []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (selectedBooking) {
+      setNotesDraft(selectedBooking.notes || '');
+    }
+  }, [selectedBooking?.id]);
+
   const handleStatusChange = async (id: string, status: string) => {
-    await supabase.from('bookings').update({ status }).eq('id', id);
+    const { error } = await supabase.from('bookings').update({ status }).eq('id', id);
+    if (error) {
+      setToast('Failed to update status');
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
     setBookings(bookings.map(b => b.id === id ? { ...b, status } : b));
+    if (selectedBooking?.id === id) {
+      setSelectedBooking((prev) => (prev ? { ...prev, status } : prev));
+    }
     setToast(`Status updated to ${status}`);
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleSaveNotes = async (id: string, notes: string) => {
-    await supabase.from('bookings').update({ notes }).eq('id', id);
-    setToast('Notes saved');
-    setTimeout(() => setToast(null), 3000);
+    setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, notes } : b)));
+    if (selectedBooking?.id === id) {
+      setSelectedBooking((prev) => (prev ? { ...prev, notes } : prev));
+    }
+    const { error } = await supabase.from('bookings').update({ notes }).eq('id', id);
+    if (error) {
+      setToast('Failed to save notes');
+      setTimeout(() => setToast(null), 3000);
+    }
   };
 
   const filtered = bookings.filter(b => {
-    if (search && !b.client_name.toLowerCase().includes(search.toLowerCase()) && !b.email.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !b.client_name?.toLowerCase()?.includes(search.toLowerCase()) && !(b.email || '').toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== 'All' && b.status !== statusFilter) return false;
     return true;
   });
@@ -113,7 +162,7 @@ export function BookingsAdmin() {
 
             <div style={{ marginTop: '2rem' }}>
               <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1rem', marginBottom: '0.5rem' }}>Message</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', whiteSpace: 'preWrap' }}>{selectedBooking.message}</p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', whiteSpace: 'pre-wrap' }}>{selectedBooking.message}</p>
             </div>
 
             <div style={{ marginTop: '2rem' }}>
@@ -129,7 +178,7 @@ export function BookingsAdmin() {
 
             <div style={{ marginTop: '2rem' }}>
               <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '1rem', marginBottom: '0.5rem' }}>Internal Notes</h3>
-              <AdminTextarea value={selectedBooking.notes || ''} onChange={(e) => handleSaveNotes(selectedBooking.id, e.target.value)} rows={4} placeholder="Add internal notes..." />
+              <AdminTextarea value={notesDraft} onChange={(e) => { setNotesDraft(e.target.value); debouncedSaveNotes(selectedBooking.id, e.target.value); }} rows={4} placeholder="Add internal notes..." />
             </div>
           </div>
         </div>

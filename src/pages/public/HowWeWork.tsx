@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -739,7 +739,7 @@ function HW07CTA() {
 
 /* ─── REVEAL HELPER ─── */
 
-function Reveal({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
+function Reveal({ children, delay = 0, visible }: { children: ReactNode; delay?: number; visible: boolean }) {
   return (
     <div style={{
       opacity: visible ? 1 : 0,
