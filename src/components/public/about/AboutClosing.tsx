@@ -1,5 +1,6 @@
 import { useReveal } from '@/lib/useReveal';
 import { breakHeading } from '@/lib/breakHeading';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -16,7 +17,7 @@ export function AboutClosing({ content }: { content: unknown }) {
   const { ref: sectionRef, visible } = useReveal({ threshold: 0.1 });
 
   const heading = breakHeading((data?.heading || 'YOUR VISION. OUR EXPERIENCE.').replace(/\\n/g, '\n'));
-  const image = data?.background_image || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1600&q=80';
+  const image = data?.background_image || images.bts[4];
 
   return (
     <section

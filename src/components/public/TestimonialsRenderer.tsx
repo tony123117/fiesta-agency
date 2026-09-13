@@ -3,14 +3,15 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 import type { TestimonialsContent } from '@/lib/types';
 import { useHomeData } from '@/lib/usePublicData';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1519741497674-611481863552?w=1000&q=80',
-  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1000&q=80',
-  'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1000&q=80',
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1000&q=80',
+  images.blacktie[4],
+  images.lagoon[0],
+  images.serena[3],
+  images.intimate[5],
 ];
 
 function usePrefersReducedMotion() {

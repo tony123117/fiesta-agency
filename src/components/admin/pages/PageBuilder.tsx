@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  ArrowLeft, ExternalLink, Settings, AlertTriangle, Maximize2,
-  Undo2, Redo2, Save, Globe, Eye as EyeIcon,
+  ArrowLeft, Check, ExternalLink, Settings, AlertTriangle, Maximize2,
+  Undo2, Redo2, Save, Globe, Eye as EyeIcon, Loader2, X,
   PanelRightOpen, PanelRightClose,
 } from 'lucide-react';
 import { AdminLoading, AdminButton, AdminInput, Toast, ConfirmDialog } from '@/components/admin/AdminUI';

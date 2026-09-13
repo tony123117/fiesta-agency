@@ -1,24 +1,34 @@
-import { useEffect, useCallback } from 'react';
-import { Link, useLocation, Outlet, NavLink } from 'react-router-dom';
+import { useEffect, useCallback } from "react";
+import { Link, useLocation, Outlet, NavLink } from "react-router-dom";
 import {
-  LayoutDashboard, Calendar, Image, MessageSquare, HelpCircle,
-  Briefcase, Inbox, Settings, LogOut, Menu, X, FileText,
-} from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { useAdminSidebar } from '@/components/admin/AdminUI';
+  LayoutDashboard,
+  Calendar,
+  Image,
+  MessageSquare,
+  HelpCircle,
+  Briefcase,
+  Inbox,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  FileText,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { useAdminSidebar } from "@/components/admin/AdminUI";
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', to: '/admin', icon: LayoutDashboard, end: true },
-  { label: 'Pages', to: '/admin/pages', icon: FileText },
-  { label: 'Services', to: '/admin/services', icon: Briefcase },
-  { label: 'Events', to: '/admin/events', icon: Calendar },
-  { label: 'Portfolio', to: '/admin/portfolio', icon: Image },
+  { label: "Dashboard", to: "/admin", icon: LayoutDashboard, end: true },
+  { label: "Pages", to: "/admin/pages", icon: FileText },
+  { label: "Services", to: "/admin/services", icon: Briefcase },
+  { label: "Events", to: "/admin/events", icon: Calendar },
+  { label: "Portfolio", to: "/admin/portfolio", icon: Image },
 
-  { label: 'Testimonials', to: '/admin/testimonials', icon: MessageSquare },
-  { label: 'FAQs', to: '/admin/faqs', icon: HelpCircle },
-  { label: 'Bookings', to: '/admin/bookings', icon: Inbox },
-  { label: 'Media', to: '/admin/media', icon: Image },
-  { label: 'Settings', to: '/admin/settings', icon: Settings },
+  { label: "Testimonials", to: "/admin/testimonials", icon: MessageSquare },
+  { label: "FAQs", to: "/admin/faqs", icon: HelpCircle },
+  { label: "Bookings", to: "/admin/bookings", icon: Inbox },
+  { label: "Media", to: "/admin/media", icon: Image },
+  { label: "Settings", to: "/admin/settings", icon: Settings },
 ];
 
 export function AdminLayout() {
@@ -34,10 +44,10 @@ export function AdminLayout() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) closeSidebar();
+      if (e.key === "Escape" && isOpen) closeSidebar();
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, closeSidebar]);
 
   if (loading) {
@@ -45,7 +55,9 @@ export function AdminLayout() {
       <div className="flex items-center justify-center min-h-screen bg-obsidian">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-          <span className="text-caption text-white/30 uppercase tracking-[0.2em]">Loading</span>
+          <span className="text-caption text-white/30 uppercase tracking-[0.2em]">
+            Loading
+          </span>
         </div>
       </div>
     );
@@ -57,9 +69,9 @@ export function AdminLayout() {
   });
 
   return (
-    <div className="flex min-h-screen bg-obsidian">
+    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(214,166,79,0.12),transparent_30%),#090909]">
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:w-60 bg-charcoal border-r border-white/[0.06]">
+      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:w-60 bg-charcoal/85 backdrop-blur-md border-r border-white/[0.06] shadow-[8px_0_30px_rgba(0,0,0,0.18)]">
         <SidebarContent
           navItems={NAV_ITEMS}
           profile={profile}
@@ -80,11 +92,15 @@ export function AdminLayout() {
       {/* ── Mobile sidebar ── */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-60 bg-charcoal border-r border-white/[0.06] flex flex-col lg:hidden transition-transform duration-300 ease-lux ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between h-14 px-4 border-b border-white/[0.06]">
-          <Link to="/admin" className="font-serif font-medium text-lg tracking-tight text-ivory" onClick={closeSidebar}>
+          <Link
+            to="/admin"
+            className="font-serif font-medium text-lg tracking-tight text-ivory"
+            onClick={closeSidebar}
+          >
             FIESTA
           </Link>
           <button
@@ -107,7 +123,7 @@ export function AdminLayout() {
       {/* ── Main area ── */}
       <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
         {/* ── Top header ── */}
-        <header className="sticky top-0 z-40 h-14 flex items-center justify-between px-4 lg:px-6 bg-charcoal/80 backdrop-blur-md border-b border-white/[0.06]">
+        <header className="sticky top-0 z-40 h-14 flex items-center justify-between px-4 lg:px-6 bg-charcoal/75 backdrop-blur-md border-b border-white/[0.06] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsOpen(true)}
@@ -120,7 +136,7 @@ export function AdminLayout() {
             </button>
             <div>
               <h1 className="font-serif font-medium text-sm tracking-tight text-ivory">
-                {currentPage?.label || 'Admin'}
+                {currentPage?.label || "Admin"}
               </h1>
             </div>
           </div>
@@ -130,7 +146,7 @@ export function AdminLayout() {
               <div className="hidden sm:flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center">
                   <span className="text-caption font-semibold text-white/50 uppercase">
-                    {(profile.full_name || profile.email || '?')[0]}
+                    {(profile.full_name || profile.email || "?")[0]}
                   </span>
                 </div>
                 <div className="flex flex-col">
@@ -183,32 +199,42 @@ function SidebarContent({
     <>
       {/* Brand — desktop only */}
       <div className="hidden lg:flex items-center h-14 px-5 border-b border-white/[0.06]">
-        <Link to="/admin" className="font-serif font-medium text-lg tracking-tight text-ivory">
+        <Link
+          to="/admin"
+          className="font-serif font-medium text-lg tracking-tight text-ivory"
+        >
           FIESTA
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3 px-3" aria-label="Admin navigation">
+      <nav
+        className="flex-1 overflow-y-auto py-3 px-3"
+        aria-label="Admin navigation"
+      >
         <ul className="flex flex-col gap-0.5" role="list">
           {navItems.map((item) => {
             const isActive = item.end
               ? currentPath === item.to
-              : currentPath.startsWith(item.to) && item.to !== '/admin';
+              : currentPath.startsWith(item.to) && item.to !== "/admin";
 
             return (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
                   onClick={onNavClick}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded text-[0.8rem] font-medium transition-all duration-200 ${
+                  className={`group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[0.78rem] font-medium tracking-[0.02em] transition-all duration-200 ${
                     isActive
-                      ? 'bg-gold/[0.08] text-gold'
-                      : 'text-white/45 hover:text-white/70 hover:bg-white/[0.03]'
+                      ? "bg-[linear-gradient(90deg,rgba(214,166,79,0.18),rgba(214,166,79,0.06))] text-gold shadow-[inset_0_0_0_1px_rgba(214,166,79,0.12)]"
+                      : "text-white/45 hover:text-white/70 hover:bg-white/[0.03]"
                   }`}
                   end={item.end}
                 >
-                  <item.icon size={16} strokeWidth={1.5} className={isActive ? 'text-gold' : ''} />
+                  <item.icon
+                    size={16}
+                    strokeWidth={1.5}
+                    className={isActive ? "text-gold" : ""}
+                  />
                   {item.label}
                 </NavLink>
               </li>
@@ -223,7 +249,7 @@ function SidebarContent({
           <div className="hidden lg:flex items-center gap-2.5 px-3 py-2 mb-1">
             <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
               <span className="text-[0.6rem] font-semibold text-white/50 uppercase">
-                {(profile.full_name || profile.email || '?')[0]}
+                {(profile.full_name || profile.email || "?")[0]}
               </span>
             </div>
             <div className="flex flex-col min-w-0">
@@ -237,7 +263,10 @@ function SidebarContent({
           </div>
         )}
         <button
-          onClick={() => { signOut(); onNavClick?.(); }}
+          onClick={() => {
+            signOut();
+            onNavClick?.();
+          }}
           className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-[0.8rem] font-medium text-white/40 hover:text-white/60 hover:bg-white/[0.03] transition-all"
         >
           <LogOut size={16} strokeWidth={1.5} />

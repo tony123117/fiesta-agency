@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
 import type { Service } from '@/lib/types';
+import { images } from '@/lib/images-supabase';
 
 /* ─── PAGE LOAD INTRO ─── */
 function useIntro() {
@@ -21,50 +22,36 @@ const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 /* ─── DEFAULT DATA ─── */
 
 const FEATURED_DEFAULTS = [
-  { id: '1', title: 'EVENT PLANNING', description: 'Full-service event planning tailored to your vision and goals.', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80' },
-  { id: '2', title: 'CONCERTS & LIVE SHOWS', description: 'End-to-end production for unforgettable live experiences.', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80' },
-  { id: '3', title: 'WEDDINGS & CELEBRATIONS', description: 'Beautifully curated weddings and private celebrations.', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80' },
+  { id: '1', title: 'EVENT PLANNING', description: 'Full-service event planning tailored to your vision and goals.', image: images.blacktie[2] },
+  { id: '2', title: 'CONCERTS & LIVE SHOWS', description: 'End-to-end production for unforgettable live experiences.', image: images.hero[3] },
+  { id: '3', title: 'WEDDINGS & CELEBRATIONS', description: 'Beautifully curated weddings and private celebrations.', image: images.serena[0] },
 ];
 
-const DIRECTORY_LEFT = [
-  { id: '1', number: '04', title: 'CORPORATE EVENTS' },
-  { id: '2', number: '05', title: 'PRIVATE EVENTS & PARTIES' },
-  { id: '3', number: '06', title: 'FESTIVALS & PUBLIC EVENTS' },
-  { id: '4', number: '07', title: 'DECORATION & BRANDING' },
-  { id: '5', number: '08', title: 'SOUND, LIGHTING & STAGE PRODUCTION' },
-  { id: '6', number: '09', title: 'DJ & MC COORDINATION' },
+const SERVICE_CARDS = [
+  { id: '1', title: 'Event Planning', description: 'Full-service planning from concept to execution.', image: images.blacktie[2] },
+  { id: '2', title: 'Event Design & Styling', description: 'Creative direction and aesthetic curation for your event.', image: images.process[4] },
+  { id: '3', title: 'Weddings & Celebrations', description: 'Beautifully curated weddings and milestone celebrations.', image: images.serena[1] },
+  { id: '4', title: 'Corporate Events', description: 'Professional conferences, summits, and corporate gatherings.', image: images.hero[4] },
+  { id: '5', title: 'Production & Lighting', description: 'Stage design, sound, lighting, and full production.', image: images.process[5] },
+  { id: '6', title: 'Catering & Hospitality', description: 'Premium catering and guest experience management.', image: images.lagoon[5] },
+  { id: '7', title: 'Photography & Videography', description: 'Professional coverage to capture every moment.', image: images.intimate[3] },
+  { id: '8', title: 'Private Events', description: 'Exclusive birthday parties, anniversaries, and private gatherings.', image: images.lagoon[6] },
 ];
-
-const DIRECTORY_RIGHT = [
-  { id: '7', number: '10', title: 'PHOTOGRAPHY & VIDEOGRAPHY' },
-  { id: '8', number: '11', title: 'EVENT PROMOTION & SOCIAL MEDIA' },
-  { id: '9', number: '12', title: 'BIRTHDAYS & GRADUATIONS' },
-];
-
-const PROCESS_STEPS = [
-  { id: '1', number: '01', title: 'IDEA', description: 'We listen to your vision and understand the heart of what you want.' },
-  { id: '2', number: '02', title: 'CREATIVE', description: 'We develop a creative direction that brings your idea to life.' },
-  { id: '3', number: '03', title: 'PLANNING', description: 'Every detail is mapped out with precision and care.' },
-  { id: '4', number: '04', title: 'PRODUCTION', description: 'We execute with expertise, coordination, and flawless timing.' },
-  { id: '5', number: '05', title: 'DELIVERY', description: 'The final experience exceeds expectations and creates lasting memories.' },
-];
-
-const CTA_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80';
-const HERO_IMAGE_SECONDARY = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80';
 
 const STATS = [
-  { number: '200+', label: 'EVENTS PRODUCED' },
-  { number: '8', label: 'YEARS OF EXPERIENCE' },
-  { number: '5K+', label: 'GUESTS SERVED' },
-  { number: '100%', label: 'CLIENT SATISFACTION' },
+  { number: '200+', label: 'Events Executed' },
+  { number: '98%', label: 'Client Satisfaction' },
+  { number: '5K+', label: 'Happy Guests' },
+  { number: '100%', label: 'Commitment' },
 ];
 
 const TESTIMONIALS = [
   { quote: 'Fiesta turned our wedding into something we could never have imagined. Every guest said it was the most beautiful event they had ever attended.', author: 'SARAH & MICHEL', role: 'Wedding, Kigali' },
-    { quote: 'Professional, creative, and genuinely passionate. They don\u2019t just plan events \u2014 they create experiences that stay with you.', author: 'DAVID NZAMUHO', role: 'Corporate Summit' },
-  { quote: 'The energy they brought to our concert was unreal. From stage design to sound production — absolute perfection.', author: 'JEAN-PASCAL', role: 'Live Show Production' },
+  { quote: 'Professional, creative, and genuinely passionate. They don\'t just plan events - they create experiences that stay with you.', author: 'DAVID NZAMUHO', role: 'Corporate Summit' },
+  { quote: 'The energy they brought to our concert was unreal. From stage design to sound production - absolute perfection.', author: 'JEAN-PASCAL', role: 'Live Show Production' },
 ];
+
+const HERO_IMAGE = images.hero[0];
 
 /* ─── SERVICES PAGE ─── */
 
@@ -75,7 +62,7 @@ export function Services() {
 
   useDocumentMeta({
     title: 'Services | Fiesta Agency Rwanda',
-    description: 'Explore our comprehensive event services — planning, production, entertainment and more.',
+    description: 'Explore our comprehensive event services - planning, production, entertainment and more.',
   });
 
   useEffect(() => {
@@ -108,12 +95,11 @@ export function Services() {
     }}>
       <S01Hero intro={intro} />
       <S02Featured services={featuredDisplay} loading={loading} />
-      <S07Stats intro={intro} />
-      <S03Directory />
-      <S04Standard />
+      <S03ServiceCards loading={loading} />
+      <S04Stats />
       <S05Process />
-      <S08Testimonials />
-      <S06CTA />
+      <S06Testimonials />
+      <S07CTA />
     </div>
   );
 }
@@ -143,31 +129,35 @@ function S01Hero({ intro }: { intro: boolean }) {
           {/* Left: Text */}
           <Reveal delay={0.15} visible={visible}>
             <div style={{ maxWidth: '520px' }}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '11px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase' as const,
-                fontWeight: 600,
-                color: '#D6A54A',
-                marginBottom: '20px',
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px',
                 opacity: intro ? 1 : 0,
                 transform: intro ? 'translateY(0)' : 'translateY(12px)',
                 transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s',
-              }}>OUR SERVICES</p>
+              }}>
+                <div style={{ width: '40px', height: '1.5px', backgroundColor: '#D6A54A' }} />
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '11px',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase' as const,
+                  fontWeight: 600,
+                  color: '#D6A54A',
+                }}>OUR SERVICES</p>
+              </div>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.2rem, 5vw, 4rem)',
+                fontSize: 'clamp(1.85rem, 4vw, 3.25rem)',
                 lineHeight: 0.92,
                 fontWeight: 400,
                 color: '#F7F4ED',
-                whiteSpace: 'pre-line' as const,
                 marginBottom: '24px',
                 opacity: intro ? 1 : 0,
                 transform: intro ? 'translateY(0)' : 'translateY(16px)',
                 transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s',
               }}>
-                {"EVERY DETAIL\nCRAFTED TO\nPERFECTION."}
+                EXCEPTIONAL SERVICES FOR UNFORGETTABLE{' '}
+                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>EVENTS.</span>
               </h1>
               <p style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
@@ -182,28 +172,18 @@ function S01Hero({ intro }: { intro: boolean }) {
               }}>
                 From concept to execution, we offer end-to-end event solutions tailored to your vision. Whatever the occasion, we make it extraordinary.
               </p>
-              <div style={{
-                width: '50px', height: '2px', backgroundColor: '#D6A54A',
-                opacity: intro ? 1 : 0,
-                transform: intro ? 'scaleX(1)' : 'scaleX(0)',
-                transformOrigin: 'left',
-                transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s',
-              }} />
             </div>
           </Reveal>
 
-          {/* Right: Two editorial images */}
+          {/* Right: Image */}
           <Reveal delay={0.2} visible={visible}>
             <div className="svc-hero-images" style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 'clamp(8px, 1vw, 12px)',
               overflow: 'hidden',
               minWidth: 0,
             }}>
               <img
                 src={HERO_IMAGE}
-                alt="Luxury event setup with elegant décor and warm lighting"
+                alt="Luxury event setup with elegant decor and warm lighting"
                 style={{
                   width: '100%',
                   minWidth: 0,
@@ -212,20 +192,6 @@ function S01Hero({ intro }: { intro: boolean }) {
                   display: 'block',
                   transform: visible ? 'scale(1)' : 'scale(1.05)',
                   transition: `transform 1.4s ${E} 0.25s`,
-                }}
-                loading="eager"
-              />
-              <img
-                src={HERO_IMAGE_SECONDARY}
-                alt="Event production and live audience atmosphere"
-                style={{
-                  width: '100%',
-                  minWidth: 0,
-                  height: 'clamp(320px, 38vw, 460px)',
-                  objectFit: 'cover',
-                  display: 'block',
-                  transform: visible ? 'scale(1)' : 'scale(1.05)',
-                  transition: `transform 1.4s ${E} 0.4s`,
                 }}
                 loading="eager"
               />
@@ -243,7 +209,7 @@ function S01Hero({ intro }: { intro: boolean }) {
   );
 }
 
-/* ─── 02 — FEATURED SERVICES ─── */
+/* ─── 02 — FEATURED SECTION ─── */
 
 function S02Featured({ services: svcItems, loading }: { services: Array<{ id: string; title: string; description: string; image: string }>; loading: boolean }) {
   const { ref, visible } = useReveal({ threshold: 0.06 });
@@ -261,365 +227,12 @@ function S02Featured({ services: svcItems, loading }: { services: Array<{ id: st
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
       }}>
-        {/* Header */}
-        <Reveal delay={0} visible={visible}>
-          <div style={{ marginBottom: 'clamp(40px, 5vw, 60px)' }}>
-            <p style={{
-              fontFamily: "'Manrope', system-ui, sans-serif",
-              fontSize: '11px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase' as const,
-              fontWeight: 600,
-              color: '#D6A54A',
-              marginBottom: '20px',
-            }}>FEATURED SERVICES</p>
-            <h2 style={{
-              fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-              lineHeight: 0.95,
-              fontWeight: 400,
-              color: '#171717',
-              whiteSpace: 'pre-line' as const,
-            }}>
-              {"EXPERIENCES\nCRAFTED WITH\nINTENTION."}
-            </h2>
-          </div>
-        </Reveal>
-
-        {/* Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 'clamp(16px, 2vw, 24px)',
-        }}
-          className="svc-featured-grid"
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
+          className="svc-featured-split"
         >
-          {loading ? (
-            [1, 2, 3].map((i) => (
-              <div key={i} className="skeleton" style={{ aspectRatio: '4/5' }} />
-            ))
-          ) : (
-            svcItems.map((service, i) => (
-              <FeaturedCard key={service.id} service={service} index={i} visible={visible} delay={0.15 + i * 0.1} />
-            ))
-          )}
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .svc-featured-grid {
-            display: flex !important;
-            overflow-x: auto !important;
-            scroll-snap-type: x mandatory !important;
-            gap: 16px !important;
-            padding-bottom: 16px;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-          .svc-featured-grid::-webkit-scrollbar { display: none; }
-          .svc-featured-grid > * {
-            flex: 0 0 72% !important;
-            scroll-snap-align: start !important;
-          }
-          .svc-featured-card {
-            height: 420px !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .svc-featured-card {
-            height: 460px !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function FeaturedCard({ service, index, visible, delay }: {
-  service: { id: string; title: string; description: string; image: string };
-  index: number;
-  visible: boolean;
-  delay: number;
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      className="svc-featured-card"
-      style={{
-        position: 'relative',
-        overflow: 'hidden',
-        cursor: 'default',
-        height: 'clamp(360px, 34vw, 400px)',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 0.7s ${E} ${delay}s, transform 0.7s ${E} ${delay}s`,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Image */}
-      {service.image ? (
-        <img
-          src={service.image}
-          alt={service.title}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-            transform: hovered ? 'scale(1.04)' : 'scale(1)',
-            transition: `transform 0.7s ${E}`,
-          }}
-          loading="lazy"
-        />
-      ) : (
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#E8E3D9' }} />
-      )}
-
-      {/* Overlay */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(9,9,9,0.05) 0%, rgba(9,9,9,0.7) 100%)',
-      }} />
-
-      {/* Content */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        padding: 'clamp(20px, 3vw, 32px)',
-      }}>
-        <span style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontWeight: 400,
-          fontSize: '0.8rem',
-          color: 'rgba(214,165,74,0.6)',
-          lineHeight: 1,
-          marginBottom: '10px',
-        }}>
-          {String(index + 1).padStart(2, '0')}
-        </span>
-        <h3 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)',
-          fontWeight: 400,
-          color: '#F7F4ED',
-          marginBottom: '8px',
-          lineHeight: 1.15,
-          whiteSpace: 'pre-line' as const,
-        }}>{service.title}</h3>
-        <p style={{
-          fontFamily: "'Manrope', system-ui, sans-serif",
-          fontSize: 'clamp(0.72rem, 0.85vw, 0.82rem)',
-          lineHeight: 1.6,
-          color: 'rgba(200,196,188,0.9)',
-          maxWidth: '280px',
-          marginBottom: '14px',
-        }}>{service.description}</p>
-        <ArrowRight
-          style={{
-            color: hovered ? '#D6A54A' : 'rgba(247,244,237,0.35)',
-            transform: hovered ? 'translateX(5px)' : 'translateX(0)',
-            transition: `transform 0.4s ${E}, color 0.4s ${E}`,
-          }}
-          size={16}
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ─── 03 — FULL SERVICE DIRECTORY ─── */
-
-function S03Directory() {
-  const { ref, visible } = useReveal({ threshold: 0.05 });
-
-  return (
-    <section ref={ref} style={{
-      backgroundColor: '#090909',
-      paddingTop: 'clamp(80px, 10vw, 140px)',
-      paddingBottom: 'clamp(80px, 10vw, 140px)',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-      }}>
-        {/* Header */}
-        <Reveal delay={0} visible={visible}>
-          <div style={{ marginBottom: 'clamp(40px, 5vw, 60px)' }}>
-            <p style={{
-              fontFamily: "'Manrope', system-ui, sans-serif",
-              fontSize: '11px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase' as const,
-              fontWeight: 600,
-              color: '#D6A54A',
-              marginBottom: '20px',
-            }}>OUR FULL SERVICES</p>
-            <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap' as const }}>
-              <h2 style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-                lineHeight: 0.95,
-                fontWeight: 400,
-                color: '#F7F4ED',
-                whiteSpace: 'pre-line' as const,
-                flex: '1 1 400px',
-              }}>
-                {"MORE EXPERIENCES.\nMORE POSSIBILITIES."}
-              </h2>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
-                lineHeight: 1.65,
-                color: '#77736B',
-                maxWidth: '360px',
-                flex: '1 1 300px',
-                paddingTop: '8px',
-              }}>
-                From large-scale productions to intimate gatherings, our full range of services covers every aspect of event creation and management.
-              </p>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Directory Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 'clamp(32px, 4vw, 64px)',
-        }}
-          className="svc-dir-grid"
-        >
-          <div>
-            {DIRECTORY_LEFT.map((item, i) => (
-              <DirRow key={item.id} number={item.number} title={item.title} visible={visible} delay={0.1 + i * 0.05} />
-            ))}
-          </div>
-          <div>
-            {DIRECTORY_RIGHT.map((item, i) => (
-              <DirRow key={item.id} number={item.number} title={item.title} visible={visible} delay={0.15 + i * 0.05} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .svc-dir-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function DirRow({ number, title, visible, delay }: { number: string; title: string; visible: boolean; delay: number }) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
-        height: 'clamp(58px, 6vw, 72px)',
-        borderBottom: '1px solid rgba(247,244,237,0.06)',
-        cursor: 'default',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateX(0)' : 'translateX(-12px)',
-        transition: `opacity 0.6s ${E} ${delay}s, transform 0.6s ${E} ${delay}s`,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <span style={{
-        fontFamily: "'Fraunces', Georgia, serif",
-        fontWeight: 300,
-        fontSize: '0.8rem',
-        minWidth: '24px',
-        color: hovered ? '#D6A54A' : 'rgba(214,165,74,0.4)',
-        transition: 'color 0.3s ease',
-      }}>{number}</span>
-      <span style={{
-        fontFamily: "'Manrope', system-ui, sans-serif",
-        fontSize: 'clamp(0.88rem, 1.2vw, 1.1rem)',
-        fontWeight: 400,
-        color: '#F7F4ED',
-        letterSpacing: '0.02em',
-        whiteSpace: 'pre-line' as const,
-        lineHeight: 1.2,
-        flex: 1,
-        transform: hovered ? 'translateX(4px)' : 'translateX(0)',
-        transition: 'transform 0.3s ease',
-      }}>{title}</span>
-      <Plus
-        style={{
-          color: hovered ? '#D6A54A' : 'rgba(247,244,237,0.12)',
-          transform: hovered ? 'rotate(45deg)' : 'rotate(0deg)',
-          transition: 'color 0.3s ease, transform 0.3s ease',
-        }}
-        size={16}
-        strokeWidth={1.5}
-      />
-    </div>
-  );
-}
-
-/* ─── 04 — THE FIESTA STANDARD ─── */
-
-function S04Standard() {
-  const { ref, visible } = useReveal({ threshold: 0.08 });
-
-  return (
-    <section ref={ref} style={{
-      backgroundColor: '#F1EDE3',
-      paddingTop: 'clamp(80px, 10vw, 140px)',
-      paddingBottom: 'clamp(80px, 10vw, 140px)',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '40px',
-        }}
-          className="svc-standard-grid"
-        >
-          {/* Left: Heading + Gold Rule */}
-          <div style={{ position: 'relative' }}>
-            {/* Gold vertical rule */}
-            <div
-              className="svc-standard-rule"
-              style={{
-                position: 'absolute',
-                left: '-28px',
-                top: 0,
-                bottom: 0,
-                width: '2px',
-                backgroundColor: '#D6A54A',
-                opacity: visible ? 1 : 0,
-                transition: 'opacity 0.8s ease 0.2s',
-              }}
-            />
-            <Reveal delay={0} visible={visible}>
+          {/* Left: Text */}
+          <Reveal delay={0} visible={visible}>
+            <div>
               <p style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: '11px',
@@ -628,41 +241,100 @@ function S04Standard() {
                 fontWeight: 600,
                 color: '#D6A54A',
                 marginBottom: '20px',
-              }}>THE FIESTA STANDARD</p>
+              }}>WHAT WE OFFER</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.75rem, 4.5vw, 3.625rem)',
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
-                color: '#151515',
-                whiteSpace: 'pre-line' as const,
+                color: '#171717',
+                marginBottom: '20px',
               }}>
-                {"EVERY EVENT\nDESERVES ITS\nOWN STORY."}
+                Experiences Crafted With{' '}
+                <span style={{ fontStyle: 'italic' }}>Intentions.</span>
               </h2>
-            </Reveal>
-          </div>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: 'clamp(0.85rem, 1vw, 0.94rem)',
+                lineHeight: 1.7,
+                color: '#6F6B63',
+                maxWidth: '400px',
+                marginBottom: '32px',
+              }}>
+                Every event is unique. We listen, design, and deliver experiences that reflect your vision and exceed expectations.
+              </p>
+              <Link
+                to="/services"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.14em',
+                  color: '#D6A54A',
+                  textDecoration: 'none',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+              >
+                Explore Our Services
+                <ArrowRight size={14} strokeWidth={2} />
+              </Link>
+            </div>
+          </Reveal>
 
-          {/* Right: Body */}
-          <Reveal delay={0.15} visible={visible}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: 'clamp(0.9rem, 1.05vw, 1rem)',
-                lineHeight: 1.8,
-                color: '#77736B',
-                maxWidth: '480px',
-              }}>
-                We don't believe in copying the same event twice. A wedding should feel like the people getting married. A concert should feel like the artist performing. A corporate gathering should feel like the brand behind it.
-              </p>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: 'clamp(0.9rem, 1.05vw, 1rem)',
-                lineHeight: 1.8,
-                color: '#77736B',
-                maxWidth: '480px',
-              }}>
-                Our role is to understand the idea first, then build everything around it — creative direction, planning, production, coordination, and flawless execution. Every event deserves its own story, and we are here to tell it.
-              </p>
+          {/* Right: Featured image with label */}
+          <Reveal delay={0.12} visible={visible}>
+            <div style={{ position: 'relative', overflow: 'hidden' }}>
+              {loading ? (
+                <div className="skeleton" style={{ aspectRatio: '16/10' }} />
+              ) : (
+                <>
+                  <img
+                    src={svcItems[0]?.image || FEATURED_DEFAULTS[0].image}
+                    alt="Event Planning"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '16/10',
+                      objectFit: 'cover',
+                      display: 'block',
+                      transform: visible ? 'scale(1)' : 'scale(1.03)',
+                      transition: `transform 1.2s ${E}`,
+                    }}
+                    loading="lazy"
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: 'clamp(20px, 3vw, 32px)',
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)',
+                  }}>
+                    <span style={{
+                      fontFamily: "'Manrope', system-ui, sans-serif",
+                      fontSize: '0.55rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase' as const,
+                      letterSpacing: '0.18em',
+                      color: '#D6A54A',
+                      display: 'block',
+                      marginBottom: '8px',
+                    }}>EVENT PLANNING</span>
+                    <p style={{
+                      fontFamily: "'Manrope', system-ui, sans-serif",
+                      fontSize: '0.82rem',
+                      lineHeight: 1.6,
+                      color: 'rgba(248,245,239,0.85)',
+                      maxWidth: '320px',
+                    }}>Full-service event planning tailored to your vision and goals.</p>
+                  </div>
+                </>
+              )}
             </div>
           </Reveal>
         </div>
@@ -670,11 +342,247 @@ function S04Standard() {
 
       <style>{`
         @media (min-width: 1024px) {
-          .svc-standard-grid { grid-template-columns: 45% 1fr !important; gap: 48px !important; align-items: start !important; }
-          .svc-standard-rule { display: block !important; }
+          .svc-featured-split { grid-template-columns: 40% 1fr !important; gap: 48px !important; align-items: center !important; }
         }
-        @media (max-width: 1023px) {
-          .svc-standard-rule { display: none !important; }
+      `}</style>
+    </section>
+  );
+}
+
+/* ─── 03 — SERVICE CARDS GRID ─── */
+
+function S03ServiceCards({ loading }: { loading: boolean }) {
+  const { ref, visible } = useReveal({ threshold: 0.05 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#FFFFFF',
+      paddingTop: 'clamp(80px, 10vw, 130px)',
+      paddingBottom: 'clamp(80px, 10vw, 130px)',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'clamp(16px, 2vw, 24px)',
+        }}
+          className="svc-cards-grid"
+        >
+          {loading ? (
+            [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="skeleton" style={{ aspectRatio: '3/4' }} />
+            ))
+          ) : (
+            SERVICE_CARDS.map((card, i) => (
+              <ServiceCard key={card.id} card={card} index={i} visible={visible} />
+            ))
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 1024px) { .svc-cards-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) {
+          .svc-cards-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 16px !important;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .svc-cards-grid::-webkit-scrollbar { display: none; }
+          .svc-cards-grid > * {
+            flex: 0 0 72% !important;
+            scroll-snap-align: start !important;
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function ServiceCard({ card, index, visible }: {
+  card: { id: string; title: string; description: string; image: string };
+  index: number;
+  visible: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: 'default',
+        aspectRatio: '3/4',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.7s ${E} ${0.1 + index * 0.06}s, transform 0.7s ${E} ${0.1 + index * 0.06}s`,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <img
+        src={card.image}
+        alt={card.title}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          display: 'block',
+          transform: hovered ? 'scale(1.04)' : 'scale(1)',
+          transition: `transform 0.7s ${E}`,
+        }}
+        loading="lazy"
+      />
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        background: 'linear-gradient(180deg, rgba(9,9,9,0.05) 0%, rgba(9,9,9,0.7) 100%)',
+      }} />
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        padding: 'clamp(16px, 2.5vw, 24px)',
+      }}>
+        <h3 style={{
+          fontFamily: "'Fraunces', Georgia, serif",
+          fontSize: 'clamp(1rem, 1.4vw, 1.3rem)',
+          fontWeight: 400,
+          color: '#F7F4ED',
+          marginBottom: '6px',
+          lineHeight: 1.15,
+        }}>{card.title}</h3>
+        <p style={{
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: 'clamp(0.7rem, 0.8vw, 0.8rem)',
+          lineHeight: 1.5,
+          color: 'rgba(200,196,188,0.9)',
+          maxWidth: '240px',
+        }}>{card.description}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── 04 — STATS ─── */
+
+function S04Stats() {
+  const { ref, visible } = useReveal({ threshold: 0.1 });
+
+  return (
+    <section ref={ref} style={{
+      backgroundColor: '#090909',
+      paddingTop: 'clamp(60px, 8vw, 100px)',
+      paddingBottom: 'clamp(60px, 8vw, 100px)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+      }}>
+        <Reveal delay={0} visible={visible}>
+          <div style={{ textAlign: 'center' as const, marginBottom: 'clamp(40px, 5vw, 56px)' }}>
+            <p style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              fontWeight: 600,
+              color: '#D6A54A',
+              marginBottom: '20px',
+            }}>WHY CHOOSE US</p>
+            <h2 style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#F8F5EF',
+            }}>
+              More Than Just{' '}
+              <span style={{ fontStyle: 'italic' }}>An Event.</span>
+            </h2>
+          </div>
+        </Reveal>
+
+        <div className="svc-stats-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'clamp(24px, 3vw, 40px)',
+        }}>
+          {STATS.map((stat, i) => (
+            <div key={stat.label} style={{
+              textAlign: 'center' as const,
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'translateY(0)' : 'translateY(20px)',
+              transition: `opacity 0.7s ${E} ${0.15 + i * 0.08}s, transform 0.7s ${E} ${0.15 + i * 0.08}s`,
+            }}>
+              <span style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                fontWeight: 400,
+                color: '#D6A54A',
+                lineHeight: 1,
+                display: 'block',
+                marginBottom: '8px',
+              }}>{stat.number}</span>
+              <span style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.6rem',
+                fontWeight: 600,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.16em',
+                color: 'rgba(248,245,239,0.4)',
+              }}>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <Reveal delay={0.4} visible={visible}>
+          <div style={{ textAlign: 'center' as const, marginTop: 'clamp(40px, 5vw, 56px)' }}>
+            <Link
+              to="/about"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.14em',
+                color: '#D6A54A',
+                textDecoration: 'none',
+                transition: 'color 0.3s ease',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+            >
+              Learn More
+              <ArrowRight size={14} strokeWidth={2} />
+            </Link>
+          </div>
+        </Reveal>
+      </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .svc-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
         }
       `}</style>
     </section>
@@ -686,13 +594,21 @@ function S04Standard() {
 function S05Process() {
   const { ref, visible } = useReveal({ threshold: 0.08 });
 
+  const steps = [
+    { number: '01', title: 'DISCOVER', description: 'We listen to your vision and understand the heart of what you want.' },
+    { number: '02', title: 'DESIGN', description: 'We develop a creative direction that brings your idea to life.' },
+    { number: '03', title: 'PLAN', description: 'Every detail is mapped out with precision and care.' },
+    { number: '04', title: 'PRODUCE', description: 'We execute with expertise, coordination, and flawless timing.' },
+    { number: '05', title: 'DELIVER', description: 'The final experience exceeds expectations and creates lasting memories.' },
+  ];
+
   return (
     <section ref={ref} style={{
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#F1EDE3',
       paddingTop: 'clamp(70px, 9vw, 120px)',
       paddingBottom: 'clamp(70px, 9vw, 120px)',
       overflow: 'hidden',
-    }}>
+    }} className="grain">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
@@ -712,13 +628,13 @@ function S05Process() {
             }}>HOW WE BRING IT TO LIFE</p>
             <h2 style={{
               fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2.5rem, 4.2vw, 3.125rem)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.5rem)',
               lineHeight: 0.95,
               fontWeight: 400,
               color: '#090909',
-              whiteSpace: 'pre-line' as const,
             }}>
-              {"FROM IDEA TO\nUNFORGETTABLE."}
+              FROM IDEA TO{' '}
+              <span style={{ fontStyle: 'italic' }}>UNFORGETTABLE.</span>
             </h2>
           </div>
         </Reveal>
@@ -733,8 +649,8 @@ function S05Process() {
             height: '1px',
             backgroundColor: 'rgba(20,20,20,0.08)',
           }} />
-          {PROCESS_STEPS.map((step, i) => (
-            <div key={step.id} style={{
+          {steps.map((step, i) => (
+            <div key={step.number} style={{
               flex: 1,
               position: 'relative',
               opacity: visible ? 1 : 0,
@@ -751,7 +667,7 @@ function S05Process() {
                 marginBottom: '20px',
                 position: 'relative',
                 zIndex: 10,
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#F1EDE3',
                 border: '1px solid rgba(20,20,20,0.08)',
               }}>
                 <span style={{
@@ -774,7 +690,7 @@ function S05Process() {
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: '0.82rem',
                 lineHeight: 1.7,
-                color: '#77736B',
+                color: '#6F6B63',
                 maxWidth: '180px',
               }}>{step.description}</p>
             </div>
@@ -783,8 +699,8 @@ function S05Process() {
 
         {/* Mobile: Vertical */}
         <div className="svc-proc-mobile">
-          {PROCESS_STEPS.map((step, i) => (
-            <div key={step.id} style={{
+          {steps.map((step, i) => (
+            <div key={step.number} style={{
               display: 'flex',
               gap: '20px',
               position: 'relative',
@@ -793,7 +709,7 @@ function S05Process() {
               transform: visible ? 'translateY(0)' : 'translateY(16px)',
               transition: `opacity 0.7s ${E} ${0.1 + i * 0.1}s, transform 0.7s ${E} ${0.1 + i * 0.1}s`,
             }}>
-              {i < PROCESS_STEPS.length - 1 && (
+              {i < steps.length - 1 && (
                 <div style={{
                   position: 'absolute',
                   left: '17px',
@@ -813,7 +729,7 @@ function S05Process() {
                 flexShrink: 0,
                 position: 'relative',
                 zIndex: 10,
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#F1EDE3',
                 border: '1px solid rgba(20,20,20,0.08)',
               }}>
                 <span style={{
@@ -837,7 +753,7 @@ function S05Process() {
                   fontFamily: "'Manrope', system-ui, sans-serif",
                   fontSize: '0.82rem',
                   lineHeight: 1.7,
-                  color: '#77736B',
+                  color: '#6F6B63',
                 }}>{step.description}</p>
               </div>
             </div>
@@ -857,73 +773,9 @@ function S05Process() {
   );
 }
 
-/* ─── 07 — STATS ─── */
+/* ─── 06 — TESTIMONIALS ─── */
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function S07Stats(_props: { intro?: boolean }) {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
-
-  return (
-    <section ref={ref} style={{
-      backgroundColor: '#090909',
-      paddingTop: 'clamp(60px, 8vw, 100px)',
-      paddingBottom: 'clamp(60px, 8vw, 100px)',
-      borderTop: '1px solid rgba(247,244,237,0.06)',
-      borderBottom: '1px solid rgba(247,244,237,0.06)',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-      }}>
-        <div className="svc-stats-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'clamp(24px, 3vw, 40px)',
-        }}>
-          {STATS.map((stat, i) => (
-            <div key={stat.label} style={{
-              textAlign: 'center' as const,
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0)' : 'translateY(20px)',
-              transition: `opacity 0.7s ${E} ${0.1 + i * 0.08}s, transform 0.7s ${E} ${0.1 + i * 0.08}s`,
-            }}>
-              <span style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-                fontWeight: 400,
-                color: '#D6A54A',
-                lineHeight: 1,
-                display: 'block',
-                marginBottom: '8px',
-              }}>{stat.number}</span>
-              <span style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '0.6rem',
-                fontWeight: 600,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.16em',
-                color: 'rgba(247,244,237,0.4)',
-              }}>{stat.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .svc-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ─── 08 — TESTIMONIALS ─── */
-
-function S08Testimonials() {
+function S06Testimonials() {
   const { ref, visible } = useReveal({ threshold: 0.08 });
 
   return (
@@ -952,7 +804,7 @@ function S08Testimonials() {
             }}>WHAT THEY SAY</p>
             <h2 style={{
               fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
               lineHeight: 0.95,
               fontWeight: 400,
               color: '#F7F4ED',
@@ -1046,86 +898,83 @@ function TestimonialCard({ testimonial, index, visible }: {
   );
 }
 
-/* ─── 06 — CINEMATIC CTA ─── */
+/* ─── 07 — CTA ─── */
 
-function S06CTA() {
+function S07CTA() {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
     <section ref={ref} style={{
-      position: 'relative',
-      overflow: 'hidden',
-      height: 'clamp(320px, 42vh, 420px)',
-      width: '100%',
-    }}>
-      {/* Background image */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        <img
-          src={CTA_IMAGE}
-          alt="Elegant outdoor celebration with warm atmospheric lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          loading="lazy"
-        />
-      </div>
-
-      {/* Dark overlay */}
+      backgroundColor: '#F1EDE3',
+      paddingTop: 'clamp(80px, 10vw, 120px)',
+      paddingBottom: 'clamp(80px, 10vw, 120px)',
+    }} className="grain">
       <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
-      }} />
-
-      {/* Content */}
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
         textAlign: 'center' as const,
-        paddingLeft: 'clamp(24px, 4vw, 40px)',
-        paddingRight: 'clamp(24px, 4vw, 40px)',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
       }}>
-        <h2 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(2.25rem, 4vw, 3.125rem)',
-          lineHeight: 0.95,
-          fontWeight: 400,
-          color: '#F7F4ED',
-          whiteSpace: 'pre-line' as const,
-          maxWidth: '16ch',
-        }}>
-          {"TELL US WHAT\nYOU'RE IMAGINING."}
-        </h2>
-
-        <Link
-          to="/contact"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginTop: '32px',
+        <Reveal delay={0} visible={visible}>
+          <p style={{
             fontFamily: "'Manrope', system-ui, sans-serif",
-            fontSize: '0.7rem',
-            fontWeight: 600,
+            fontSize: '11px',
+            letterSpacing: '0.15em',
             textTransform: 'uppercase' as const,
-            letterSpacing: '0.14em',
+            fontWeight: 600,
             color: '#D6A54A',
-            textDecoration: 'none',
-            transition: 'color 0.3s ease',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-        >
-          GET IN TOUCH
-          <ArrowRight size={16} strokeWidth={2} style={{ transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
-        </Link>
+            marginBottom: '20px',
+          }}>LET&apos;S CREATE SOMETHING EXTRAORDINARY</p>
+        </Reveal>
+        <Reveal delay={0.08} visible={visible}>
+          <h2 style={{
+            fontFamily: "'Fraunces', Georgia, serif",
+            fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+            lineHeight: 0.95,
+            fontWeight: 400,
+            color: '#161616',
+            marginBottom: '16px',
+          }}>
+            Your Vision. Our{' '}
+            <span style={{ fontStyle: 'italic' }}>Expertise.</span>
+          </h2>
+        </Reveal>
+        <Reveal delay={0.14} visible={visible}>
+          <p style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: 'clamp(0.85rem, 1vw, 0.94rem)',
+            lineHeight: 1.7,
+            color: '#6F6B63',
+            maxWidth: '480px',
+            margin: '0 auto 32px',
+          }}>
+            Let us help you design and execute an event that reflects your vision and creates lasting memories for every guest.
+          </p>
+        </Reveal>
+        <Reveal delay={0.2} visible={visible}>
+          <Link
+            to="/contact"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.14em',
+              color: '#D6A54A',
+              textDecoration: 'none',
+              transition: 'color 0.3s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+          >
+            Book Your Event
+            <ArrowRight size={16} strokeWidth={2} />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

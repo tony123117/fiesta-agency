@@ -4,23 +4,62 @@ import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 import type { PortfolioProject } from '@/lib/types';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const CATEGORIES = ['ALL', 'CORPORATE', 'PRIVATE', 'WEDDINGS', 'CONCERTS', 'FESTIVALS'] as const;
 
-const CTA_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
-
 const FALLBACK_GALLERY: PortfolioProject[] = [
-  { id: 'f1', title: 'Global Leadership Summit', slug: 'global-leadership-summit', category: 'Corporate', description: 'An international corporate summit bringing together industry leaders.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80', cover_alt: 'Corporate summit with dramatic stage lighting', gallery: [], published: true, sort_order: 0, created_at: '', updated_at: '' },
-  { id: 'f2', title: 'The Williams Wedding', slug: 'the-williams-wedding', category: 'Wedding', description: 'An intimate garden wedding celebration surrounded by nature.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80', cover_alt: 'Elegant outdoor wedding ceremony', gallery: [], published: true, sort_order: 1, created_at: '', updated_at: '' },
-  { id: 'f3', title: 'Kigali Music Festival', slug: 'kigali-music-festival', category: 'Concert', description: 'A three-day music festival celebrating African talent.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80', cover_alt: 'Live concert with dramatic stage lighting', gallery: [], published: true, sort_order: 2, created_at: '', updated_at: '' },
-  { id: 'f4', title: 'Gala Night Celebration', slug: 'gala-night-celebration', category: 'Private', description: 'A premium private gala evening with live entertainment.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80', cover_alt: 'Elegant candlelit gala dinner', gallery: [], published: true, sort_order: 3, created_at: '', updated_at: '' },
-  { id: 'f5', title: 'Cultural Heritage Festival', slug: 'cultural-heritage-festival', category: 'Festival', description: 'A vibrant public festival showcasing Rwandan culture.', story: null, year: 2023, cover_image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80', cover_alt: 'Outdoor cultural festival with crowds', gallery: [], published: true, sort_order: 4, created_at: '', updated_at: '' },
-  { id: 'f6', title: 'Product Launch Event', slug: 'product-launch-event', category: 'Corporate', description: 'A high-impact product launch with immersive brand experience.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80', cover_alt: 'Corporate product launch event', gallery: [], published: true, sort_order: 5, created_at: '', updated_at: '' },
-  { id: 'f7', title: 'Rooftop Party Night', slug: 'rooftop-party-night', category: 'Private', description: 'An exclusive rooftop celebration under the city lights.', story: null, year: 2024, cover_image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80', cover_alt: 'Night rooftop party with DJ and lights', gallery: [], published: true, sort_order: 6, created_at: '', updated_at: '' },
-  { id: 'f8', title: 'Wedding in the Hills', slug: 'wedding-in-the-hills', category: 'Wedding', description: 'A breathtaking hillside wedding overlooking the valley.', story: null, year: 2023, cover_image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80', cover_alt: 'Hillside wedding venue at sunset', gallery: [], published: true, sort_order: 7, created_at: '', updated_at: '' },
+  {
+    id: 'f1', title: 'The Modern Black-Tie Affair', slug: 'the-modern-black-tie-affair', category: 'Private',
+    description: 'A monochrome gala with sculptural florals and a striking quartet.',
+    story: null, year: 2024, cover_image: images.blacktie[0], cover_alt: 'Elegant black-tie gala with candlelit tables',
+    gallery: [], published: true, sort_order: 0, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f2', title: 'A Night of New Beginnings', slug: 'a-night-of-new-beginnings', category: 'Concert',
+    description: 'An unforgettable evening of live music and celebration.',
+    story: null, year: 2024, cover_image: images.hero[2], cover_alt: 'Concert with dramatic stage lighting',
+    gallery: [], published: true, sort_order: 1, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f3', title: 'An Intimate Celebration', slug: 'an-intimate-celebration', category: 'Private',
+    description: 'A private gathering designed with warmth and elegance.',
+    story: null, year: 2024, cover_image: images.intimate[0], cover_alt: 'Intimate celebration with warm lighting',
+    gallery: [], published: true, sort_order: 2, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f4', title: 'The Lagoon Garden Celebration', slug: 'the-lagoon-garden-celebration', category: 'Wedding',
+    description: 'A breathtaking garden wedding surrounded by nature.',
+    story: null, year: 2024, cover_image: images.lagoon[0], cover_alt: 'Garden celebration with lush greenery',
+    gallery: [], published: true, sort_order: 3, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f5', title: 'Kigali Rooftop Gala', slug: 'kigali-rooftop-gala', category: 'Corporate',
+    description: 'A premium rooftop gala with panoramic city views.',
+    story: null, year: 2024, cover_image: images.garden[0], cover_alt: 'Rooftop gala with city skyline',
+    gallery: [], published: true, sort_order: 4, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f6', title: 'Serena Lakeside Wedding', slug: 'serena-lakeside-wedding', category: 'Wedding',
+    description: 'A stunning lakeside ceremony at sunset.',
+    story: null, year: 2024, cover_image: images.serena[0], cover_alt: 'Lakeside wedding at golden hour',
+    gallery: [], published: true, sort_order: 5, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f7', title: 'Amahoto Stadium Concert', slug: 'amahoto-stadium-concert', category: 'Concert',
+    description: 'A large-scale stadium concert with world-class production.',
+    story: null, year: 2024, cover_image: images.hero[3], cover_alt: 'Stadium concert with dramatic lighting',
+    gallery: [], published: true, sort_order: 6, created_at: '', updated_at: '',
+  },
+  {
+    id: 'f8', title: 'The Garden City Launch', slug: 'the-garden-city-launch', category: 'Corporate',
+    description: 'A high-impact product launch with immersive brand experience.',
+    story: null, year: 2024, cover_image: images.garden[1], cover_alt: 'Corporate launch event',
+    gallery: [], published: true, sort_order: 7, created_at: '', updated_at: '',
+  },
 ];
 
 /* ─── PORTFOLIO PAGE ─── */
@@ -59,8 +98,7 @@ export function Portfolio() {
   }, [published, activeFilter]);
 
   const featured = published[0] || null;
-  const gallery = filtered.slice(0, 8);
-  const secondaryGallery = published.slice(0, 4);
+  const gallery = filtered.slice(0, 9);
 
   return (
     <>
@@ -68,8 +106,6 @@ export function Portfolio() {
       <P02Filter active={activeFilter} onChange={setActiveFilter} />
       <P03Gallery projects={gallery} loading={loading} />
       {featured && <P04Featured project={featured} />}
-      <P05DarkGallery projects={secondaryGallery} />
-      <P06CTA />
     </>
   );
 }
@@ -80,7 +116,13 @@ function P01Hero() {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
-    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden' }}>
+    <section
+      ref={ref}
+      style={{
+        backgroundColor: '#090909',
+        overflow: 'hidden',
+      }}
+    >
       <div style={{
         margin: '0 auto',
         maxWidth: '1200px',
@@ -92,31 +134,33 @@ function P01Hero() {
         <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start' }}
           className="port-hero-grid"
         >
-          {/* Left: Text — 45% */}
-          <div style={{ flex: '0 0 45%' }} className="port-hero-text">
+          <div style={{ flex: '0 0 38%' }} className="port-hero-text">
             <Reveal delay={0} visible={visible}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '11px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase' as const,
-                fontWeight: 600,
-                color: '#D6A54A',
-                marginBottom: '20px',
-              }}>OUR PORTFOLIO</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+                <div style={{ width: '40px', height: '1.5px', backgroundColor: '#D6A54A' }} />
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '11px',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase' as const,
+                  fontWeight: 600,
+                  color: '#D6A54A',
+                }}>OUR PORTFOLIO</p>
+              </div>
             </Reveal>
             <Reveal delay={0.08} visible={visible}>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.5rem, 5vw, 4.125rem)',
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
                 lineHeight: 0.92,
                 fontWeight: 400,
-                color: '#F7F4ED',
-                whiteSpace: 'pre-line' as const,
+                color: '#F8F5EF',
                 maxWidth: '520px',
                 marginBottom: '24px',
               }}>
-                {"MEMORABLE EVENTS.\nLASTING\nIMPRESSIONS."}
+                MEMORABLE.{' '}
+                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>LASTING</span>{' '}
+                IMPRESSIONS.
               </h1>
             </Reveal>
             <Reveal delay={0.16} visible={visible}>
@@ -124,19 +168,18 @@ function P01Hero() {
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
                 lineHeight: 1.65,
-                color: '#C7C2B9',
+                color: '#C8C2B8',
                 maxWidth: '400px',
               }}>
-                A curated collection of our favorite moments, from intimate celebrations to large-scale productions.
+                A curated collection of our most memorable moments, from intimate celebrations to large-scale productions.
               </p>
             </Reveal>
           </div>
 
-          {/* Right: Image — 55% */}
           <Reveal delay={0.12} visible={visible}>
-            <div style={{ flex: 1, overflow: 'hidden' }} className="port-hero-img">
+            <div style={{ width: '400px', flexShrink: 0, overflow: 'hidden' }} className="port-hero-img">
               <img
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80"
+                src={images.intimate[2]}
                 alt="Elegant candlelit event venue with warm atmospheric lighting"
                 style={{
                   width: '100%',
@@ -179,7 +222,6 @@ function P02Filter({ active, onChange }: { active: string; onChange: (c: string)
         paddingRight: 'clamp(24px, 5vw, 40px)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         height: '56px',
         overflowX: 'auto',
       }}
@@ -197,13 +239,10 @@ function P02Filter({ active, onChange }: { active: string; onChange: (c: string)
                 textTransform: 'uppercase' as const,
                 letterSpacing: '0.14em',
                 color: active === cat ? '#D6A54A' : '#77736B',
-                borderBottom: active === cat ? '1.5px solid #D6A54A' : '1.5px solid transparent',
-                paddingBottom: '2px',
                 background: 'none',
                 border: 'none',
-                borderBottomWidth: '1.5px',
-                borderBottomStyle: 'solid',
-                borderBottomColor: active === cat ? '#D6A54A' : 'transparent',
+                borderBottom: active === cat ? '1.5px solid #D6A54A' : '1.5px solid transparent',
+                paddingBottom: '2px',
                 cursor: 'pointer',
                 transition: 'color 0.3s ease',
                 whiteSpace: 'nowrap' as const,
@@ -218,16 +257,19 @@ function P02Filter({ active, onChange }: { active: string; onChange: (c: string)
   );
 }
 
-/* ─── 03 — EDITORIAL GALLERY ─── */
+/* ─── 03 — GALLERY ─── */
 
 function P03Gallery({ projects, loading }: { projects: PortfolioProject[]; loading: boolean }) {
   const { ref, visible } = useReveal({ threshold: 0.04 });
 
   return (
-    <section ref={ref} style={{
-      backgroundColor: '#F1EDE3',
-      paddingBottom: 'clamp(80px, 10vw, 140px)',
-    }}>
+    <section
+      ref={ref}
+      style={{
+        backgroundColor: '#F1EDE3',
+        paddingBottom: 'clamp(80px, 10vw, 140px)',
+      }}
+    >
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
@@ -238,7 +280,7 @@ function P03Gallery({ projects, loading }: { projects: PortfolioProject[]; loadi
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', opacity: 0.5 }}
             className="port-gallery-grid"
           >
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="skeleton" style={{ aspectRatio: '4/5' }} />
             ))}
           </div>
@@ -251,9 +293,7 @@ function P03Gallery({ projects, loading }: { projects: PortfolioProject[]; loadi
               fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
               lineHeight: 1.2,
               marginBottom: '16px',
-            }}>
-              NO PROJECTS FOUND
-            </p>
+            }}>NO PROJECTS FOUND</p>
             <p style={{
               fontFamily: "'Manrope', system-ui, sans-serif",
               fontSize: '0.85rem',
@@ -300,7 +340,11 @@ function P03Gallery({ projects, loading }: { projects: PortfolioProject[]; loadi
   );
 }
 
-function GalleryItem({ project, index, visible }: { project: PortfolioProject; index: number; visible: boolean }) {
+function GalleryItem({ project, index, visible }: {
+  project: PortfolioProject;
+  index: number;
+  visible: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const aspect = index % 3 === 1 ? '3/4' : index % 3 === 2 ? '4/3' : '4/5';
 
@@ -318,7 +362,6 @@ function GalleryItem({ project, index, visible }: { project: PortfolioProject; i
       onMouseLeave={() => setHovered(false)}
       aria-label={`View project: ${project.title}`}
     >
-      {/* Image */}
       <div style={{ overflow: 'hidden', position: 'relative' }}>
         <img
           src={project.cover_image || ''}
@@ -356,38 +399,33 @@ function GalleryItem({ project, index, visible }: { project: PortfolioProject; i
         />
       </div>
 
-      {/* Text */}
       <div style={{ paddingTop: '14px' }}>
-        {project.category && (
-          <span style={{
-            fontFamily: "'Manrope', system-ui, sans-serif",
-            fontSize: '0.55rem',
-            fontWeight: 600,
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.18em',
-            color: '#D6A54A',
-            display: 'block',
-            marginBottom: '4px',
-          }}>
-            {project.category}{project.year ? ` / ${project.year}` : ''}
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          {project.category && (
+            <span style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '0.55rem',
+              fontWeight: 600,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.18em',
+              color: '#D6A54A',
+            }}>{project.category}</span>
+          )}
+          {project.year && (
+            <span style={{
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '0.55rem',
+              color: '#77736B',
+            }}>— {project.year}</span>
+          )}
+        </div>
         <h3 style={{
           fontFamily: "'Fraunces', Georgia, serif",
           fontSize: 'clamp(1rem, 1.4vw, 1.25rem)',
           fontWeight: 400,
           color: '#171717',
           lineHeight: 1.2,
-          marginBottom: '4px',
         }}>{project.title}</h3>
-        <span style={{
-          fontFamily: "'Manrope', system-ui, sans-serif",
-          fontSize: '0.62rem',
-          color: '#77736B',
-          letterSpacing: '0.05em',
-        }}>
-          {project.year || ''}
-        </span>
       </div>
     </Link>
   );
@@ -399,11 +437,14 @@ function P04Featured({ project }: { project: PortfolioProject }) {
   const { ref, visible } = useReveal({ threshold: 0.08 });
 
   return (
-    <section ref={ref} style={{
-      backgroundColor: '#FFFFFF',
-      paddingTop: 'clamp(80px, 10vw, 140px)',
-      paddingBottom: 'clamp(80px, 10vw, 140px)',
-    }}>
+    <section
+      ref={ref}
+      style={{
+        backgroundColor: '#FFFFFF',
+        paddingTop: 'clamp(80px, 10vw, 140px)',
+        paddingBottom: 'clamp(80px, 10vw, 140px)',
+      }}
+    >
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
@@ -413,9 +454,8 @@ function P04Featured({ project }: { project: PortfolioProject }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
           className="port-featured-grid"
         >
-          {/* Left: Image — 55% */}
           <Reveal delay={0} visible={visible}>
-            <div style={{ overflow: 'hidden' }} className="port-featured-img">
+            <div style={{ overflow: 'hidden' }}>
               <img
                 src={project.cover_image || ''}
                 alt={project.cover_alt || project.title}
@@ -432,34 +472,26 @@ function P04Featured({ project }: { project: PortfolioProject }) {
             </div>
           </Reveal>
 
-          {/* Right: Text — 40% */}
           <div className="port-featured-text">
             <Reveal delay={0.12} visible={visible}>
-              {project.category && (
-                <span style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '0.6rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase' as const,
-                  letterSpacing: '0.15em',
-                  color: '#D6A54A',
-                  display: 'block',
-                  marginBottom: '16px',
-                }}>
-                  {project.category}{project.year ? ` / ${project.year}` : ''}
-                </span>
-              )}
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.6rem',
+                fontWeight: 600,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.15em',
+                color: '#D6A54A',
+                display: 'block',
+                marginBottom: '16px',
+              }}>FEATURED PROJECT</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 3.5vw, 3.25rem)',
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#171717',
-                whiteSpace: 'pre-line' as const,
                 marginBottom: '20px',
-              }}>
-                {project.title}
-              </h2>
+              }}>{project.title}</h2>
               {project.description && (
                 <p style={{
                   fontFamily: "'Manrope', system-ui, sans-serif",
@@ -468,9 +500,7 @@ function P04Featured({ project }: { project: PortfolioProject }) {
                   color: '#77736B',
                   marginBottom: '32px',
                   maxWidth: '400px',
-                }}>
-                  {project.description}
-                </p>
+                }}>{project.description}</p>
               )}
               <Link
                 to={`/portfolio/${project.slug}`}
@@ -490,8 +520,8 @@ function P04Featured({ project }: { project: PortfolioProject }) {
                 onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
               >
-                VIEW PROJECT
-                <ArrowRight size={14} strokeWidth={2} style={{ transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                View Project
+                <ArrowRight size={14} strokeWidth={2} />
               </Link>
             </Reveal>
           </div>
@@ -507,234 +537,13 @@ function P04Featured({ project }: { project: PortfolioProject }) {
   );
 }
 
-/* ─── 05 — SECONDARY DARK GALLERY ─── */
-
-function P05DarkGallery({ projects }: { projects: PortfolioProject[] }) {
-  const { ref, visible } = useReveal({ threshold: 0.06 });
-
-  if (projects.length === 0) return null;
-
-  return (
-    <section ref={ref} style={{
-      backgroundColor: '#090909',
-      paddingTop: 'clamp(80px, 10vw, 140px)',
-      paddingBottom: 'clamp(80px, 10vw, 140px)',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-      }}>
-        <Reveal delay={0} visible={visible}>
-          <div style={{ marginBottom: 'clamp(36px, 5vw, 56px)' }}>
-            <p style={{
-              fontFamily: "'Manrope', system-ui, sans-serif",
-              fontSize: '11px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase' as const,
-              fontWeight: 600,
-              color: '#D6A54A',
-              marginBottom: '20px',
-            }}>MORE WORK</p>
-            <h2 style={{
-              fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-              lineHeight: 0.95,
-              fontWeight: 400,
-              color: '#F7F4ED',
-            }}>BEHIND THE SCENES.</h2>
-          </div>
-        </Reveal>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'clamp(8px, 1vw, 16px)',
-        }}
-          className="port-dark-grid"
-        >
-          {projects.map((project, i) => (
-            <DarkGalleryItem key={project.id} project={project} index={i} visible={visible} />
-          ))}
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 1024px) {
-          .port-dark-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 640px) {
-          .port-dark-grid {
-            display: flex !important;
-            overflow-x: auto !important;
-            scroll-snap-type: x mandatory !important;
-            gap: 12px !important;
-            padding-bottom: 16px;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-          .port-dark-grid::-webkit-scrollbar { display: none; }
-          .port-dark-grid > * {
-            flex: 0 0 70% !important;
-            scroll-snap-align: start !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function DarkGalleryItem({ project, index, visible }: { project: PortfolioProject; index: number; visible: boolean }) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <Link
-      to={`/portfolio/${project.slug}`}
-      style={{
-        display: 'block',
-        textDecoration: 'none',
-        position: 'relative',
-        overflow: 'hidden',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 0.8s ${E} ${0.1 + index * 0.08}s, transform 0.8s ${E} ${0.1 + index * 0.08}s`,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      aria-label={`View project: ${project.title}`}
-    >
-      <img
-        src={project.cover_image || ''}
-        alt={project.cover_alt || project.title}
-        style={{
-          width: '100%',
-          aspectRatio: '1/1',
-          objectFit: 'cover',
-          display: 'block',
-          transform: hovered ? 'scale(1.05)' : 'scale(1)',
-          transition: `transform 0.7s ${E}`,
-        }}
-        loading="lazy"
-      />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: hovered
-          ? 'linear-gradient(180deg, rgba(9,9,9,0) 0%, rgba(9,9,9,0.7) 100%)'
-          : 'linear-gradient(180deg, rgba(9,9,9,0) 0%, rgba(9,9,9,0.3) 100%)',
-        transition: 'background 0.5s ease',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '16px',
-        left: '16px',
-        right: '16px',
-        pointerEvents: 'none',
-      }}>
-        <h3 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(0.85rem, 1.1vw, 1rem)',
-          fontWeight: 400,
-          color: '#F7F4ED',
-          lineHeight: 1.2,
-          opacity: hovered ? 1 : 0.85,
-          transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
-          transition: `opacity 0.4s ${E}, transform 0.4s ${E}`,
-        }}>{project.title}</h3>
-      </div>
-    </Link>
-  );
-}
-
-/* ─── 06 — CINEMATIC CTA ─── */
-
-function P06CTA() {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
-
-  return (
-    <section ref={ref} style={{
-      position: 'relative',
-      overflow: 'hidden',
-      height: 'clamp(300px, 40vh, 400px)',
-    }}>
-      {/* Background image */}
-      <div style={{ position: 'absolute', inset: 0 }}>
-        <img
-          src={CTA_IMAGE}
-          alt="Elegant outdoor celebration with warm atmospheric lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          loading="lazy"
-        />
-      </div>
-
-      {/* Dark overlay */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
-      }} />
-
-      {/* Content */}
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center' as const,
-        paddingLeft: 'clamp(24px, 4vw, 40px)',
-        paddingRight: 'clamp(24px, 4vw, 40px)',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
-      }}>
-        <h2 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',
-          lineHeight: 0.95,
-          fontWeight: 400,
-          color: '#F7F4ED',
-          whiteSpace: 'pre-line' as const,
-          maxWidth: '16ch',
-        }}>
-          {"LET'S CREATE\nSOMETHING\nEXTRAORDINARY."}
-        </h2>
-
-        <Link
-          to="/contact"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginTop: '32px',
-            fontFamily: "'Manrope', system-ui, sans-serif",
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.14em',
-            color: '#D6A54A',
-            textDecoration: 'none',
-            transition: 'color 0.3s ease',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-        >
-          GET IN TOUCH
-          <ArrowRight size={16} strokeWidth={2} style={{ transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
-        </Link>
-      </div>
-    </section>
-  );
-}
-
 /* ─── REVEAL HELPER ─── */
 
-function Reveal({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
+function Reveal({ children, delay = 0, visible }: {
+  children: React.ReactNode;
+  delay?: number;
+  visible: boolean;
+}) {
   return (
     <div style={{
       opacity: visible ? 1 : 0,

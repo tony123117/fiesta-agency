@@ -4,6 +4,7 @@ import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useSiteSettings } from '@/lib/useSiteSettings';
 import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -67,7 +68,7 @@ function C01Hero() {
             <Reveal delay={0.08} visible={visible}>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.5rem, 5vw, 4.125rem)',
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
                 lineHeight: 0.92,
                 fontWeight: 400,
                 color: '#F8F5EF',
@@ -98,7 +99,7 @@ function C01Hero() {
           <Reveal delay={0.12} visible={visible}>
             <div style={{ flex: 1, overflow: 'hidden' }} className="contact-hero-img">
               <img
-                src="https://images.unsplash.com/photo-1515169067868-5387ec356754?w=800&q=80"
+                src={images.hero[6]}
                 alt="Elegant event setup with warm lighting"
                 style={{
                   width: '100%',
@@ -209,13 +210,13 @@ function C02Form() {
               }}>CONTACT INFO</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
-                lineHeight: 0.95,
-                fontWeight: 400,
-                color: '#161616',
-                whiteSpace: 'pre-line' as const,
-                marginBottom: '32px',
-              }}>{"WE'D LOVE\nTO HEAR FROM YOU."}</h2>
+fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#161616',
+              whiteSpace: 'pre-line' as const,
+              marginBottom: '32px',
+            }}>{"WE'D LOVE\nTO HEAR FROM YOU."}</h2>
             </Reveal>
 
             <Reveal delay={0.12} visible={visible}>
@@ -450,13 +451,13 @@ function C03Location() {
               }}>VISIT US</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
-                lineHeight: 0.95,
-                fontWeight: 400,
-                color: '#161616',
-                whiteSpace: 'pre-line' as const,
-                marginBottom: '20px',
-              }}>{"OUR\nOFFICE."}</h2>
+fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+              lineHeight: 0.95,
+              fontWeight: 400,
+              color: '#161616',
+              whiteSpace: 'pre-line' as const,
+              marginBottom: '20px',
+            }}>{"OUR\nOFFICE."}</h2>
             </Reveal>
 
             <Reveal delay={0.12} visible={visible}>
@@ -492,7 +493,7 @@ function C03Location() {
               aspectRatio: '16/10',
             }}>
               <img
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1000&q=80"
+                src={images.process[2]}
                 alt="Map showing Fiesta Agency office location in Kigali"
                 style={{
                   width: '100%',
@@ -530,7 +531,7 @@ function C04CTA() {
     }}>
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1600&q=80"
+          src={images.intimate[5]}
           alt="Beautiful outdoor celebration setup with ambient lighting"
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           loading="lazy"
@@ -559,7 +560,7 @@ function C04CTA() {
       }}>
         <h2 style={{
           fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',
+          fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
           lineHeight: 0.95,
           fontWeight: 400,
           color: '#F8F5EF',

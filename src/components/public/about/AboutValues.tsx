@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useReveal } from '@/lib/useReveal';
 import { breakHeading } from '@/lib/breakHeading';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -27,7 +28,7 @@ export function AboutValues({ content }: { content: unknown }) {
         { id: '4', name: 'EXCELLENCE' },
         { id: '5', name: 'TEAMWORK' },
       ];
-  const image = data?.image || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80';
+  const image = data?.image || images.process[5];
 
   return (
     <section

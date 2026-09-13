@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 import type { CTAContent } from '@/lib/types';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -18,7 +19,7 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
+const DEFAULT_IMAGE = images.hero[7];
 
 export function CTARenderer({ content }: { content: unknown }) {
   const data = content as CTAContent;

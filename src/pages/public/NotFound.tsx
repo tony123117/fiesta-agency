@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -21,7 +22,7 @@ export function NotFound() {
     >
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80"
+          src={images.intimate[6]}
           alt="Elegant event atmosphere"
           className="w-full h-full object-cover"
           style={{ opacity: 0.15 }}

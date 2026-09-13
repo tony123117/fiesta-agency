@@ -1,5 +1,6 @@
 import { useReveal } from '@/lib/useReveal';
 import { breakHeading } from '@/lib/breakHeading';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -36,7 +37,7 @@ export function AboutIntro({ content }: { content: unknown }) {
   const normalizedHeading = rawHeading.replace(/\\n/g, '\n');
   const heading = breakHeading(normalizedHeading);
   const body = (data?.body || 'Fiesta Agency is an event planning and entertainment company focused on creating unforgettable experiences through creativity, production, planning and flawless execution.').replace(/\\n/g, '\n');
-  const image = data?.image || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1600&q=80';
+  const image = data?.image || images.serena[4];
 
   const mission = data?.mission || { title: 'OUR MISSION', description: 'We turn ideas into well-crafted experiences by combining creativity, entertainment, production and precision.' };
   const vision = data?.vision || { title: 'OUR VISION', description: 'Building a trusted and creative event company. Creating experiences people remember. Growing across the region.' };

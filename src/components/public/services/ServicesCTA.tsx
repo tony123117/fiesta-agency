@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -11,7 +12,7 @@ interface ServicesCTAContent {
   background_image?: string;
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80';
+const DEFAULT_IMAGE = images.hero[1];
 
 export function ServicesCTA({ content }: { content: unknown }) {
   const data = content as ServicesCTAContent;

@@ -5,6 +5,7 @@ import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
 import type { EventItem } from '@/lib/types';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -411,7 +412,7 @@ export function EventDetail() {
       >
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80"
+            src={images.hero[2]}
             alt="Elegant celebration with dramatic lighting"
             className="w-full h-full object-cover"
             loading="eager"

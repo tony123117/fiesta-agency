@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -11,9 +12,9 @@ interface ServicesFeaturedContent {
 }
 
 const DEFAULT_SERVICES = [
-  { id: '1', title: 'EVENT PLANNING', description: 'Full-service event planning tailored to your vision and goals.', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80' },
-  { id: '2', title: 'CONCERTS &\nLIVE SHOWS', description: 'End-to-end production for unforgettable live experiences.', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80' },
-  { id: '3', title: 'WEDDINGS &\nCELEBRATIONS', description: 'Beautifully curated weddings and private celebrations.', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80' },
+  { id: '1', title: 'EVENT PLANNING', description: 'Full-service event planning tailored to your vision and goals.', image: images.blacktie[2] },
+  { id: '2', title: 'CONCERTS &\nLIVE SHOWS', description: 'End-to-end production for unforgettable live experiences.', image: images.hero[3] },
+  { id: '3', title: 'WEDDINGS &\nCELEBRATIONS', description: 'Beautifully curated weddings and private celebrations.', image: images.serena[0] },
 ];
 
 export function ServicesFeatured({ content }: { content: unknown }) {

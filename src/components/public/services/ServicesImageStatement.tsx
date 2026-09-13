@@ -1,4 +1,5 @@
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -8,7 +9,7 @@ interface ServicesImageStatementContent {
   image?: string;
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1600&q=80';
+const DEFAULT_IMAGE = images.lagoon[5];
 
 export function ServicesImageStatement({ content }: { content: unknown }) {
   const data = content as ServicesImageStatementContent;

@@ -3,22 +3,23 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const STEPS = [
-  { num: '01', title: 'CONSULTATION', description: 'We start with a conversation to understand your vision, goals and expectations.' },
-  { num: '02', title: 'PLANNING', description: 'We develop a detailed plan including creative direction, budget and timeline.' },
-  { num: '03', title: 'PREPARATION', description: 'We coordinate logistics, vendors and every behind-the-scenes detail.' },
-  { num: '04', title: 'EXECUTION', description: 'On the day, we bring everything together and manage every element with precision.' },
-  { num: '05', title: 'FOLLOW-UP', description: 'We make sure everything went as planned and gather feedback for future experiences.' },
+  { num: '01', title: 'CONSULTATION', description: 'We understand your vision, requirements and expectations.' },
+  { num: '02', title: 'PLANNING', description: 'We develop the concept, logistics and detailed event plan.' },
+  { num: '03', title: 'PREPARATION', description: 'We coordinate suppliers, production and every necessary detail.' },
+  { num: '04', title: 'EXECUTION', description: 'The vision becomes reality through precise coordination and execution.' },
+  { num: '05', title: 'FOLLOW-UP', description: 'We review the experience and ensure every detail is properly concluded.' },
 ];
 
 const PRINCIPLES = [
-  { num: '01', title: 'CREATIVITY', text: 'Every event deserves its own identity. We approach each project with fresh thinking and original ideas.' },
-  { num: '02', title: 'PRECISION', description: 'We obsess over details so you don\'t have to. Every element is planned, checked and perfected.' },
-  { num: '03', title: 'COLLABORATION', text: 'Great events are never created alone. We work closely with you at every stage.' },
-  { num: '04', title: 'EXCELLENCE', text: 'We don\'t settle for average. Every event we produce reflects our highest standards.' },
+  { num: '01', title: 'CREATIVITY', text: 'Fresh ideas, distinctive concepts and thoughtful details.' },
+  { num: '02', title: 'PRECISION', text: 'Careful planning and attention to every important detail.' },
+  { num: '03', title: 'COLLABORATION', text: 'Working closely with clients and partners to bring the vision together.' },
+  { num: '04', title: 'EXCELLENCE', text: 'A commitment to delivering memorable experiences.' },
 ];
 
 /* ─── HOW WE WORK PAGE ─── */
@@ -36,8 +37,7 @@ export function HowWeWork() {
       <HW03Process />
       <HW04Behind />
       <HW05Why />
-      <HW06Statement />
-      <HW07CTA />
+      <HW06CTA />
     </>
   );
 }
@@ -62,28 +62,30 @@ function HW01Hero() {
         >
           <div style={{ flex: '0 0 45%' }} className="hw-hero-text">
             <Reveal delay={0} visible={visible}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '11px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase' as const,
-                fontWeight: 600,
-                color: '#D6A54A',
-                marginBottom: '20px',
-              }}>HOW WE WORK</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+                <div style={{ width: '40px', height: '1.5px', backgroundColor: '#D6A54A' }} />
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '11px',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase' as const,
+                  fontWeight: 600,
+                  color: '#D6A54A',
+                }}>HOW WE WORK</p>
+              </div>
             </Reveal>
             <Reveal delay={0.08} visible={visible}>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.5rem, 5vw, 4.125rem)',
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
                 lineHeight: 0.92,
                 fontWeight: 400,
                 color: '#F8F5EF',
-                whiteSpace: 'pre-line' as const,
                 maxWidth: '520px',
                 marginBottom: '24px',
               }}>
-                {"A SEAMLESS PROCESS.\nEXCEPTIONAL RESULTS."}
+                A SEAMLESS PROCESS.{' '}
+                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>EXCEPTIONAL RESULTS.</span>
               </h1>
             </Reveal>
             <Reveal delay={0.14} visible={visible}>
@@ -95,22 +97,19 @@ function HW01Hero() {
                 maxWidth: '390px',
                 marginBottom: '32px',
               }}>
-                We follow a proven process to ensure every detail is handled with care, creativity and precision, from the first conversation to the final celebration.
+                From concept to execution, we handle every detail with precision, creativity and care - so you can focus on what matters most.
               </p>
-            </Reveal>
-            <Reveal delay={0.2} visible={visible}>
-              <div style={{ width: '50px', height: '2px', backgroundColor: '#D6A54A' }} />
             </Reveal>
           </div>
 
           <Reveal delay={0.12} visible={visible}>
             <div style={{ flex: 1, overflow: 'hidden' }} className="hw-hero-img">
               <img
-                src="https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800&q=80"
+                src={images.process[0]}
                 alt="Event production team coordinating behind the scenes"
                 style={{
                   width: '100%',
-                  height: 'clamp(300px, 28vw, 340px)',
+                  height: 'clamp(300px, 28vw, 380px)',
                   objectFit: 'cover',
                   display: 'block',
                   transform: visible ? 'scale(1)' : 'scale(1.04)',
@@ -154,11 +153,10 @@ function HW02Intro() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
           className="hw-intro-grid"
         >
-          {/* Left: Image */}
           <Reveal delay={0} visible={visible}>
             <div style={{ overflow: 'hidden' }}>
               <img
-                src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80"
+                src={images.process[1]}
                 alt="Event planning meeting with creative team"
                 style={{
                   width: '100%',
@@ -173,7 +171,6 @@ function HW02Intro() {
             </div>
           </Reveal>
 
-          {/* Right: Text */}
           <div className="hw-intro-text">
             <Reveal delay={0.12} visible={visible}>
               <p style={{
@@ -187,14 +184,14 @@ function HW02Intro() {
               }}>THE FIESTA APPROACH</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.5rem, 4.2vw, 3.375rem)',
+                fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#161616',
-                whiteSpace: 'pre-line' as const,
                 marginBottom: '24px',
               }}>
-                {"FROM FIRST IDEA\nTO FINAL MOMENT."}
+                FROM FIRST IDEA{' '}
+                <span style={{ fontStyle: 'italic' }}>TO FINAL MOMENT.</span>
               </h2>
               <p style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
@@ -202,9 +199,31 @@ function HW02Intro() {
                 lineHeight: 1.75,
                 color: '#6F6B63',
                 maxWidth: '440px',
+                marginBottom: '32px',
               }}>
-                Every event begins with a conversation. We listen, we ask the right questions, and we develop a creative direction that aligns with your vision. From consultation through production to the final moment, we coordinate every detail so you can focus on enjoying the experience.
+                Every great event starts with a conversation. We listen, understand your vision, and bring it to life with a detailed plan, trusted partners and flawless execution. From concept development to on-site management, we ensure every detail is handled with precision.
               </p>
+              <Link
+                to="/services"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.14em',
+                  color: '#D6A54A',
+                  textDecoration: 'none',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+              >
+                View Our Services
+                <ArrowRight size={14} strokeWidth={2} />
+              </Link>
             </Reveal>
           </div>
         </div>
@@ -236,7 +255,6 @@ function HW03Process() {
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
       }}>
-        {/* Desktop: Horizontal timeline */}
         <div className="hw-proc-desktop" style={{ position: 'relative' }}>
           <div style={{
             position: 'absolute',
@@ -294,7 +312,6 @@ function HW03Process() {
           ))}
         </div>
 
-        {/* Mobile: Vertical timeline */}
         <div className="hw-proc-mobile">
           {STEPS.map((step, i) => (
             <div key={step.num} style={{
@@ -388,35 +405,51 @@ function HW04Behind() {
         paddingRight: 'clamp(24px, 5vw, 40px)',
       }}>
         <Reveal delay={0} visible={visible}>
-          <div style={{ marginBottom: 'clamp(36px, 5vw, 56px)' }}>
-            <p style={{
-              fontFamily: "'Manrope', system-ui, sans-serif",
-              fontSize: '11px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase' as const,
-              fontWeight: 600,
-              color: '#D6A54A',
-              marginBottom: '20px',
-            }}>BEHIND THE SCENES</p>
-            <h2 style={{
-              fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
-              lineHeight: 0.95,
-              fontWeight: 400,
-              color: '#F8F5EF',
-              whiteSpace: 'pre-line' as const,
-            }}>{"BEHIND\nTHE MOMENT."}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'clamp(36px, 5vw, 56px)' }}>
+            <div>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '11px',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase' as const,
+                fontWeight: 600,
+                color: '#D6A54A',
+                marginBottom: '20px',
+              }}>BEHIND THE SCENES</p>
+              <h2 style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                lineHeight: 0.95,
+                fontWeight: 400,
+                color: '#F8F5EF',
+              }}>
+                BEHIND{' '}
+                <span style={{ fontStyle: 'italic' }}>THE MOMENT.</span>
+              </h2>
+            </div>
           </div>
         </Reveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
+        <Reveal delay={0.08} visible={visible}>
+          <p style={{
+            fontFamily: "'Manrope', system-ui, sans-serif",
+            fontSize: 'clamp(0.85rem, 1vw, 0.94rem)',
+            lineHeight: 1.7,
+            color: '#C8C2B8',
+            maxWidth: '400px',
+            marginBottom: 'clamp(32px, 4vw, 48px)',
+          }}>
+            It&apos;s not just about what you see. Behind every beautiful event is a dedicated team working with precision, creativity and passion.
+          </p>
+        </Reveal>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}
           className="hw-behind-grid"
         >
-          {/* Large image */}
           <Reveal delay={0.1} visible={visible}>
             <div style={{ overflow: 'hidden' }}>
               <img
-                src="https://images.unsplash.com/photo-1478146059778-26028b07395a?w=1200&q=80"
+                src={images.behind[0]}
                 alt="Event setup and stage production preparation"
                 style={{
                   width: '100%',
@@ -431,14 +464,13 @@ function HW04Behind() {
             </div>
           </Reveal>
 
-          {/* Two stacked images */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(12px, 1.5vw, 20px)' }}
             className="hw-behind-pair"
           >
             <Reveal delay={0.2} visible={visible}>
               <div style={{ overflow: 'hidden' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80"
+                  src={images.bts[0]}
                   alt="Table styling and floral arrangements"
                   style={{
                     width: '100%',
@@ -453,7 +485,7 @@ function HW04Behind() {
             <Reveal delay={0.28} visible={visible}>
               <div style={{ overflow: 'hidden' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80"
+                  src={images.bts[1]}
                   alt="Lighting and sound production setup"
                   style={{
                     width: '100%',
@@ -528,11 +560,14 @@ function HW05Why() {
             }}>WHY FIESTA</p>
             <h2 style={{
               fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
               lineHeight: 0.95,
               fontWeight: 400,
               color: '#161616',
-            }}>THE PRINCIPLES<br />BEHIND OUR WORK.</h2>
+            }}>
+              THE PRINCIPLES{' '}
+              <span style={{ fontStyle: 'italic' }}>BEHIND OUR WORK.</span>
+            </h2>
           </div>
         </Reveal>
 
@@ -549,14 +584,6 @@ function HW05Why() {
               transform: visible ? 'translateY(0)' : 'translateY(16px)',
               transition: `opacity 0.7s ${E} ${0.1 + i * 0.08}s, transform 0.7s ${E} ${0.1 + i * 0.08}s`,
             }}>
-              <span style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-                fontWeight: 400,
-                fontSize: '0.8rem',
-                color: 'rgba(214,165,74,0.5)',
-                display: 'block',
-                marginBottom: '12px',
-              }}>{p.num}</span>
               <h3 style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
                 fontSize: '0.8rem',
@@ -572,7 +599,7 @@ function HW05Why() {
                 lineHeight: 1.7,
                 color: '#6F6B63',
                 marginBottom: '16px',
-              }}>{p.text || p.description}</p>
+              }}>{p.text}</p>
               <div style={{ width: '32px', height: '1.5px', backgroundColor: '#D6A54A' }} />
             </div>
           ))}
@@ -602,23 +629,23 @@ function HW05Why() {
   );
 }
 
-/* ─── 06 — EDITORIAL STATEMENT ─── */
+/* ─── 06 — CTA ─── */
 
-function HW06Statement() {
-  const { ref, visible } = useReveal({ threshold: 0.08 });
+function HW06CTA() {
+  const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
     <section ref={ref} style={{
-      backgroundColor: '#FFFFFF',
-      paddingTop: 'clamp(80px, 10vw, 130px)',
-      paddingBottom: 'clamp(80px, 10vw, 130px)',
-      textAlign: 'center' as const,
-    }}>
+      backgroundColor: '#F1EDE3',
+      paddingTop: 'clamp(80px, 10vw, 120px)',
+      paddingBottom: 'clamp(80px, 10vw, 120px)',
+    }} className="grain">
       <div style={{
-        maxWidth: '700px',
+        maxWidth: '1200px',
         margin: '0 auto',
         paddingLeft: 'clamp(24px, 5vw, 40px)',
         paddingRight: 'clamp(24px, 5vw, 40px)',
+        textAlign: 'center' as const,
       }}>
         <Reveal delay={0} visible={visible}>
           <p style={{
@@ -629,109 +656,56 @@ function HW06Statement() {
             fontWeight: 600,
             color: '#D6A54A',
             marginBottom: '20px',
-          }}>OUR PROMISE</p>
+          }}>READY TO START?</p>
+        </Reveal>
+        <Reveal delay={0.08} visible={visible}>
           <h2 style={{
             fontFamily: "'Fraunces', Georgia, serif",
-            fontSize: 'clamp(2.5rem, 4.5vw, 3.75rem)',
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
             lineHeight: 0.95,
             fontWeight: 400,
             color: '#161616',
-            whiteSpace: 'pre-line' as const,
-            marginBottom: '24px',
+            marginBottom: '16px',
           }}>
-            {"YOU DREAM IT.\nWE BRING IT TO LIFE."}
+            PLANNING AN EVENT?{' '}
+            <span style={{ fontStyle: 'italic' }}>LET&apos;S MAKE IT HAPPEN.</span>
           </h2>
         </Reveal>
-        <Reveal delay={0.12} visible={visible}>
+        <Reveal delay={0.14} visible={visible}>
           <p style={{
             fontFamily: "'Manrope', system-ui, sans-serif",
-            fontSize: 'clamp(0.88rem, 1vw, 0.94rem)',
-            lineHeight: 1.75,
+            fontSize: 'clamp(0.85rem, 1vw, 0.94rem)',
+            lineHeight: 1.7,
             color: '#6F6B63',
-            maxWidth: '600px',
-            margin: '0 auto',
+            maxWidth: '480px',
+            margin: '0 auto 32px',
           }}>
-            Whether it&apos;s an intimate dinner or a large-scale production, we bring the same level of care, creativity and precision to every event. Your vision deserves nothing less.
+            Let us help you design and execute an event that reflects your vision and creates lasting memories for every guest.
           </p>
         </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ─── 07 — CTA ─── */
-
-function HW07CTA() {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
-
-  return (
-    <section ref={ref} style={{
-      position: 'relative',
-      overflow: 'hidden',
-      height: 'clamp(300px, 40vh, 400px)',
-    }}>
-      <div style={{ position: 'absolute', inset: 0 }}>
-        <img
-          src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80"
-          alt="Elegant outdoor celebration with warm atmospheric lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          loading="lazy"
-        />
-      </div>
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
-      }} />
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center' as const,
-        paddingLeft: 'clamp(24px, 4vw, 40px)',
-        paddingRight: 'clamp(24px, 4vw, 40px)',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
-      }}>
-        <h2 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',
-          lineHeight: 0.95,
-          fontWeight: 400,
-          color: '#F8F5EF',
-          whiteSpace: 'pre-line' as const,
-          maxWidth: '16ch',
-        }}>
-          {"PLANNING AN EVENT?\nLET'S MAKE IT HAPPEN."}
-        </h2>
-        <Link
-          to="/contact"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginTop: '32px',
-            fontFamily: "'Manrope', system-ui, sans-serif",
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.14em',
-            color: '#D6A54A',
-            textDecoration: 'none',
-            transition: 'color 0.3s ease',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
-        >
-          GET IN TOUCH
-          <ArrowRight size={16} strokeWidth={2} />
-        </Link>
+        <Reveal delay={0.2} visible={visible}>
+          <Link
+            to="/contact"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontFamily: "'Manrope', system-ui, sans-serif",
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.14em',
+              color: '#D6A54A',
+              textDecoration: 'none',
+              transition: 'color 0.3s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+          >
+            Get In Touch
+            <ArrowRight size={16} strokeWidth={2} />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

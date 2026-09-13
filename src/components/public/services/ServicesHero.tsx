@@ -1,5 +1,6 @@
 import { useReveal } from '@/lib/useReveal';
 import { breakHeading } from '@/lib/breakHeading';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -11,9 +12,9 @@ interface ServicesHeroContent {
 }
 
 const DEFAULT_IMAGES = [
-  'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
-  'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80',
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
+  images.hero[0],
+  images.process[0],
+  images.bts[0],
 ];
 
 export function ServicesHero({ content }: { content: unknown }) {

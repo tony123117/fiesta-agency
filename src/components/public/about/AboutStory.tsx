@@ -1,5 +1,6 @@
 import { useReveal } from '@/lib/useReveal';
 import { breakHeading } from '@/lib/breakHeading';
+import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -17,7 +18,7 @@ export function AboutStory({ content }: { content: unknown }) {
 
   const heading = breakHeading((data?.heading || 'BUILT ON PASSION. DRIVEN BY PURPOSE.').replace(/\\n/g, '\n'));
   const body = (data?.body || 'Founded with a vision to transform the event landscape, Fiesta began as a passionate response to the gap between what events could be and what they often were.').replace(/\\n/g, '\n');
-  const image = data?.image || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=80';
+  const image = data?.image || images.behind[2];
 
   const paragraphs = body.split('\n\n');
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 import type { BrandStatementContent } from '@/lib/types';
+import { images } from '@/lib/images-supabase';
 
 export function CMSBrandStatement({ content }: { content: unknown }) {
   const data = content as BrandStatementContent;
@@ -141,7 +142,7 @@ export function CMSBrandStatement({ content }: { content: unknown }) {
               />
             ) : (
               <img
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"
+                src={images.process[4]}
                 alt="Elegant dinner table setup under warm lighting with floral arrangements"
                 className="w-full h-auto object-cover"
                 style={{ aspectRatio: '4 / 3', borderRadius: '0' }}

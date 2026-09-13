@@ -2,6 +2,54 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useReveal } from '@/lib/useReveal';
+import { images } from '@/lib/images-supabase';
+// Image URLs from Supabase Storage (uploaded via admin)
+const ABOUT_IMAGES = {
+  process: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG'
+  ],
+  intimate: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG'
+  ],
+  bts: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG'
+  ],
+  lagoon: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG'
+  ],
+  blacktie: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237158612-mn2meeybu9o.JPG',
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237092060-8sq54jcdwr8.JPG'
+  ],
+  garden: [
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG'
+  ]
+};
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -13,11 +61,11 @@ const VALUES = [
 ];
 
 const TEAM = [
-  { name: 'Jean-Paul Habimana', role: 'Founder & Creative Director', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
-  { name: 'Alice Uwimana', role: 'Head of Production', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
-  { name: 'David Niyonzima', role: 'Event Coordinator', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80' },
-  { name: 'Grace Mukamana', role: 'Design Lead', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80' },
-  { name: 'Samuel Bizimana', role: 'Technical Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80' },
+  { name: 'Jean-Paul Habimana', role: 'Founder & Creative Director', image: ABOUT_IMAGES.process[0] },
+  { name: 'Alice Uwimana', role: 'Head of Production', image: ABOUT_IMAGES.intimate[4] },
+  { name: 'David Niyonzima', role: 'Event Coordinator', image: ABOUT_IMAGES.bts[3] },
+  { name: 'Grace Mukamana', role: 'Design Lead', image: ABOUT_IMAGES.lagoon[7] },
+  { name: 'Samuel Bizimana', role: 'Technical Director', image: ABOUT_IMAGES.process[1] },
 ];
 
 /* ─── ABOUT PAGE ─── */
@@ -75,7 +123,7 @@ function A01Hero() {
               }}>ABOUT FIESTA</p>
               <h1 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2.2rem, 5vw, 4rem)',
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#F8F5EF',
@@ -105,7 +153,7 @@ function A01Hero() {
               gap: 'clamp(8px, 1vw, 12px)',
             }} className="about-hero-images">
               <img
-                src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80"
+                src={images.serena[2]}
                 alt="Elegant wedding ceremony setup"
                 style={{
                   width: '100%',
@@ -118,7 +166,7 @@ function A01Hero() {
                 loading="eager"
               />
               <img
-                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80"
+                src={images.bts[2]}
                 alt="Event production and lighting"
                 style={{
                   width: '100%',
@@ -175,7 +223,7 @@ function A02Story() {
           <Reveal delay={0} visible={visible}>
             <div style={{ overflow: 'hidden' }}>
               <img
-                src="https://images.unsplash.com/photo-1478146059778-26028b07395a?w=1200&q=80"
+                src={images.behind[1]}
                 alt="Fiesta team coordinating event production behind the scenes"
                 style={{
                   width: '100%',
@@ -206,7 +254,7 @@ function A02Story() {
               </div>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#161616',
@@ -398,7 +446,7 @@ function A04Values() {
             }}>OUR VALUES</p>
             <h2 style={{
               fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
               lineHeight: 0.95,
               fontWeight: 400,
               color: '#F8F5EF',
@@ -411,6 +459,7 @@ function A04Values() {
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 'clamp(24px, 3vw, 40px)',
+          alignItems: 'center',
         }}>
           {VALUES.map((v, i) => (
             <div key={v.num} style={{
@@ -425,6 +474,7 @@ function A04Values() {
                 color: 'rgba(214,165,74,0.4)',
                 display: 'block',
                 marginBottom: '12px',
+                textAlign: 'center',
               }}>{v.num}</span>
               <h3 style={{
                 fontFamily: "'Manrope', system-ui, sans-serif",
@@ -501,7 +551,7 @@ function A05Team() {
             }}>THE TEAM</p>
             <h2 style={{
               fontFamily: "'Fraunces', Georgia, serif",
-              fontSize: 'clamp(2rem, 3.5vw, 3.125rem)',
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
               lineHeight: 0.95,
               fontWeight: 400,
               color: '#161616',
@@ -595,7 +645,7 @@ function A06CTA() {
     }}>
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&q=80"
+          src={images.hero[5]}
           alt="Elegant outdoor celebration with warm atmospheric lighting"
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           loading="lazy"
@@ -615,7 +665,7 @@ function A06CTA() {
       }}>
         <h2 style={{
           fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+          fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
           lineHeight: 0.95,
           fontWeight: 400,
           color: '#F8F5EF',
