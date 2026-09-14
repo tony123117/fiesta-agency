@@ -14,6 +14,8 @@ import type {
   CinematicImageContent,
   TeamMembersContent,
   ImageCarouselContent,
+  PortfolioFilteredGalleryContent,
+  PortfolioFeaturedContent,
 } from '@/lib/types';
 
 const DEMO_IMAGES = {
@@ -215,4 +217,21 @@ export const DEMO_IMAGE_CAROUSEL: ImageCarouselContent = {
     { id: 'ic2', src: DEMO_IMAGES.portfolio2, alt: 'Celebration' },
     { id: 'ic3', src: DEMO_IMAGES.portfolio3, alt: 'Production' },
   ],
+};
+
+export const DEMO_PORTFOLIO_FILTERED_GALLERY: PortfolioFilteredGalleryContent = {
+  eyebrow: 'OUR WORK',
+  heading: '',
+  description: '',
+  categories: ['ALL', 'CORPORATE', 'PRIVATE', 'WEDDINGS', 'CONCERTS', 'FESTIVALS'],
+  max_projects: 9,
+  variant: 'grid',
+};
+
+export const DEMO_PORTFOLIO_FEATURED: PortfolioFeaturedContent = {
+  eyebrow: 'FEATURED PROJECT',
+  heading: '',
+  description: '',
+  button_text: 'View Project',
+  button_url: '',
 };

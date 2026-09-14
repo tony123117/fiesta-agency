@@ -4,7 +4,7 @@ import { AuthProvider } from '@/lib/auth';
 import { PublicLayout } from '@/components/PublicLayout';
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { SidebarProvider } from '@/components/admin/AdminUI';
+import { SidebarProvider, AdminErrorBoundary } from '@/components/admin/AdminUI';
 
 // ── Public pages (lazy) ──
 const Home = lazy(() => import('@/pages/public/Home'));
@@ -17,6 +17,8 @@ const PortfolioDetail = lazy(() => import('@/pages/public/PortfolioDetail'));
 const HowWeWork = lazy(() => import('@/pages/public/HowWeWork'));
 const PlanYourEvent = lazy(() => import('@/pages/public/PlanYourEvent'));
 const Contact = lazy(() => import('@/pages/public/Contact'));
+const Privacy = lazy(() => import('@/pages/public/Privacy'));
+const Terms = lazy(() => import('@/pages/public/Terms'));
 const NotFound = lazy(() => import('@/pages/public/NotFound'));
 
 // ── Admin pages (lazy) ──
@@ -76,6 +78,8 @@ export default function App() {
               <Route path="/how-we-work" element={<HowWeWork />} />
               <Route path="/plan-your-event" element={<PlanYourEvent />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
             </Route>
 
             {/* Admin login */}
@@ -83,24 +87,24 @@ export default function App() {
 
             {/* Admin protected routes */}
             <Route path="/admin" element={<ProtectedRoute><SidebarProvider><AdminLayout /></SidebarProvider></ProtectedRoute>}>
-              <Route index element={<Suspense fallback={<AdminFallback />}><Dashboard /></Suspense>} />
-              <Route path="home" element={<Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="home" pageTitle="Home CMS" /></Suspense>} />
-              <Route path="about" element={<Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="about" pageTitle="About CMS" /></Suspense>} />
-              <Route path="services" element={<Suspense fallback={<AdminFallback />}><ServicesCMSAdmin /></Suspense>} />
-              <Route path="how-we-work" element={<Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="how-we-work" pageTitle="How We Work CMS" /></Suspense>} />
-              <Route path="events" element={<Suspense fallback={<AdminFallback />}><EventsAdmin /></Suspense>} />
-              <Route path="events/new" element={<Suspense fallback={<AdminFallback />}><EventForm /></Suspense>} />
-              <Route path="events/:id/edit" element={<Suspense fallback={<AdminFallback />}><EventForm /></Suspense>} />
-              <Route path="portfolio" element={<Suspense fallback={<AdminFallback />}><PortfolioAdmin /></Suspense>} />
-              <Route path="portfolio/new" element={<Suspense fallback={<AdminFallback />}><PortfolioForm /></Suspense>} />
-              <Route path="portfolio/:id/edit" element={<Suspense fallback={<AdminFallback />}><PortfolioForm /></Suspense>} />
-              <Route path="testimonials" element={<Suspense fallback={<AdminFallback />}><TestimonialsAdmin /></Suspense>} />
-              <Route path="faqs" element={<Suspense fallback={<AdminFallback />}><FAQsAdmin /></Suspense>} />
-              <Route path="media" element={<Suspense fallback={<AdminFallback />}><MediaAdmin /></Suspense>} />
-              <Route path="pages" element={<Suspense fallback={<AdminFallback />}><PagesAdmin /></Suspense>} />
-              <Route path="pages/:pageId" element={<Suspense fallback={<AdminFallback />}><PageBuilderAdmin /></Suspense>} />
-              <Route path="bookings" element={<Suspense fallback={<AdminFallback />}><BookingsAdmin /></Suspense>} />
-              <Route path="settings" element={<Suspense fallback={<AdminFallback />}><SettingsAdmin /></Suspense>} />
+              <Route index element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><Dashboard /></Suspense></AdminErrorBoundary>} />
+              <Route path="home" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="home" pageTitle="Home CMS" /></Suspense></AdminErrorBoundary>} />
+              <Route path="about" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="about" pageTitle="About CMS" /></Suspense></AdminErrorBoundary>} />
+              <Route path="services" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><ServicesCMSAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="how-we-work" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><CMSPageEditor pageSlug="how-we-work" pageTitle="How We Work CMS" /></Suspense></AdminErrorBoundary>} />
+              <Route path="events" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><EventsAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="events/new" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><EventForm /></Suspense></AdminErrorBoundary>} />
+              <Route path="events/:id/edit" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><EventForm /></Suspense></AdminErrorBoundary>} />
+              <Route path="portfolio" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><PortfolioAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="portfolio/new" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><PortfolioForm /></Suspense></AdminErrorBoundary>} />
+              <Route path="portfolio/:id/edit" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><PortfolioForm /></Suspense></AdminErrorBoundary>} />
+              <Route path="testimonials" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><TestimonialsAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="faqs" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><FAQsAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="media" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><MediaAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="pages" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><PagesAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="pages/:pageId" element={<AdminErrorBoundary fallbackTitle="Page Builder Error" fallbackMessage="The page builder encountered an error. This may be due to a data issue or a component crash."><Suspense fallback={<AdminFallback />}><PageBuilderAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="bookings" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><BookingsAdmin /></Suspense></AdminErrorBoundary>} />
+              <Route path="settings" element={<AdminErrorBoundary><Suspense fallback={<AdminFallback />}><SettingsAdmin /></Suspense></AdminErrorBoundary>} />
             </Route>
 
             {/* 404 */}

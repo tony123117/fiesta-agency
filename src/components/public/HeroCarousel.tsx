@@ -6,7 +6,7 @@ import type { HeroCarouselContent } from '@/lib/types';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
-export function HeroCarousel({ content }: { content: unknown }) {
+export function HeroCarousel({ content, isPreview }: { content: unknown; isPreview?: boolean }) {
   const data = content as HeroCarouselContent;
   const slides = data?.slides || [];
   const [current, setCurrent] = useState(0);
@@ -41,10 +41,10 @@ export function HeroCarousel({ content }: { content: unknown }) {
   }, [current, goTo, slides.length]);
 
   useEffect(() => {
-    if (isPaused || isTransitioning || slides.length <= 1) return;
+    if (isPreview || isPaused || isTransitioning || slides.length <= 1) return;
     const timer = setInterval(next, 7000);
     return () => clearInterval(timer);
-  }, [isPaused, next, isTransitioning, slides.length]);
+  }, [isPreview, isPaused, next, isTransitioning, slides.length]);
 
   useEffect(() => {
     const t = setTimeout(() => setContentVisible(true), 300);

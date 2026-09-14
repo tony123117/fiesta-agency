@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { supabase } from '@/lib/supabase';
+import { getPageBySlug } from '@/lib/pagesService';
+import { getSections } from '@/lib/sectionsService';
 import { useReveal } from '@/lib/useReveal';
 import { images } from '@/lib/images-supabase';
-import type { PortfolioProject } from '@/lib/types';
+import type { PortfolioProject, Section } from '@/lib/types';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -66,6 +68,7 @@ const FALLBACK_GALLERY: PortfolioProject[] = [
 
 export function Portfolio() {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
 
@@ -75,18 +78,29 @@ export function Portfolio() {
   });
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase
-          .from('portfolio_projects')
-          .select('*')
-          .eq('published', true)
-          .order('sort_order');
-        if (data) setProjects(data as PortfolioProject[]);
+        const [projectsRes, pageRes] = await Promise.all([
+          supabase.from('portfolio_projects').select('*').eq('published', true).order('sort_order'),
+          getPageBySlug('portfolio'),
+        ]);
+        if (cancelled) return;
+        if (projectsRes.data) setProjects(projectsRes.data as PortfolioProject[]);
+        if (pageRes) {
+          const secs = await getSections(pageRes.id);
+          if (!cancelled) setSections(secs.filter((s: Section) => s.published));
+        }
       } catch { /* silent */ }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, []);
+
+  const get = (type: string) => sections.find(s => s.section_type === type)?.content || {};
+
+  const filterContent = get('portfolio-filtered-gallery');
+  const featuredContent = get('portfolio-featured');
 
   const displayProjects = projects.length > 0 ? projects : FALLBACK_GALLERY;
   const published = displayProjects.filter((p) => p.cover_image);
@@ -102,18 +116,24 @@ export function Portfolio() {
 
   return (
     <>
-      <P01Hero />
-      <P02Filter active={activeFilter} onChange={setActiveFilter} />
+      <P01Hero content={get('portfolio-hero')} />
+      <P02Filter active={activeFilter} onChange={setActiveFilter} content={filterContent} />
       <P03Gallery projects={gallery} loading={loading} />
-      {featured && <P04Featured project={featured} />}
+      {featured && <P04Featured project={featured} content={featuredContent} />}
     </>
   );
 }
 
 /* ─── 01 — HERO ─── */
 
-function P01Hero() {
+function P01Hero({ content }: { content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.1 });
+  const c = content as { eyebrow?: string; heading?: string; description?: string; image?: string; image_alt?: string };
+  const eyebrow = (c?.eyebrow || 'OUR PORTFOLIO');
+  const heading = (c?.heading || 'MEMORABLE.\nLASTING\nIMPRESSIONS.').replace(/\\n/g, '\n');
+  const parts = heading.split('\n');
+  const description = (c?.description || 'A curated collection of our most memorable moments, from intimate celebrations to large-scale productions.');
+  const image = c?.image || images.intimate[2];
 
   return (
     <section
@@ -145,7 +165,7 @@ function P01Hero() {
                   textTransform: 'uppercase' as const,
                   fontWeight: 600,
                   color: '#D6A54A',
-                }}>OUR PORTFOLIO</p>
+                }}>{eyebrow}</p>
               </div>
             </Reveal>
             <Reveal delay={0.08} visible={visible}>
@@ -158,9 +178,8 @@ function P01Hero() {
                 maxWidth: '520px',
                 marginBottom: '24px',
               }}>
-                MEMORABLE.{' '}
-                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>LASTING</span>{' '}
-                IMPRESSIONS.
+                {parts[0]}{' '}
+                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>{parts.slice(1).join(' ')}</span>
               </h1>
             </Reveal>
             <Reveal delay={0.16} visible={visible}>
@@ -171,7 +190,7 @@ function P01Hero() {
                 color: '#C8C2B8',
                 maxWidth: '400px',
               }}>
-                A curated collection of our most memorable moments, from intimate celebrations to large-scale productions.
+                {description}
               </p>
             </Reveal>
           </div>
@@ -179,8 +198,8 @@ function P01Hero() {
           <Reveal delay={0.12} visible={visible}>
             <div style={{ width: '400px', flexShrink: 0, overflow: 'hidden' }} className="port-hero-img">
               <img
-                src={images.intimate[2]}
-                alt="Elegant candlelit event venue with warm atmospheric lighting"
+                src={image}
+                alt={c?.image_alt || "Elegant candlelit event venue with warm atmospheric lighting"}
                 style={{
                   width: '100%',
                   height: 'clamp(300px, 28vw, 360px)',
@@ -209,7 +228,9 @@ function P01Hero() {
 
 /* ─── 02 — FILTER BAR ─── */
 
-function P02Filter({ active, onChange }: { active: string; onChange: (c: string) => void }) {
+function P02Filter({ active, onChange, content }: { active: string; onChange: (c: string) => void; content: Record<string, unknown> }) {
+  const c = content as { categories?: string[] };
+  const categories = c?.categories?.length ? c.categories : [...CATEGORIES];
   return (
     <section style={{
       backgroundColor: '#F1EDE3',
@@ -228,7 +249,7 @@ function P02Filter({ active, onChange }: { active: string; onChange: (c: string)
         className="port-filter-bar"
       >
         <div style={{ display: 'flex', gap: 'clamp(20px, 3vw, 36px)', flexShrink: 0 }}>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => onChange(cat)}
@@ -433,8 +454,10 @@ function GalleryItem({ project, index, visible }: {
 
 /* ─── 04 — FEATURED PROJECT ─── */
 
-function P04Featured({ project }: { project: PortfolioProject }) {
+function P04Featured({ project, content }: { project: PortfolioProject; content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.08 });
+  const c = content as { eyebrow?: string; heading?: string; description?: string; button_text?: string; button_url?: string };
+  const eyebrow = (c?.eyebrow || 'FEATURED PROJECT');
 
   return (
     <section
@@ -483,7 +506,7 @@ function P04Featured({ project }: { project: PortfolioProject }) {
                 color: '#D6A54A',
                 display: 'block',
                 marginBottom: '16px',
-              }}>FEATURED PROJECT</p>
+              }}>{eyebrow}</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
                 fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',

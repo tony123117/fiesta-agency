@@ -96,8 +96,8 @@ export const images = {
   // blacktie folder - 4 images, indices 45-48
   blacktie: [
     'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237168928-llt7gkihpq.JPG', // 45
-    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237169??,??,??-????.JPG', // 46 - will cycle via modulo
-    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237171??,??,??-????.JPG', // 47 - will cycle via modulo
-    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237178??,??,??-????.JPG', // 48 - will cycle via modulo
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181004-3xhl7jh5r8c.JPG', // 46 (fallback to hero[0])
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237181965-r5gizmmxm5.JPG', // 47 (fallback to hero[1])
+    'https://fbrxvzcaylwdchrmsatn.supabase.co/storage/v1/object/public/media/originals/1789237170984-1k51s9ajkxp.JPG', // 48 (fallback to hero[2])
   ],
 };

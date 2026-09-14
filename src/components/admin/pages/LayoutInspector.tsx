@@ -1,8 +1,10 @@
 // ── Layout Inspector (Right Panel) ──
 // Phase 31.3 — Layout Editing
 // Phase 31.6 — Responsive per-breakpoint editing
+// Phase 31.12 — Layout Overview for null selection
 //
 // Displays controls for the selected layout element (container, row, or column).
+// When selection is null, shows a section-level Layout Overview.
 // Writes to the CURRENT viewport only via responsive callbacks.
 
 import type { Section } from '@/lib/types';
@@ -27,7 +29,7 @@ const VIEWPORT_OPTIONS: { value: BlockResponsiveBreakpoint; label: string; icon:
 
 interface LayoutInspectorProps {
   section: Section;
-  selection: LayoutSelection;
+  selection: LayoutSelection | null;
   onClearSelection: () => void;
   onUpdateContainer: (containerId: string, patch: Record<string, unknown>) => void;
   onUpdateContainerResponsive: (containerId: string, bp: BlockResponsiveBreakpoint, patch: Record<string, unknown>) => void;
@@ -41,6 +43,7 @@ interface LayoutInspectorProps {
   onDeleteColumn: (containerId: string, rowId: string, columnId: string) => void;
   onAddColumn: (containerId: string, rowId: string) => void;
   canDeleteColumn: (containerId: string, rowId: string, columnId: string) => boolean;
+  onAddContainer: (sectionId: string) => void;
   viewport?: BlockResponsiveBreakpoint;
 }
 
@@ -63,12 +66,26 @@ export function LayoutInspector({
   onDeleteColumn,
   onAddColumn,
   canDeleteColumn,
+  onAddContainer,
   viewport = 'desktop',
 }: LayoutInspectorProps) {
   const content = section.content as Record<string, unknown> | null;
   if (!content || !isLayoutContent(content)) return null;
 
   const layout = content as unknown as LayoutContent;
+
+  // If no specific element is selected, show Layout Overview
+  if (!selection) {
+    return (
+      <LayoutOverview
+        section={section}
+        layout={layout}
+        viewport={viewport}
+        onAddContainer={() => onAddContainer(section.id)}
+      />
+    );
+  }
+
   const container = layout.layout.containers.find((c) => c.id === selection.containerId);
   if (!container) return null;
 
@@ -155,6 +172,103 @@ export function LayoutInspector({
             onAddRow={() => onAddRow(container.id)}
           />
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Layout Overview (null selection) ──
+
+function LayoutOverview({
+  section,
+  layout,
+  viewport,
+  onAddContainer,
+}: {
+  section: Section;
+  layout: LayoutContent;
+  viewport: BlockResponsiveBreakpoint;
+  onAddContainer: () => void;
+}) {
+  const containerCount = layout.layout.containers.length;
+  const rowCount = layout.layout.containers.reduce(
+    (sum, c) => sum + c.rows.length,
+    0
+  );
+  const colCount = layout.layout.containers.reduce(
+    (sum, c) =>
+      sum +
+      c.rows.reduce(
+        (rowSum, row) => rowSum + row.columns.length,
+        0
+      ),
+    0
+  );
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-white/[0.06]">
+        <p className="text-[0.5rem] font-semibold uppercase tracking-[0.18em] text-white/25 mb-0.5">
+          LAYOUT
+        </p>
+        <h2 className="font-serif font-medium text-sm tracking-tight text-ivory">
+          Section Layout
+        </h2>
+      </div>
+
+      {/* Viewport Tabs */}
+      <div className="px-3 py-2 border-b border-white/[0.06] flex gap-1">
+        {VIEWPORT_OPTIONS.map((opt) => {
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.value}
+              className={`flex items-center gap-1 px-2 py-1 text-[0.6rem] font-medium rounded transition-all ${
+                viewport === opt.value
+                  ? 'bg-gold/15 text-gold border border-gold/30'
+                  : 'text-white/30 border border-white/[0.06] hover:border-white/[0.12] hover:text-white/50'
+              }`}
+              title={opt.label}
+            >
+              <Icon size={10} strokeWidth={1.5} />
+              <span className="hidden sm:inline">{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Summary */}
+        <div className="text-[0.65rem] text-white/40">
+          {containerCount} container{containerCount !== 1 ? 's' : ''},{' '}
+          {rowCount} row{rowCount !== 1 ? 's' : ''},{' '}
+          {colCount} column{colCount !== 1 ? 's' : ''}
+        </div>
+
+        {/* Container list */}
+        {layout.layout.containers.map((container, i) => (
+          <div
+            key={container.id}
+            className="p-3 rounded border border-white/[0.06] bg-white/[0.02]"
+          >
+            <div className="text-[0.6rem] font-medium text-white/50">
+              Container {i + 1}
+            </div>
+            <div className="text-[0.55rem] text-white/30 mt-1">
+              {container.rows.length} row{container.rows.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+        ))}
+
+        <ActionBtn onClick={onAddContainer}>
+          <Plus size={10} strokeWidth={1.5} /> Add Container
+        </ActionBtn>
+
+        <p className="text-[0.55rem] text-white/20 pt-4">
+          Click a container in the canvas to edit its settings.
+        </p>
       </div>
     </div>
   );

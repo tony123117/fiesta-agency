@@ -1,162 +1,132 @@
 import { useReveal } from '@/lib/useReveal';
-import { breakHeading } from '@/lib/breakHeading';
 import { images } from '@/lib/images-supabase';
 
-const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 interface ServicesHeroContent {
   eyebrow?: string;
   heading?: string;
   description?: string;
-  images?: string[];
+  image?: string;
 }
 
-const DEFAULT_IMAGES = [
-  images.hero[0],
-  images.process[0],
-  images.bts[0],
-];
+const DEFAULT_IMAGE = images.hero[0];
 
-export function ServicesHero({ content }: { content: unknown }) {
+export function ServicesHero({ content, intro = true }: { content: unknown; intro?: boolean }) {
   const data = content as ServicesHeroContent;
-  const { ref: sectionRef, visible } = useReveal({ threshold: 0.1 });
+  const { ref, visible } = useReveal({ threshold: 0.1 });
 
-  const rawHeading = data?.heading || 'EVERY DETAIL CRAFTED TO PERFECTION.';
-  const heading = breakHeading(rawHeading.replace(/\\n/g, '\n'));
-  const description = (data?.description || 'From concept to execution, we offer end-to-end event solutions tailored to your vision. Whatever the occasion, we make it extraordinary.').replace(/\\n/g, '\n');
-  const images = data?.images?.length ? data.images : DEFAULT_IMAGES;
+  const image = data?.image || DEFAULT_IMAGE;
+  const eyebrow = data?.eyebrow || 'OUR SERVICES';
+  const heading = ((data?.heading as string) || 'EXCEPTIONAL SERVICES FOR UNFORGETTABLE EVENTS.').replace(/\\n/g, '\n');
+  const description = (data?.description as string) || 'From concept to execution, we offer end-to-end event solutions tailored to your vision. Whatever the occasion, we make it extraordinary.';
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden"
-      style={{ backgroundColor: '#090909' }}
-    >
-      <div
-        className="svc-hero-container"
-        style={{
-          margin: '0 auto',
-          paddingTop: '90px',
-          paddingBottom: 'clamp(50px, 6vw, 80px)',
-        }}
-      >
-        <div className="svc-hero-grid">
-          {/* Left: Heading — 58% */}
-          <div className="svc-hero-text">
-            <RevealBlock delay={0} visible={visible}>
-              <p className="svc-hero-eyebrow">{data?.eyebrow || 'OUR SERVICES'}</p>
-              <h1 className="svc-hero-heading">{heading}</h1>
-            </RevealBlock>
-          </div>
+    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden', width: '100%' }}>
+      <div style={{
+        margin: '0 auto',
+        maxWidth: '1200px',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+        paddingTop: 'clamp(100px, 14vw, 180px)',
+        paddingBottom: 'clamp(60px, 8vw, 100px)',
+        overflow: 'hidden',
+      }}>
+        <div className="svc-hero-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 'clamp(32px, 4vw, 56px)',
+          alignItems: 'center',
+        }}>
+          <Reveal delay={0.15} visible={visible}>
+            <div style={{ maxWidth: '520px' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(12px)',
+                transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s',
+              }}>
+                <div style={{ width: '40px', height: '1.5px', backgroundColor: '#D6A54A' }} />
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '11px',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase' as const,
+                  fontWeight: 600,
+                  color: '#D6A54A',
+                }}>{eyebrow}</p>
+              </div>
+              <h1 style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 'clamp(1.85rem, 4vw, 3.25rem)',
+                lineHeight: 0.92,
+                fontWeight: 400,
+                color: '#F7F4ED',
+                marginBottom: '24px',
+                whiteSpace: 'pre-line' as const,
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(16px)',
+                transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s',
+              }}>
+                {heading.includes('EVENTS.') ? (
+                  <>EXCEPTIONAL SERVICES FOR UNFORGETTABLE{' '}<span style={{ fontStyle: 'italic', color: '#D6A54A' }}>EVENTS.</span></>
+                ) : heading}
+              </h1>
+              <p style={{
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
+                lineHeight: 1.65,
+                color: '#C7C2B9',
+                maxWidth: '380px',
+                marginBottom: '28px',
+                opacity: intro ? 1 : 0,
+                transform: intro ? 'translateY(0)' : 'translateY(14px)',
+                transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s',
+              }}>
+                {description}
+              </p>
+            </div>
+          </Reveal>
 
-          {/* Right: Description — 38% */}
-          <div className="svc-hero-desc">
-            <RevealBlock delay={0.12} visible={visible}>
-              <p className="svc-hero-body">{description}</p>
-            </RevealBlock>
-          </div>
+          <Reveal delay={0.2} visible={visible}>
+            <div className="svc-hero-images" style={{
+              overflow: 'hidden',
+              minWidth: 0,
+            }}>
+              <img
+                src={image}
+                alt="Luxury event setup with elegant decor and warm lighting"
+                style={{
+                  width: '100%',
+                  minWidth: 0,
+                  height: 'clamp(320px, 38vw, 460px)',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: visible ? 'scale(1)' : 'scale(1.05)',
+                  transition: `transform 1.4s ${E} 0.25s`,
+                }}
+                loading="eager"
+              />
+            </div>
+          </Reveal>
         </div>
       </div>
 
-      {/* Image strip */}
-      <RevealBlock delay={0.2} visible={visible}>
-        <div
-          className="svc-hero-container"
-          style={{ margin: '0 auto', paddingBottom: 'clamp(60px, 8vw, 100px)' }}
-        >
-          <div className="svc-hero-strip">
-            <div className="svc-hero-strip-img" style={{ flex: 3 }}>
-              <img src={images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <div className="svc-hero-strip-img" style={{ flex: 2 }}>
-              <img src={images[1]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            </div>
-            <div className="svc-hero-strip-img svc-hero-strip-hide-mobile" style={{ flex: 2 }}>
-              <img src={images[2]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            </div>
-          </div>
-        </div>
-      </RevealBlock>
-
       <style>{`
-        .svc-hero-container {
-          width: min(1280px, calc(100vw - 120px));
-        }
-        .svc-hero-grid {
-          display: flex;
-          flex-direction: row;
-          gap: clamp(32px, 4vw, 56px);
-          align-items: flex-start;
-        }
-        .svc-hero-text {
-          flex: 0 0 58%;
-        }
-        .svc-hero-eyebrow {
-          font-family: 'Fraunces', Georgia, serif;
-          font-size: 11px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          font-weight: 500;
-          color: #D6A54A;
-          margin-bottom: 20px;
-        }
-        .svc-hero-heading {
-          font-family: 'Manrope', system-ui, sans-serif;
-          font-size: clamp(2.5rem, 4.8vw, 4rem);
-          line-height: 0.95;
-          font-weight: 400;
-          color: #F5F2EA;
-          white-space: pre-line;
-        }
-        .svc-hero-desc {
-          flex: 1;
-        }
-        .svc-hero-body {
-          font-family: 'Manrope', system-ui, sans-serif;
-          font-size: clamp(0.82rem, 0.9vw, 0.9rem);
-          line-height: 1.7;
-          color: #D0CCC5;
-          max-width: 340px;
-          padding-top: 8px;
-        }
-        .svc-hero-strip {
-          display: flex;
-          gap: clamp(10px, 1.2vw, 16px);
-          height: clamp(180px, 20vw, 280px);
-        }
-        .svc-hero-strip-img {
-          overflow: hidden;
-        }
-        @media (max-width: 1280px) {
-          .svc-hero-container { width: calc(100vw - 80px); }
-        }
-        @media (max-width: 1024px) {
-          .svc-hero-container { width: calc(100vw - 64px); }
-          .svc-hero-grid { flex-direction: column; gap: 24px; }
-          .svc-hero-text { flex: none; width: 100%; }
-          .svc-hero-desc { flex: none; width: 100%; }
-          .svc-hero-body { max-width: 100%; }
-        }
-        @media (max-width: 768px) {
-          .svc-hero-container { width: 100%; padding-left: 24px; padding-right: 24px; }
-          .svc-hero-strip { flex-direction: column; height: auto; gap: 12px; }
-          .svc-hero-strip-img { height: 180px; }
-          .svc-hero-strip-hide-mobile { display: none; }
-        }
-        @media (max-width: 375px) {
-          .svc-hero-container { padding-left: 22px; padding-right: 22px; }
+        @media (min-width: 768px) {
+          .svc-hero-grid { grid-template-columns: 42% 1fr !important; }
         }
       `}</style>
     </section>
   );
 }
 
-function RevealBlock({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
+function Reveal({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
   return (
     <div style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(22px)',
-      transition: `opacity 0.8s ${EASE} ${delay}s, transform 0.8s ${EASE} ${delay}s`,
+      transition: `opacity 0.8s ${E} ${delay}s, transform 0.8s ${E} ${delay}s`,
     }}>
       {children}
     </div>

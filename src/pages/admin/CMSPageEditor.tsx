@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Plus } from 'lucide-react';
+import { Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Plus, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { PageHeader, AdminCard, AdminLoading, AdminButton, AdminInput, AdminTextarea, AdminToggle, AdminSelect, Toast, ConfirmDialog } from '@/components/admin/AdminUI';
 
@@ -20,6 +20,8 @@ interface CMSSection {
   layout: string;
   published: boolean;
   sort_order: number;
+  section_type?: string;
+  content?: Record<string, unknown>;
 }
 
 export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
@@ -31,6 +33,7 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
   const [form, setForm] = useState({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true });
   const [toast, setToast] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string }>({ open: false, id: '' });
+  const [showPreview, setShowPreview] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -113,10 +116,35 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
 
   if (loading) return <AdminLoading />;
 
+  // Map pageSlug to actual public URL
+  const slugToUrl: Record<string, string> = {
+    home: '/',
+    about: '/about',
+    services: '/services',
+    'how-we-work': '/how-we-work',
+  };
+  const publicUrl = slugToUrl[pageSlug] || `/${pageSlug}`;
+
   return (
     <div style={{ padding: '1.5rem 2.5rem' }}>
       <PageHeader title={pageSlug.toUpperCase()} action={
-        <AdminButton onClick={() => { setEditing(null); setForm({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true }); setShowForm(true); }}><Plus size={14} /> Add Section</AdminButton>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <AdminButton
+            variant="secondary"
+            size="sm"
+            onClick={() => window.open(publicUrl, '_blank')}
+          >
+            <ExternalLink size={14} /> View Live
+          </AdminButton>
+          <AdminButton
+            variant={showPreview ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            <Eye size={14} /> {showPreview ? 'Hide Preview' : 'Preview'}
+          </AdminButton>
+          <AdminButton onClick={() => { setEditing(null); setForm({ title: '', subtitle: '', body: '', image_url: '', image_alt: '', layout: 'default', published: true }); setShowForm(true); }}><Plus size={14} /> Add Section</AdminButton>
+        </div>
       } />
 
       {sections.length === 0 ? (
@@ -143,6 +171,43 @@ export function CMSPageEditor({ pageSlug }: { pageSlug: string }) {
               </div>
             </AdminCard>
           ))}
+        </div>
+      )}
+
+      {/* Live Preview Panel — iframe of actual public page */}
+      {showPreview && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <AdminCard>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 style={{ fontFamily: "'Manrope', system-ui, sans-serif", fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.5)' }}>
+                Live Page Preview
+              </h3>
+              <button
+                onClick={() => load()}
+                style={{ fontSize: '0.625rem', color: '#D6A54A', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Refresh
+              </button>
+            </div>
+            <div style={{
+              backgroundColor: '#fff',
+              borderRadius: '0.5rem',
+              overflow: 'hidden',
+              height: '70vh',
+              position: 'relative',
+            }}>
+              <iframe
+                key={pageSlug}
+                src={publicUrl}
+                title="Page Preview"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
+            </div>
+          </AdminCard>
         </div>
       )}
 

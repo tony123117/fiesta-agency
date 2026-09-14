@@ -23,18 +23,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data, error }) => {
       if (!mounted) return;
+      if (error) {
+        console.error('[Auth] getSession error:', error.message);
+        setLoading(false);
+        return;
+      }
       setSession(data.session);
       if (!data.session) setLoading(false);
+    }).catch(() => {
+      if (mounted) setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      if (!newSession) {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_OUT' || !newSession) {
+        setSession(null);
         setProfile(null);
         setLoading(false);
+        return;
       }
+
+      if (event === 'TOKEN_REFRESHED' && !newSession) {
+        console.warn('[Auth] Token refresh failed, signing out');
+        setSession(null);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      setSession(newSession);
     });
 
     return () => {
@@ -56,34 +76,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
 
     (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .maybeSingle();
-
-      if (!active) return;
-
-      if (data) {
-        setProfile(data as Profile);
-      } else {
-        // Create profile from auth metadata if missing
-        const meta = session.user.app_metadata || {};
-        const newProfile = {
-          id: session.user.id,
-          email: session.user.email || '',
-          full_name: (session.user.user_metadata?.full_name as string) || null,
-          role: (meta.role as UserRole) || 'staff',
-          avatar_url: null,
-        };
-        const { data: created } = await supabase
+      try {
+        const { data, error } = await supabase
           .from('profiles')
-          .insert(newProfile)
           .select('*')
+          .eq('id', session.user.id)
           .maybeSingle();
-        if (created && active) setProfile(created as Profile);
+
+        if (!active) return;
+
+        if (error) {
+          console.error('[Auth] Profile fetch error:', error.message);
+          setLoading(false);
+          return;
+        }
+
+        if (data) {
+          setProfile(data as Profile);
+        } else {
+          // Create profile from auth metadata if missing
+          const meta = session.user.app_metadata || {};
+          const newProfile = {
+            id: session.user.id,
+            email: session.user.email || '',
+            full_name: (session.user.user_metadata?.full_name as string) || null,
+            role: (meta.role as UserRole) || 'staff',
+            avatar_url: null,
+          };
+          const { data: created } = await supabase
+            .from('profiles')
+            .insert(newProfile)
+            .select('*')
+            .maybeSingle();
+          if (created && active) setProfile(created as Profile);
+        }
+      } catch (err) {
+        console.error('[Auth] Unexpected profile error:', err);
+      } finally {
+        if (active) setLoading(false);
       }
-      setLoading(false);
     })();
 
     return () => { active = false; };

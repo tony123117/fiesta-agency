@@ -9,6 +9,7 @@ export function SectionPreviewRenderer({ section }: { section: Section }) {
           ...section,
           published: true,
         }}
+        isPreview={true}
       />
     </div>
   );

@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { supabase } from '@/lib/supabase';
+import { getPageBySlug } from '@/lib/pagesService';
+import { getSections } from '@/lib/sectionsService';
 import { images } from '@/lib/images-supabase';
 import { useReveal } from '@/lib/useReveal';
-import type { EventItem } from '@/lib/types';
+import type { EventItem, Section } from '@/lib/types';
 // Image URLs from Supabase Storage (uploaded via admin)
 const EVENTS_IMAGES = {
   hero: [
@@ -66,6 +68,7 @@ const FALLBACK_EVENTS: EventItem[] = [
 
 export function Events() {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
 
@@ -83,10 +86,25 @@ export function Events() {
           .eq('published', true)
           .order('sort_order');
         if (data) setEvents(data as EventItem[]);
+
+        const page = await getPageBySlug('events');
+        if (page) {
+          const secs = await getSections(page.id);
+          setSections(secs.filter((s: Section) => s.published));
+        }
       } catch { /* silent */ }
       setLoading(false);
     })();
   }, []);
+
+  const get = (type: string) => sections.find(s => s.section_type === type)?.content || {};
+
+  const heroContent = get('events-hero');
+  const ctaContent = get('events-cta');
+  const featuredContent = get('events-featured');
+  const filterContent = get('events-filter');
+  const upcomingContent = get('events-upcoming');
+  const pastContent = get('events-past');
 
   const displayEvents = events.length > 0 ? events : FALLBACK_EVENTS;
 
@@ -102,19 +120,31 @@ export function Events() {
 
   return (
     <>
-      <E01Hero />
-      {featured && <E02Featured event={featured} />}
-      <E03Filter active={activeFilter} onChange={setActiveFilter} />
-      <E04Upcoming events={filteredUpcoming} loading={loading} />
-      <E05Past events={past} loading={loading} />
-      <E06CTA />
+      <E01Hero
+        eyebrow={(heroContent.eyebrow as string) || 'OUR EVENTS'}
+        heading={((heroContent.heading as string) || 'EXTRAORDINARY MOMENTS. ALWAYS.').replace(/\\n/g, '\n')}
+        description={(heroContent.description as string) || 'From intimate gatherings to large-scale productions, we design and manage events that leave lasting impressions. Every detail matters.'}
+        image={(heroContent.image as string) || images.hero[1]}
+        imageAlt={(heroContent.image_alt as string) || 'Elegant candlelit event reception with floral arrangements'}
+      />
+      {featured && <E02Featured event={featured} content={featuredContent} />}
+      <E03Filter active={activeFilter} onChange={setActiveFilter} content={filterContent} />
+      <E04Upcoming events={filteredUpcoming} loading={loading} content={upcomingContent} />
+      <E05Past events={past} loading={loading} content={pastContent} />
+      <E06CTA
+        eyebrow={(ctaContent.eyebrow as string) || "LET'S CREATE TOGETHER"}
+        heading={((ctaContent.heading as string) || 'YOUR EVENT DESERVES ITS OWN STORY.').replace(/\\n/g, '\n')}
+        description={(ctaContent.description as string) || 'Let us help you design and execute an event that reflects your vision and creates lasting memories for every guest.'}
+        buttonText={(ctaContent.button_text as string) || 'Book Your Event'}
+        buttonUrl={(ctaContent.button_url as string) || '/contact'}
+      />
     </>
   );
 }
 
 /* ─── 01 — HERO ─── */
 
-function E01Hero() {
+function E01Hero({ eyebrow, heading, description, image, imageAlt }: { eyebrow: string; heading: string; description: string; image: string; imageAlt: string }) {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
@@ -142,7 +172,7 @@ function E01Hero() {
                   textTransform: 'uppercase' as const,
                   fontWeight: 600,
                   color: '#D6A54A',
-                }}>OUR EVENTS</p>
+                }}>{eyebrow}</p>
               </div>
             </Reveal>
             <Reveal delay={0.08} visible={visible}>
@@ -154,8 +184,11 @@ function E01Hero() {
                 color: '#F8F5EF',
                 marginBottom: '24px',
               }}>
-                EXTRAORDINARY MOMENTS.{' '}
-                <span style={{ fontStyle: 'italic', color: '#D6A54A' }}>ALWAYS.</span>
+                {heading.includes('ALWAYS.') ? (
+                  <>EXTRAORDINARY MOMENTS.{' '}<span style={{ fontStyle: 'italic', color: '#D6A54A' }}>ALWAYS.</span></>
+                ) : heading.includes('\n') ? heading.split('\n').map((line, i, arr) => (
+                  <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                )) : heading}
               </h1>
             </Reveal>
             <Reveal delay={0.14} visible={visible}>
@@ -167,7 +200,7 @@ function E01Hero() {
                 maxWidth: '390px',
                 marginBottom: '32px',
               }}>
-                From intimate gatherings to large-scale productions, we design and manage events that leave lasting impressions. Every detail matters.
+                {description}
               </p>
             </Reveal>
           </div>
@@ -176,8 +209,8 @@ function E01Hero() {
           <Reveal delay={0.12} visible={visible}>
             <div style={{ flex: 1, overflow: 'hidden' }} className="evt-hero-img">
               <img
-                src={images.hero[1]}
-                alt="Elegant candlelit event reception with floral arrangements"
+                src={image}
+                alt={imageAlt}
                 style={{
                   width: '100%',
                   height: 'clamp(300px, 28vw, 380px)',
@@ -206,9 +239,12 @@ function E01Hero() {
 
 /* ─── 02 — FEATURED EVENT ─── */
 
-function E02Featured({ event }: { event: EventItem }) {
+function E02Featured({ event, content }: { event: EventItem; content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.08 });
   const dateStr = event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase() : '';
+  const eyebrow = (content.eyebrow as string) || 'FEATURED EVENT';
+  const heading = (content.heading as string) || '';
+  const description = (content.description as string) || '';
 
   return (
     <section ref={ref} style={{
@@ -259,7 +295,7 @@ function E02Featured({ event }: { event: EventItem }) {
                 color: '#D6A54A',
                 display: 'block',
                 marginBottom: '16px',
-              }}>FEATURED EVENT</span>
+              }}>{eyebrow}</span>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
                 fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
@@ -359,7 +395,8 @@ function E02Featured({ event }: { event: EventItem }) {
 
 /* ─── 03 — FILTER BAR ─── */
 
-function E03Filter({ active, onChange }: { active: string; onChange: (c: string) => void }) {
+function E03Filter({ active, onChange, content }: { active: string; onChange: (c: string) => void; content: Record<string, unknown> }) {
+  const categories = (content.categories as string[])?.length ? (content.categories as string[]) : [...CATEGORIES];
   return (
     <section style={{
       backgroundColor: '#F1EDE3',
@@ -378,7 +415,7 @@ function E03Filter({ active, onChange }: { active: string; onChange: (c: string)
         className="evt-filter-bar"
       >
         <div style={{ display: 'flex', gap: 'clamp(20px, 3vw, 36px)', flexShrink: 0 }}>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => onChange(cat)}
@@ -409,8 +446,10 @@ function E03Filter({ active, onChange }: { active: string; onChange: (c: string)
 
 /* ─── 04 — UPCOMING EVENTS ─── */
 
-function E04Upcoming({ events: evts, loading }: { events: EventItem[]; loading: boolean }) {
+function E04Upcoming({ events: evts, loading, content }: { events: EventItem[]; loading: boolean; content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.06 });
+  const eyebrow = (content.eyebrow as string) || 'UPCOMING EVENTS';
+  const heading = (content.heading as string) || "WHAT'S COMING UP";
 
   return (
     <section ref={ref} style={{
@@ -435,14 +474,14 @@ function E04Upcoming({ events: evts, loading }: { events: EventItem[]; loading: 
                 fontWeight: 600,
                 color: '#D6A54A',
                 marginBottom: '20px',
-              }}>UPCOMING EVENTS</p>
+              }}>{eyebrow}</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
                 fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#161616',
-              }}>WHAT&apos;S COMING UP</h2>
+              }}>{heading}</h2>
             </div>
             <Link
               to="/events"
@@ -598,8 +637,10 @@ function EventCard({ event, index, visible }: { event: EventItem; index: number;
 
 /* ─── 05 — PAST EVENTS ─── */
 
-function E05Past({ events: evts, loading }: { events: EventItem[]; loading: boolean }) {
+function E05Past({ events: evts, loading, content }: { events: EventItem[]; loading: boolean; content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.05 });
+  const eyebrow = (content.eyebrow as string) || 'PAST EVENTS';
+  const heading = (content.heading as string) || "MOMENTS WE'VE CREATED";
 
   return (
     <section ref={ref} style={{
@@ -627,14 +668,14 @@ function E05Past({ events: evts, loading }: { events: EventItem[]; loading: bool
                 fontWeight: 600,
                 color: '#D6A54A',
                 marginBottom: '20px',
-              }}>PAST EVENTS</p>
+              }}>{eyebrow}</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
                 fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                 lineHeight: 0.95,
                 fontWeight: 400,
                 color: '#F8F5EF',
-              }}>MOMENTS WE&apos;VE CREATED</h2>
+              }}>{heading}</h2>
             </div>
             <Link
               to="/events"
@@ -790,7 +831,7 @@ function PastEventItem({ event, index, visible }: { event: EventItem; index: num
 
 /* ─── 06 — CTA ─── */
 
-function E06CTA() {
+function E06CTA({ eyebrow, heading, description, buttonText, buttonUrl }: { eyebrow: string; heading: string; description: string; buttonText: string; buttonUrl: string }) {
   const { ref, visible } = useReveal({ threshold: 0.1 });
 
   return (
@@ -815,7 +856,7 @@ function E06CTA() {
             fontWeight: 600,
             color: '#D6A54A',
             marginBottom: '20px',
-          }}>LET&apos;S CREATE TOGETHER</p>
+          }}>{eyebrow}</p>
         </Reveal>
         <Reveal delay={0.08} visible={visible}>
           <h2 style={{
@@ -826,8 +867,11 @@ function E06CTA() {
             color: '#161616',
             marginBottom: '16px',
           }}>
-            YOUR EVENT DESERVES{' '}
-            <span style={{ fontStyle: 'italic' }}>ITS OWN STORY.</span>
+            {heading.includes('ITS OWN STORY.') ? (
+              <>YOUR EVENT DESERVES{' '}<span style={{ fontStyle: 'italic' }}>ITS OWN STORY.</span></>
+            ) : heading.includes('\n') ? heading.split('\n').map((line, i, arr) => (
+              <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+            )) : heading}
           </h2>
         </Reveal>
         <Reveal delay={0.14} visible={visible}>
@@ -839,12 +883,12 @@ function E06CTA() {
             maxWidth: '480px',
             margin: '0 auto 32px',
           }}>
-            Let us help you design and execute an event that reflects your vision and creates lasting memories for every guest.
+            {description}
           </p>
         </Reveal>
         <Reveal delay={0.2} visible={visible}>
           <Link
-            to="/contact"
+            to={buttonUrl}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -861,7 +905,7 @@ function E06CTA() {
             onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
           >
-            Book Your Event
+            {buttonText}
             <ArrowRight size={16} strokeWidth={2} />
           </Link>
         </Reveal>

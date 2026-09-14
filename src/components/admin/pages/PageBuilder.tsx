@@ -31,7 +31,7 @@ import type { LayoutBlockDragState } from '@/lib/layoutTypes';
 import { blockEditorRegistry } from './blocks/blockEditorRegistry';
 import { getBlocksFromContent, updateBlockContent, updateBlockResponsive, deleteBlock, duplicateBlock, moveBlock, reorderBlocks } from '@/lib/blocksService';
 import { getBlockLabel } from '@/lib/blockTypes';
-import { type ColumnWidth } from '@/lib/layoutTypes';
+import { type ColumnWidth, isLayoutContent } from '@/lib/layoutTypes';
 import type { Block } from '@/lib/blockTypes';
 import type { Page, Section, SectionType } from '@/lib/types';
 import { LayoutInspector } from './LayoutInspector';
@@ -57,7 +57,8 @@ export function PageBuilder() {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
   const [showEditor, setShowEditor] = useState(true);
-  const [liveContentMap, setLiveContentMap] = useState<Record<string, Record<string, unknown>>>({});
+  const [liveContentVersion, setLiveContentVersion] = useState(0);
+  const liveContentMapRef = useRef<Record<string, Record<string, unknown>>>({});
   const savedSectionsRef = useRef<Section[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
@@ -133,7 +134,12 @@ export function PageBuilder() {
   }, undoRedoCallback);
 
   const { sections } = history.present;
-  const hasLiveContent = Object.keys(liveContentMap).length > 0;
+
+  // Refs for stable callback access — avoids re-creating callbacks when sections/liveContent change
+  const sectionsRef = useRef(sections);
+  sectionsRef.current = sections;
+
+  const hasLiveContent = Object.keys(liveContentMapRef.current).length > 0;
   const dirty = history.canUndo || hasLiveContent;
 
   // ── Layout operations (routes through history for undo/redo) ──
@@ -158,28 +164,40 @@ export function PageBuilder() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [dirty]);
 
-  // Live content tracking — updates canvas in real-time as user types
+  // Live content tracking — debounced to prevent full canvas re-render on every keystroke
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleLiveContentChange = useCallback((sectionId: string, content: Record<string, unknown>) => {
-    setLiveContentMap((prev) => ({ ...prev, [sectionId]: content }));
+    liveContentMapRef.current = { ...liveContentMapRef.current, [sectionId]: content };
+    // Debounce state update — only triggers canvas re-render every 300ms
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      setLiveContentVersion((v) => v + 1);
+    }, 300);
   }, []);
 
-  // Merge sections with live content for canvas display
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
+
+  // Canvas sections — only recomputes when sections change (from history), NOT on every keystroke
   const canvasSections = useMemo(() => {
-    const liveKeys = Object.keys(liveContentMap);
+    const liveKeys = Object.keys(liveContentMapRef.current);
     if (liveKeys.length === 0) return sections;
     return sections.map((s) => {
-      const live = liveContentMap[s.id];
+      const live = liveContentMapRef.current[s.id];
       return live ? { ...s, content: live } : s;
     });
-  }, [sections, liveContentMap]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections, liveContentVersion]);
 
   // Clear live content for a section after saving
   const clearLiveContent = useCallback((sectionId: string) => {
-    setLiveContentMap((prev) => {
-      const next = { ...prev };
-      delete next[sectionId];
-      return next;
-    });
+    const next = { ...liveContentMapRef.current };
+    delete next[sectionId];
+    liveContentMapRef.current = next;
   }, []);
 
   // Save page settings (local draft)
@@ -211,11 +229,11 @@ export function PageBuilder() {
 
       const saved = savedSectionsRef.current;
       const updates = history.present.sections.map((section, idx) => {
-        const contentToSave = liveContentMap[section.id] || section.content;
+        const contentToSave = liveContentMapRef.current[section.id] || section.content;
         const prev = saved.find((s) => s.id === section.id);
         const sortChanged = !prev || history.present.sections.indexOf(section) !== idx;
         const metaChanged = prev && (prev.published !== section.published || prev.title !== section.title || prev.layout !== section.layout);
-        const contentChanged = !!liveContentMap[section.id];
+        const contentChanged = !!liveContentMapRef.current[section.id];
 
         if (!prev || sortChanged || metaChanged || contentChanged) {
           return updateSection(section.id, {
@@ -233,7 +251,7 @@ export function PageBuilder() {
       savedSectionsRef.current = history.present.sections.map((s) => ({ ...s }));
 
       // Clear all live content after successful save
-      setLiveContentMap({});
+      liveContentMapRef.current = {};
       const updated = await getPage(pageId);
       if (updated) setPage(updated);
       setSaveState('saved');
@@ -252,7 +270,7 @@ export function PageBuilder() {
     setSaveState('publishing');
     try {
       // Auto-save any unsaved changes before publishing
-      const hasUnsavedContent = Object.keys(liveContentMap).length > 0;
+      const hasUnsavedContent = Object.keys(liveContentMapRef.current).length > 0;
       const hasUnsavedPageFields = history.present.pageFields.title !== (page?.title ?? '') ||
         history.present.pageFields.slug !== (page?.slug ?? '') ||
         (history.present.pageFields.description || null) !== (page?.description ?? null);
@@ -263,7 +281,7 @@ export function PageBuilder() {
           description: history.present.pageFields.description || null,
         });
         for (const section of history.present.sections) {
-          const contentToSave = liveContentMap[section.id] || section.content;
+          const contentToSave = liveContentMapRef.current[section.id] || section.content;
           await updateSection(section.id, {
             sort_order: history.present.sections.indexOf(section),
             published: section.published,
@@ -272,7 +290,7 @@ export function PageBuilder() {
             layout: section.layout,
           });
         }
-        setLiveContentMap({});
+        liveContentMapRef.current = {};
       }
       await publishPage(pageId);
       history.updatePageFields({ published: true });
@@ -483,39 +501,37 @@ export function PageBuilder() {
 
   // Focal point direct manipulation from canvas
   const handleFocalPointChange = useCallback((sectionId: string, slideIndex: number, focalX: number, focalY: number) => {
-    setLiveContentMap((prev) => {
-      const section = sections.find((s) => s.id === sectionId);
-      if (!section) return prev;
-      const base = prev[sectionId] || section.content;
-      const data = base as Record<string, unknown>;
-      const slides = [...(data.slides as Array<Record<string, unknown>>)];
-      slides[slideIndex] = { ...slides[slideIndex], focal_x: focalX, focal_y: focalY };
-      return { ...prev, [sectionId]: { ...data, slides } };
-    });
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
+    if (!section) return;
+    const base = liveContentMapRef.current[sectionId] || section.content;
+    const data = base as Record<string, unknown>;
+    const slides = [...(data.slides as Array<Record<string, unknown>>)];
+    slides[slideIndex] = { ...slides[slideIndex], focal_x: focalX, focal_y: focalY };
+    liveContentMapRef.current = { ...liveContentMapRef.current, [sectionId]: { ...data, slides } };
     setSaveState('unsaved');
-  }, [sections]);
+  }, []);
 
   // Canvas block reorder — route through history for undo/redo
   const handleCanvasBlockReorder = useCallback((sectionId: string, content: Record<string, unknown>) => {
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSaveState('unsaved');
-  }, [sections, history]);
+  }, [history]);
 
   // Navigator block reorder — triggered from PageNavigator drag-and-drop
   const handleNavigatorBlockReorder = useCallback((sectionId: string, fromIndex: number, toIndex: number) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const newContent = reorderBlocks(base, fromIndex, toIndex);
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSaveState('unsaved');
-  }, [sections, liveContentMap, history]);
+  }, [history]);
 
-  const handleSelectSection = (id: string | null) => {
+  const handleSelectSection = useCallback((id: string | null) => {
     if (id && dirty) {
       setSectionSelectConfirm({ open: true, pendingId: id });
       return;
@@ -523,7 +539,7 @@ export function PageBuilder() {
     setSelectedSectionId(id);
     setSelectedBlockId(null);
     setLayoutSelection(null);
-  };
+  }, [dirty]);
 
   const handleImageReplace = useCallback((sectionId: string, blockId: string) => {
     setImageReplaceState({ sectionId, blockId });
@@ -532,31 +548,27 @@ export function PageBuilder() {
   const handleImageReplaceSelect = useCallback((items: { public_url: string }[]) => {
     if (!imageReplaceState || !items[0]) return;
     const { sectionId, blockId } = imageReplaceState;
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const blocks = getBlocksFromContent(base);
     const updatedBlocks = blocks.map((b) =>
       b.id === blockId ? { ...b, content: { ...b.content, src: items[0].public_url } } : b
     );
     const newContent = { ...base, blocks: updatedBlocks };
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => {
-      const next = { ...prev };
-      delete next[sectionId];
-      return next;
-    });
+    delete liveContentMapRef.current[sectionId];
     setSaveState('unsaved');
     setImageReplaceState(null);
-  }, [imageReplaceState, sections, liveContentMap, history]);
+  }, [imageReplaceState, history]);
 
-  const selectedSection = canvasSections.find((s) => s.id === selectedSectionId) || null;
+  const selectedSection = useMemo(() => canvasSections.find((s) => s.id === selectedSectionId) || null, [canvasSections, selectedSectionId]);
 
-  const handleSelectBlock = (id: string | null) => {
+  const handleSelectBlock = useCallback((id: string | null) => {
     setSelectedBlockId(id);
     if (id) setLayoutSelection(null);
-  };
+  }, []);
 
   const handleLayoutSelect = (selection: LayoutSelection | null) => {
     setLayoutSelection(selection);
@@ -689,7 +701,7 @@ export function PageBuilder() {
   const handleLiveBlockUpdate = useCallback((blockContent: Record<string, unknown>) => {
     if (!selectedSection || !selectedBlockId) return;
     const newContent = updateBlockContent(selectedSection.content, selectedBlockId, blockContent);
-    setLiveContentMap((prev) => ({ ...prev, [selectedSection.id]: newContent }));
+    liveContentMapRef.current = { ...liveContentMapRef.current, [selectedSection.id]: newContent };
     setSaveState('unsaved');
   }, [selectedSection, selectedBlockId]);
 
@@ -697,75 +709,88 @@ export function PageBuilder() {
   const handleBlockResponsiveUpdate = useCallback((responsive: import('@/lib/blockTypes').Block['responsive']) => {
     if (!selectedSection || !selectedBlockId) return;
     const newContent = updateBlockResponsive(selectedSection.content, selectedBlockId, responsive);
-    setLiveContentMap((prev) => ({ ...prev, [selectedSection.id]: newContent }));
+    liveContentMapRef.current = { ...liveContentMapRef.current, [selectedSection.id]: newContent };
     setSaveState('unsaved');
   }, [selectedSection, selectedBlockId]);
 
   // Block toolbar actions — route through history for undo/redo support
   const handleBlockMoveUp = useCallback((sectionId: string, blockId: string) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const newContent = moveBlock(base, blockId, 'up');
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSaveState('unsaved');
-  }, [sections, liveContentMap, history]);
+  }, [history]);
 
   const handleBlockMoveDown = useCallback((sectionId: string, blockId: string) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const newContent = moveBlock(base, blockId, 'down');
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSaveState('unsaved');
-  }, [sections, liveContentMap, history]);
+  }, [history]);
 
   const handleBlockDuplicate = useCallback((sectionId: string, blockId: string) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const { content: newContent, newBlockId } = duplicateBlock(base, blockId);
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSelectedBlockId(newBlockId);
     setSaveState('unsaved');
-  }, [sections, liveContentMap, history]);
+  }, [history]);
 
   const handleBlockDelete = useCallback((sectionId: string, blockId: string) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const blocks = getBlocksFromContent(base);
     if (blocks.length <= 1) return;
     setBlockDeleteConfirm({ open: true, sectionId, blockId });
-  }, [sections, liveContentMap]);
+  }, []);
 
   const confirmBlockDelete = useCallback(() => {
     const { sectionId, blockId } = blockDeleteConfirm;
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
-    const base = liveContentMap[sectionId] || section.content;
+    const base = liveContentMapRef.current[sectionId] || section.content;
     const newContent = deleteBlock(base, blockId);
-    const updated = sections.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
+    const updated = sectionsRef.current.map((s) => s.id === sectionId ? { ...s, content: newContent } : s);
     history.updateSections(updated);
-    setLiveContentMap((prev) => { const next = { ...prev }; delete next[sectionId]; return next; });
+    delete liveContentMapRef.current[sectionId];
     setSelectedBlockId(null);
     setSaveState('unsaved');
     setBlockDeleteConfirm({ open: false, sectionId: '', blockId: '' });
-  }, [blockDeleteConfirm, sections, liveContentMap, history]);
+  }, [blockDeleteConfirm, history]);
 
   const handleBlockToolbarUpdate = useCallback((sectionId: string, blockId: string, content: Record<string, unknown>) => {
-    const section = sections.find((s) => s.id === sectionId);
+    const section = sectionsRef.current.find((s) => s.id === sectionId);
     if (!section) return;
     const newContent = updateBlockContent(section.content, blockId, content);
-    setLiveContentMap((prev) => ({ ...prev, [sectionId]: newContent }));
+    liveContentMapRef.current = { ...liveContentMapRef.current, [sectionId]: newContent };
     setSaveState('unsaved');
-  }, [sections]);
+  }, []);
+
+  // Memoize blockToolbar to prevent VisualCanvas renderSections from recomputing on every render
+  const stableBlockToolbar = useMemo(() => ({
+    sectionId: selectedSectionId || undefined,
+    onBlockMoveUp: handleBlockMoveUp,
+    onBlockMoveDown: handleBlockMoveDown,
+    onBlockDuplicate: handleBlockDuplicate,
+    onBlockDelete: handleBlockDelete,
+    onBlockUpdateContent: handleBlockToolbarUpdate,
+    onOpenBlockInspector: selectedBlockId ? () => setShowEditor(true) : undefined,
+    onImageReplace: handleImageReplace,
+    onFocalPoint: selectedBlockId ? () => setShowEditor(true) : undefined,
+  }), [selectedSectionId, selectedBlockId, handleBlockMoveUp, handleBlockMoveDown, handleBlockDuplicate, handleBlockDelete, handleBlockToolbarUpdate, handleImageReplace]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -1005,17 +1030,8 @@ export function PageBuilder() {
             onFocalPointChange={handleFocalPointChange}
             selectedBlockId={selectedBlockId}
             onSelectBlock={handleSelectBlock}
-            blockToolbar={{
-              sectionId: selectedSectionId || undefined,
-              onBlockMoveUp: handleBlockMoveUp,
-              onBlockMoveDown: handleBlockMoveDown,
-              onBlockDuplicate: handleBlockDuplicate,
-              onBlockDelete: handleBlockDelete,
-              onBlockUpdateContent: handleBlockToolbarUpdate,
-              onOpenBlockInspector: selectedBlockId ? () => setShowEditor(true) : undefined,
-              onImageReplace: handleImageReplace,
-              onFocalPoint: selectedBlockId ? () => setShowEditor(true) : undefined,
-            }}
+            isPreview={false}
+            blockToolbar={stableBlockToolbar}
             activeViewport={activeViewport}
             onViewportChange={setActiveViewport}
             layoutSelection={layoutSelection}
@@ -1069,7 +1085,7 @@ export function PageBuilder() {
                     onLiveUpdate={handleLiveBlockUpdate}
                     onResponsiveUpdate={handleBlockResponsiveUpdate}
                   />
-                ) : layoutSelection && selectedSection ? (
+                ) : selectedSection && isLayoutContent(selectedSection.content) ? (
                   <LayoutInspector
                     section={selectedSection}
                     selection={layoutSelection}
@@ -1086,6 +1102,7 @@ export function PageBuilder() {
                     onDeleteColumn={(containerId, rowId, columnId) => layoutOps.deleteColumn(selectedSection.id, containerId, rowId, columnId)}
                     onAddColumn={(containerId, rowId) => layoutOps.addColumn(selectedSection.id, containerId, rowId)}
                     canDeleteColumn={(containerId, rowId, columnId) => layoutOps.canDeleteColumn(selectedSection.id, containerId, rowId, columnId)}
+                    onAddContainer={(sectionId) => layoutOps.addContainer(sectionId)}
                     viewport={activeViewport}
                   />
                 ) : selectedSection ? (

@@ -15,6 +15,37 @@ import { CinematicImageEditor } from './editors/CinematicImageEditor';
 import { TeamMembersEditor } from './editors/TeamMembersEditor';
 import { ImageCarouselEditor } from './editors/ImageCarouselEditor';
 import { BlocksSectionEditor } from './BlocksSectionEditor';
+import { ServicesHeroEditor } from './editors/ServicesHeroEditor';
+import { ServicesFeaturedEditor } from './editors/ServicesFeaturedEditor';
+import { ServicesCardsEditor } from './editors/ServicesCardsEditor';
+import { ServicesProcessEditor } from './editors/ServicesProcessEditor';
+import { ServicesCTAEditor } from './editors/ServicesCTAEditor';
+import { EventsHeroEditor } from './editors/EventsHeroEditor';
+import { EventsCTAEditor } from './editors/EventsCTAEditor';
+import { PortfolioHeroEditor } from './editors/PortfolioHeroEditor';
+import { PortfolioFilteredGalleryEditor } from './editors/PortfolioFilteredGalleryEditor';
+import { PortfolioFeaturedEditor } from './editors/PortfolioFeaturedEditor';
+import { HWWHeroEditor } from './editors/HWWHeroEditor';
+import { HWWIntroEditor } from './editors/HWWIntroEditor';
+import { HWWProcessEditor } from './editors/HWWProcessEditor';
+import { HWWBehindEditor } from './editors/HWWBehindEditor';
+import { HWWWhyEditor } from './editors/HWWWhyEditor';
+import { HWWCTAEditor } from './editors/HWWCTAEditor';
+import { AboutHeroEditor } from './editors/AboutHeroEditor';
+import { AboutStoryEditor } from './editors/AboutStoryEditor';
+import { AboutMissionEditor } from './editors/AboutMissionEditor';
+import { AboutValuesEditor } from './editors/AboutValuesEditor';
+import { AboutTeamEditor } from './editors/AboutTeamEditor';
+import { AboutClosingEditor } from './editors/AboutClosingEditor';
+import { ContactHeroEditor } from './editors/ContactHeroEditor';
+import { ContactInfoEditor } from './editors/ContactInfoEditor';
+import { ContactLocationEditor } from './editors/ContactLocationEditor';
+import { ContactCTAEditor } from './editors/ContactCTAEditor';
+import { LegalPageEditor } from './editors/LegalPageEditor';
+import { EventsFeaturedEditor } from './editors/EventsFeaturedEditor';
+import { EventsFilterEditor } from './editors/EventsFilterEditor';
+import { EventsUpcomingEditor } from './editors/EventsUpcomingEditor';
+import { EventsPastEditor } from './editors/EventsPastEditor';
 
 export interface SectionEditorProps {
   content: Record<string, unknown>;
@@ -38,4 +69,35 @@ export const sectionEditorRegistry: Partial<Record<SectionType, React.ComponentT
   'team-members': TeamMembersEditor,
   'image-carousel': ImageCarouselEditor,
   'blocks': BlocksSectionEditor,
+  'services-hero': ServicesHeroEditor,
+  'services-featured': ServicesFeaturedEditor,
+  'services-cards': ServicesCardsEditor,
+  'services-process': ServicesProcessEditor,
+  'services-cta': ServicesCTAEditor,
+  'events-hero': EventsHeroEditor,
+  'events-cta': EventsCTAEditor,
+  'portfolio-hero': PortfolioHeroEditor,
+  'portfolio-filtered-gallery': PortfolioFilteredGalleryEditor,
+  'portfolio-featured': PortfolioFeaturedEditor,
+  'hww-hero': HWWHeroEditor,
+  'hww-intro': HWWIntroEditor,
+  'hww-process': HWWProcessEditor,
+  'hww-behind': HWWBehindEditor,
+  'hww-why': HWWWhyEditor,
+  'hww-cta': HWWCTAEditor,
+  'about-intro': AboutHeroEditor,
+  'about-story': AboutStoryEditor,
+  'about-mission': AboutMissionEditor,
+  'about-values': AboutValuesEditor,
+  'about-team': AboutTeamEditor,
+  'about-closing': AboutClosingEditor,
+  'contact-hero': ContactHeroEditor,
+  'contact-info': ContactInfoEditor,
+  'contact-location': ContactLocationEditor,
+  'contact-cta': ContactCTAEditor,
+  'legal-page': LegalPageEditor,
+  'events-featured': EventsFeaturedEditor,
+  'events-filter': EventsFilterEditor,
+  'events-upcoming': EventsUpcomingEditor,
+  'events-past': EventsPastEditor,
 };

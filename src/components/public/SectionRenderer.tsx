@@ -23,12 +23,33 @@ import { ServicesPhilosophy } from './services/ServicesPhilosophy';
 import { ServicesProcess } from './services/ServicesProcess';
 import { ServicesImageStatement } from './services/ServicesImageStatement';
 import { ServicesCTA as ServicesCTARenderer } from './services/ServicesCTA';
-import { AboutIntro } from './about/AboutIntro';
-import { AboutStory } from './about/AboutStory';
-import { AboutFoundation } from './about/AboutFoundation';
-import { AboutValues } from './about/AboutValues';
-import { AboutWhy } from './about/AboutWhy';
-import { AboutClosing } from './about/AboutClosing';
+import { ServicesCards } from './services/ServicesCards';
+import { EventsHero } from './events/EventsHero';
+import { EventsCTA } from './events/EventsCTA';
+import { PortfolioHero } from './portfolio/PortfolioHero';
+import { PortfolioFilteredGallery } from './portfolio/PortfolioFilteredGallery';
+import { PortfolioFeatured } from './portfolio/PortfolioFeatured';
+import { ContactHero } from './contact/ContactHero';
+import { ContactInfo } from './contact/ContactInfo';
+import { ContactLocation } from './contact/ContactLocation';
+import { ContactCTA } from './contact/ContactCTA';
+import { HWWHero } from './howwe/HWWHero';
+import { HWWIntro } from './howwe/HWWIntro';
+import { HWWProcess } from './howwe/HWWProcess';
+import { HWWBehind } from './howwe/HWWBehind';
+import { HWWWhy } from './howwe/HWWWhy';
+import { HWWCTA } from './howwe/HWWCTA';
+import { AboutHeroSection } from './about/AboutHeroSection';
+import { AboutStorySection } from './about/AboutStorySection';
+import { AboutMissionSection } from './about/AboutMissionSection';
+import { AboutValuesSection } from './about/AboutValuesSection';
+import { AboutTeamSection } from './about/AboutTeamSection';
+import { AboutClosingSection } from './about/AboutClosingSection';
+import { LegalPageRenderer } from './LegalPageRenderer';
+import { EventsFeaturedRenderer } from './events/EventsFeaturedRenderer';
+import { EventsFilterRenderer } from './events/EventsFilterRenderer';
+import { EventsUpcomingRenderer } from './events/EventsUpcomingRenderer';
+import { EventsPastRenderer } from './events/EventsPastRenderer';
 import type { BlockResponsiveBreakpoint } from '@/lib/blockTypes';
 import type { LayoutSelection } from '@/hooks/useLayoutOperations';
 import type { LayoutBlockDragState } from '@/lib/layoutTypes';
@@ -48,6 +69,7 @@ export interface SectionRendererBlockSelection {
   onBlockDragEnd?: () => void;
   blockToolbar?: BlocksSectionRendererToolbarProps;
   viewport?: BlockResponsiveBreakpoint;
+  isPreview?: boolean;
   layoutSelection?: LayoutSelection | null;
   onSelectLayout?: (selection: LayoutSelection | null) => void;
   // Cross-column drag
@@ -99,15 +121,36 @@ const renderers: Record<SectionType, React.ComponentType<{ content: unknown; sec
   'services-process': ServicesProcess,
   'services-image-statement': ServicesImageStatement,
   'services-cta': ServicesCTARenderer,
-  'about-intro': AboutIntro,
-  'about-story': AboutStory,
-  'about-foundation': AboutFoundation,
-  'about-values': AboutValues,
-  'about-why': AboutWhy,
-  'about-closing': AboutClosing,
+  'services-cards': ServicesCards,
+  'events-hero': EventsHero,
+  'events-cta': EventsCTA,
+  'portfolio-hero': PortfolioHero,
+  'portfolio-filtered-gallery': PortfolioFilteredGallery,
+  'portfolio-featured': PortfolioFeatured,
+  'hww-hero': HWWHero,
+  'hww-intro': HWWIntro,
+  'hww-process': HWWProcess,
+  'hww-behind': HWWBehind,
+  'hww-why': HWWWhy,
+  'hww-cta': HWWCTA,
+  'about-intro': AboutHeroSection,
+  'about-story': AboutStorySection,
+  'about-mission': AboutMissionSection,
+  'about-values': AboutValuesSection,
+  'about-team': AboutTeamSection,
+  'about-closing': AboutClosingSection,
+  'contact-hero': ContactHero,
+  'contact-info': ContactInfo,
+  'contact-location': ContactLocation,
+  'contact-cta': ContactCTA,
+  'legal-page': LegalPageRenderer,
+  'events-featured': EventsFeaturedRenderer,
+  'events-filter': EventsFilterRenderer,
+  'events-upcoming': EventsUpcomingRenderer,
+  'events-past': EventsPastRenderer,
 };
 
-export function SectionRenderer({ section, selectedBlockId, hoveredBlockId, onSelectBlock, onHoverBlock, blockDragSectionId, blockDragBlockId, blockDropTargetSectionId, blockDropTargetIndex, onBlockDragStart, onBlockDragOver, onBlockDrop, onBlockDragEnd, blockToolbar, viewport, layoutSelection, onSelectLayout, layoutDragState, onLayoutBlockDragStart, onLayoutBlockDragOver, onLayoutBlockDrop, onLayoutBlockDragEnd, columnResizeState, onColumnResizeStart, onColumnResizeMove, onColumnResizeCommit, onColumnResizeCancel }: { section: Section } & SectionRendererBlockSelection) {
+export function SectionRenderer({ section, selectedBlockId, hoveredBlockId, onSelectBlock, onHoverBlock, blockDragSectionId, blockDragBlockId, blockDropTargetSectionId, blockDropTargetIndex, onBlockDragStart, onBlockDragOver, onBlockDrop, onBlockDragEnd, blockToolbar, viewport, isPreview, layoutSelection, onSelectLayout, layoutDragState, onLayoutBlockDragStart, onLayoutBlockDragOver, onLayoutBlockDrop, onLayoutBlockDragEnd, columnResizeState, onColumnResizeStart, onColumnResizeMove, onColumnResizeCommit, onColumnResizeCancel }: { section: Section } & SectionRendererBlockSelection) {
   if (!section.published) return null;
 
   const type = section.section_type as SectionType;
@@ -115,5 +158,5 @@ export function SectionRenderer({ section, selectedBlockId, hoveredBlockId, onSe
 
   if (!Renderer) return null;
 
-  return <Renderer content={section.content} sectionId={section.id} selectedBlockId={selectedBlockId} hoveredBlockId={hoveredBlockId} onSelectBlock={onSelectBlock} onHoverBlock={onHoverBlock} blockDragSectionId={blockDragSectionId} blockDragBlockId={blockDragBlockId} blockDropTargetSectionId={blockDropTargetSectionId} blockDropTargetIndex={blockDropTargetIndex} onBlockDragStart={onBlockDragStart} onBlockDragOver={onBlockDragOver} onBlockDrop={onBlockDrop} onBlockDragEnd={onBlockDragEnd} blockToolbar={blockToolbar} viewport={viewport} layoutSelection={layoutSelection} onSelectLayout={onSelectLayout} layoutDragState={layoutDragState} onLayoutBlockDragStart={onLayoutBlockDragStart} onLayoutBlockDragOver={onLayoutBlockDragOver} onLayoutBlockDrop={onLayoutBlockDrop} onLayoutBlockDragEnd={onLayoutBlockDragEnd} columnResizeState={columnResizeState} onColumnResizeStart={onColumnResizeStart} onColumnResizeMove={onColumnResizeMove} onColumnResizeCommit={onColumnResizeCommit} onColumnResizeCancel={onColumnResizeCancel} />;
+  return <Renderer content={section.content} sectionId={section.id} selectedBlockId={selectedBlockId} hoveredBlockId={hoveredBlockId} onSelectBlock={onSelectBlock} onHoverBlock={onHoverBlock} blockDragSectionId={blockDragSectionId} blockDragBlockId={blockDragBlockId} blockDropTargetSectionId={blockDropTargetSectionId} blockDropTargetIndex={blockDropTargetIndex} onBlockDragStart={onBlockDragStart} onBlockDragOver={onBlockDragOver} onBlockDrop={onBlockDrop} onBlockDragEnd={onBlockDragEnd} blockToolbar={blockToolbar} viewport={viewport} isPreview={isPreview} layoutSelection={layoutSelection} onSelectLayout={onSelectLayout} layoutDragState={layoutDragState} onLayoutBlockDragStart={onLayoutBlockDragStart} onLayoutBlockDragOver={onLayoutBlockDragOver} onLayoutBlockDrop={onLayoutBlockDrop} onLayoutBlockDragEnd={onLayoutBlockDragEnd} columnResizeState={columnResizeState} onColumnResizeStart={onColumnResizeStart} onColumnResizeMove={onColumnResizeMove} onColumnResizeCommit={onColumnResizeCommit} onColumnResizeCancel={onColumnResizeCancel} />;
 }

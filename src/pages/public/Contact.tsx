@@ -1,10 +1,12 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Mail, Phone, MapPin, Instagram, Facebook, Send } from 'lucide-react';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useSiteSettings } from '@/lib/useSiteSettings';
-import { supabase } from '@/lib/supabase';
 import { useReveal } from '@/lib/useReveal';
-import { images } from '@/lib/images-supabase';
+import { getPageBySlug } from '@/lib/pagesService';
+import { getSections } from '@/lib/sectionsService';
+import type { Section } from '@/lib/types';
+import { SectionRenderer } from '@/components/public/SectionRenderer';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -20,118 +22,64 @@ interface FormData {
 /* ─── CONTACT PAGE ─── */
 
 export function Contact() {
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
   useDocumentMeta({
     title: 'Contact | Fiesta Agency Rwanda',
     description: 'Get in touch with Fiesta to plan your next event.',
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const page = await getPageBySlug('contact');
+        if (cancelled || !page) { setLoaded(true); return; }
+        const secs = await getSections(page.id);
+        if (cancelled) return;
+        setSections(secs.filter((s: Section) => s.published));
+      } catch {
+        // CMS unavailable — show nothing
+      } finally {
+        if (!cancelled) setLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const get = (type: string) => sections.find(s => s.section_type === type)?.content || {};
+
+  const heroSection = sections.find(s => s.section_type === 'contact-hero');
+  const infoSection = sections.find(s => s.section_type === 'contact-info');
+  const locationSection = sections.find(s => s.section_type === 'contact-location');
+  const ctaSection = sections.find(s => s.section_type === 'contact-cta');
+
+  if (!loaded) return null;
+
   return (
     <>
-      <C01Hero />
-      <C02Form />
-      <C03Location />
-      <C04CTA />
+      {heroSection && <SectionRenderer section={heroSection} />}
+      {infoSection && (
+        <ContactFormSection content={infoSection.content} />
+      )}
+      {locationSection && <SectionRenderer section={locationSection} />}
+      {ctaSection && <SectionRenderer section={ctaSection} />}
     </>
   );
 }
 
-/* ─── 01 — HERO ─── */
+/* ─── FORM + INFO SECTION ─── */
 
-function C01Hero() {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
-
-  return (
-    <section ref={ref} style={{ backgroundColor: '#090909', overflow: 'hidden' }}>
-      <div style={{
-        margin: '0 auto',
-        maxWidth: '1200px',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-        paddingTop: 'clamp(90px, 12vw, 160px)',
-        paddingBottom: 'clamp(50px, 6vw, 80px)',
-      }}>
-        <div style={{ display: 'flex', gap: 'clamp(32px, 4vw, 56px)', alignItems: 'flex-start' }}
-          className="contact-hero-grid"
-        >
-          <div style={{ flex: '0 0 45%' }} className="contact-hero-text">
-            <Reveal delay={0} visible={visible}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '11px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase' as const,
-                fontWeight: 600,
-                color: '#D6A54A',
-                marginBottom: '20px',
-              }}>GET IN TOUCH</p>
-            </Reveal>
-            <Reveal delay={0.08} visible={visible}>
-              <h1 style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-                lineHeight: 0.92,
-                fontWeight: 400,
-                color: '#F8F5EF',
-                whiteSpace: 'pre-line' as const,
-                maxWidth: '520px',
-                marginBottom: '24px',
-              }}>
-                {"LET'S MAKE\nYOUR NEXT EVENT\nEXTRAORDINARY."}
-              </h1>
-            </Reveal>
-            <Reveal delay={0.14} visible={visible}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: 'clamp(0.82rem, 0.95vw, 0.94rem)',
-                lineHeight: 1.65,
-                color: '#C8C2B8',
-                maxWidth: '390px',
-                marginBottom: '32px',
-              }}>
-                Whether you have a clear vision or just the beginning of an idea, we&apos;re here to help bring it to life. Let&apos;s start a conversation.
-              </p>
-            </Reveal>
-            <Reveal delay={0.2} visible={visible}>
-              <div style={{ width: '50px', height: '2px', backgroundColor: '#D6A54A' }} />
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.12} visible={visible}>
-            <div style={{ flex: 1, overflow: 'hidden' }} className="contact-hero-img">
-              <img
-                src={images.hero[6]}
-                alt="Elegant event setup with warm lighting"
-                style={{
-                  width: '100%',
-                  height: 'clamp(300px, 28vw, 340px)',
-                  objectFit: 'cover',
-                  display: 'block',
-                  transform: visible ? 'scale(1)' : 'scale(1.04)',
-                  transition: `transform 1.2s ${E}`,
-                }}
-                loading="eager"
-              />
-            </div>
-          </Reveal>
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 1024px) {
-          .contact-hero-grid { flex-direction: column !important; }
-          .contact-hero-text { flex: none !important; width: 100% !important; }
-          .contact-hero-img { width: 100% !important; }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ─── 02 — FORM + INFO ─── */
-
-function C02Form() {
+function ContactFormSection({ content }: { content: Record<string, unknown> }) {
   const { ref, visible } = useReveal({ threshold: 0.06 });
   const { settings } = useSiteSettings();
+  const c = content as { eyebrow?: string; heading?: string; event_types?: string[] };
+  const eyebrow = (c?.eyebrow || 'CONTACT INFO');
+  const heading = (c?.heading || "WE'D LOVE\nTO HEAR FROM YOU.").replace(/\\n/g, '\n');
+  const parts = heading.split('\n');
+  const eventTypes = c?.event_types || ['wedding', 'corporate', 'private', 'gala', 'conference', 'other'];
+
   const [formData, setFormData] = useState<FormData>({
     name: '', email: '', phone: '', eventType: '', date: '', message: '',
   });
@@ -141,15 +89,23 @@ function C02Form() {
     e.preventDefault();
     setStatus('sending');
     try {
-      const { error } = await supabase.from('contact_submissions').insert({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        event_type: formData.eventType || null,
-        event_date: formData.date || null,
-        message: formData.message,
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: 'd6b77b68-0673-4996-b358-2c45019787a4',
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          event_type: formData.eventType || undefined,
+          event_date: formData.date || undefined,
+          message: formData.message,
+          subject: `[Fiesta Contact] ${formData.name} - ${formData.eventType || 'General Inquiry'}`,
+          from_name: 'Fiesta Agency Contact Form',
+        }),
       });
-      if (error) throw error;
+      const data = await res.json();
+      if (!data.success) throw new Error('Failed to send');
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', eventType: '', date: '', message: '' });
     } catch {
@@ -207,16 +163,19 @@ function C02Form() {
                 fontWeight: 600,
                 color: '#D6A54A',
                 marginBottom: '20px',
-              }}>CONTACT INFO</p>
+              }}>{eyebrow}</p>
               <h2 style={{
                 fontFamily: "'Fraunces', Georgia, serif",
-fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-              lineHeight: 0.95,
-              fontWeight: 400,
-              color: '#161616',
-              whiteSpace: 'pre-line' as const,
-              marginBottom: '32px',
-            }}>{"WE'D LOVE\nTO HEAR FROM YOU."}</h2>
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                lineHeight: 0.95,
+                fontWeight: 400,
+                color: '#161616',
+                whiteSpace: 'pre-line' as const,
+                marginBottom: '32px',
+              }}>
+                {parts[0]}{' '}
+                <span style={{ fontStyle: 'italic' }}>{parts.slice(1).join('\n')}</span>
+              </h2>
             </Reveal>
 
             <Reveal delay={0.12} visible={visible}>
@@ -324,12 +283,9 @@ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
                     style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' as const }}
                   >
                     <option value="">Select type</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="private">Private Party</option>
-                    <option value="gala">Gala Dinner</option>
-                    <option value="conference">Conference</option>
-                    <option value="other">Other</option>
+                    {eventTypes.map((t: string) => (
+                      <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -413,163 +369,6 @@ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
           .contact-field-row { flex-direction: column !important; gap: 24px !important; }
         }
       `}</style>
-    </section>
-  );
-}
-
-/* ─── 03 — LOCATION ─── */
-
-function C03Location() {
-  const { ref, visible } = useReveal({ threshold: '0.08' });
-  const { settings } = useSiteSettings();
-
-  return (
-    <section ref={ref} style={{
-      backgroundColor: '#FFFFFF',
-      paddingTop: 'clamp(80px, 10vw, 130px)',
-      paddingBottom: 'clamp(80px, 10vw, 130px)',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingLeft: 'clamp(24px, 5vw, 40px)',
-        paddingRight: 'clamp(24px, 5vw, 40px)',
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}
-          className="contact-location-grid"
-        >
-          <div className="contact-location-text">
-            <Reveal delay={0} visible={visible}>
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '11px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase' as const,
-                fontWeight: 600,
-                color: '#D6A54A',
-                marginBottom: '20px',
-              }}>VISIT US</p>
-              <h2 style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-              lineHeight: 0.95,
-              fontWeight: 400,
-              color: '#161616',
-              whiteSpace: 'pre-line' as const,
-              marginBottom: '20px',
-            }}>{"OUR\nOFFICE."}</h2>
-            </Reveal>
-
-            <Reveal delay={0.12} visible={visible}>
-              {settings?.address && (
-                <p style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: 'clamp(0.88rem, 1vw, 0.94rem)',
-                  lineHeight: 1.75,
-                  color: '#6F6B63',
-                  marginBottom: '24px',
-                }}>{settings.address}</p>
-              )}
-              <p style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: 'clamp(0.88rem, 1vw, 0.94rem)',
-                lineHeight: 1.75,
-                color: '#6F6B63',
-                marginBottom: '24px',
-              }}>
-                We welcome visits by appointment. Reach out to schedule a meeting at our office to discuss your event in person.
-              </p>
-              <div style={{ width: '32px', height: '1.5px', backgroundColor: '#D6A54A' }} />
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.1} visible={visible}>
-            <div style={{
-              overflow: 'hidden',
-              backgroundColor: '#F1EDE3',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              aspectRatio: '16/10',
-            }}>
-              <img
-                src={images.process[2]}
-                alt="Map showing Fiesta Agency office location in Kigali"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                  opacity: 0.6,
-                }}
-                loading="lazy"
-              />
-            </div>
-          </Reveal>
-        </div>
-      </div>
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .contact-location-grid { grid-template-columns: 38% 1fr !important; gap: 48px !important; align-items: center !important; }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ─── 04 — CTA ─── */
-
-function C04CTA() {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
-
-  return (
-    <section ref={ref} style={{
-      position: 'relative',
-      overflow: 'hidden',
-      height: 'clamp(300px, 40vh, 400px)',
-    }}>
-      <div style={{ position: 'absolute', inset: 0 }}>
-        <img
-          src={images.intimate[5]}
-          alt="Beautiful outdoor celebration setup with ambient lighting"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          loading="lazy"
-        />
-      </div>
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.65) 100%)',
-      }} />
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center' as const,
-        paddingLeft: 'clamp(24px, 4vw, 40px)',
-        paddingRight: 'clamp(24px, 4vw, 40px)',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.9s ${E} 0.1s, transform 0.9s ${E} 0.1s`,
-      }}>
-        <h2 style={{
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-          lineHeight: 0.95,
-          fontWeight: 400,
-          color: '#F8F5EF',
-          whiteSpace: 'pre-line' as const,
-          maxWidth: '16ch',
-        }}>
-          {"READY TO START?\nWE'RE ALL EARS."}
-        </h2>
-      </div>
     </section>
   );
 }

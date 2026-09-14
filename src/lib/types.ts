@@ -62,6 +62,7 @@ export type SectionType =
   | 'blocks'
   | 'services-hero'
   | 'services-featured'
+  | 'services-cards'
   | 'services-directory'
   | 'services-philosophy'
   | 'services-process'
@@ -69,10 +70,30 @@ export type SectionType =
   | 'services-cta'
   | 'about-intro'
   | 'about-story'
-  | 'about-foundation'
+  | 'about-mission'
   | 'about-values'
-  | 'about-why'
-  | 'about-closing';
+  | 'about-team'
+  | 'about-closing'
+  | 'events-hero'
+  | 'events-cta'
+  | 'portfolio-hero'
+  | 'hww-hero'
+  | 'hww-intro'
+  | 'hww-process'
+  | 'hww-behind'
+  | 'hww-why'
+  | 'hww-cta'
+  | 'portfolio-filtered-gallery'
+  | 'portfolio-featured'
+  | 'contact-hero'
+  | 'contact-info'
+  | 'contact-location'
+  | 'contact-cta'
+  | 'legal-page'
+  | 'events-featured'
+  | 'events-filter'
+  | 'events-upcoming'
+  | 'events-past';
 
 export interface HeroSlide {
   id: string;
@@ -277,17 +298,31 @@ export interface ServicesHeroContent {
   eyebrow?: string;
   heading?: string;
   description?: string;
+  image?: string;
+  image_alt?: string;
 }
 
 export interface ServicesFeaturedContent {
   eyebrow?: string;
   heading?: string;
-  services?: Array<{ id: string; title: string; description: string; image?: string }>;
+  description?: string;
+  image?: string;
+  label?: string;
+  label_text?: string;
+  link_text?: string;
+  services?: Array<{ id: string; title: string; description: string; image: string }>;
+}
+
+export interface ServicesCardsContent {
+  cards?: Array<{ id: string; title: string; description: string; image: string }>;
 }
 
 export interface ServicesDirectoryContent {
+  eyebrow?: string;
   heading?: string;
-  services?: Array<{ id: string; number: string; title: string }>;
+  description?: string;
+  left_items?: Array<{ id: string; number: string; title: string }>;
+  right_items?: Array<{ id: string; number: string; title: string }>;
 }
 
 export interface ServicesPhilosophyContent {
@@ -297,6 +332,7 @@ export interface ServicesPhilosophyContent {
 }
 
 export interface ServicesProcessContent {
+  eyebrow?: string;
   heading?: string;
   steps?: Array<{ id: string; number: string; title: string; description: string }>;
 }
@@ -308,7 +344,9 @@ export interface ServicesImageStatementContent {
 }
 
 export interface ServicesCTAContent {
+  eyebrow?: string;
   heading?: string;
+  description?: string;
   button_text?: string;
   button_url?: string;
   background_image?: string;
@@ -320,22 +358,19 @@ export interface AboutIntroContent {
   body?: string;
   image?: string;
   image_alt?: string;
-  mission?: { icon?: string; title?: string; description?: string };
-  vision?: { icon?: string; title?: string; description?: string };
-  values_intro?: { icon?: string; title?: string; description?: string };
-  team_eyebrow?: string;
-  team_members?: Array<{ id: string; name: string; role: string; image?: string }>;
+  image2?: string;
+  image2_alt?: string;
 }
 
 export interface AboutStoryContent {
   eyebrow?: string;
   heading?: string;
-  body?: string;
+  paragraphs?: string[];
   image?: string;
   image_alt?: string;
 }
 
-export interface AboutFoundationContent {
+export interface AboutMissionContent {
   eyebrow?: string;
   heading?: string;
   body?: string;
@@ -344,15 +379,13 @@ export interface AboutFoundationContent {
 export interface AboutValuesContent {
   eyebrow?: string;
   heading?: string;
-  values?: Array<{ id: string; name?: string }>;
-  image?: string;
-  image_alt?: string;
+  values?: Array<{ id: string; num?: string; title: string; text: string }>;
 }
 
-export interface AboutWhyContent {
+export interface AboutTeamContent {
   eyebrow?: string;
   heading?: string;
-  points?: Array<{ id: string; title: string; description: string }>;
+  members?: Array<{ id: string; name: string; role: string; image: string }>;
 }
 
 export interface AboutClosingContent {
@@ -361,6 +394,147 @@ export interface AboutClosingContent {
   cta_url?: string;
   background_image?: string;
   background_image_alt?: string;
+}
+
+export interface EventsHeroContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+}
+
+export interface EventsCTAContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  button_text?: string;
+  button_url?: string;
+}
+
+export interface PortfolioHeroContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+}
+
+export interface HWWHeroContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+}
+
+export interface HWWIntroContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+  link_text?: string;
+  link_url?: string;
+}
+
+export interface HWWProcessContent {
+  steps?: Array<{ num: string; title: string; description: string }>;
+}
+
+export interface HWWBehindContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  images?: string[];
+}
+
+export interface HWWWhyContent {
+  eyebrow?: string;
+  heading?: string;
+  principles?: Array<{ num: string; title: string; text: string }>;
+}
+
+export interface HWWCTAContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  button_text?: string;
+  button_url?: string;
+}
+
+export interface PortfolioFilteredGalleryContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  categories?: string[];
+  max_projects?: number;
+  variant?: 'grid' | 'masonry';
+}
+
+export interface PortfolioFeaturedContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  button_text?: string;
+  button_url?: string;
+}
+
+export interface ContactHeroContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+}
+
+export interface ContactInfoContent {
+  eyebrow?: string;
+  heading?: string;
+  event_types?: string[];
+}
+
+export interface ContactLocationContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  image?: string;
+  image_alt?: string;
+}
+
+export interface ContactCTAContent {
+  heading?: string;
+  background_image?: string;
+  background_image_alt?: string;
+}
+
+export interface LegalPageContent {
+  eyebrow?: string;
+  heading?: string;
+  sections?: Array<{ heading: string; content: string }>;
+}
+
+export interface EventsFeaturedContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+}
+
+export interface EventsFilterContent {
+  eyebrow?: string;
+  categories?: string[];
+}
+
+export interface EventsUpcomingContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+}
+
+export interface EventsPastContent {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
 }
 
 export interface BlocksContent {
@@ -396,6 +570,7 @@ export type SectionContentMap = {
   'blocks': BlocksContent;
   'services-hero': ServicesHeroContent;
   'services-featured': ServicesFeaturedContent;
+  'services-cards': ServicesCardsContent;
   'services-directory': ServicesDirectoryContent;
   'services-philosophy': ServicesPhilosophyContent;
   'services-process': ServicesProcessContent;
@@ -403,10 +578,30 @@ export type SectionContentMap = {
   'services-cta': ServicesCTAContent;
   'about-intro': AboutIntroContent;
   'about-story': AboutStoryContent;
-  'about-foundation': AboutFoundationContent;
+  'about-mission': AboutMissionContent;
   'about-values': AboutValuesContent;
-  'about-why': AboutWhyContent;
+  'about-team': AboutTeamContent;
   'about-closing': AboutClosingContent;
+  'events-hero': EventsHeroContent;
+  'events-cta': EventsCTAContent;
+  'portfolio-hero': PortfolioHeroContent;
+  'hww-hero': HWWHeroContent;
+  'hww-intro': HWWIntroContent;
+  'hww-process': HWWProcessContent;
+  'hww-behind': HWWBehindContent;
+  'hww-why': HWWWhyContent;
+  'hww-cta': HWWCTAContent;
+  'portfolio-filtered-gallery': PortfolioFilteredGalleryContent;
+  'portfolio-featured': PortfolioFeaturedContent;
+  'contact-hero': ContactHeroContent;
+  'contact-info': ContactInfoContent;
+  'contact-location': ContactLocationContent;
+  'contact-cta': ContactCTAContent;
+  'legal-page': LegalPageContent;
+  'events-featured': EventsFeaturedContent;
+  'events-filter': EventsFilterContent;
+  'events-upcoming': EventsUpcomingContent;
+  'events-past': EventsPastContent;
 };
 
 export interface Service {

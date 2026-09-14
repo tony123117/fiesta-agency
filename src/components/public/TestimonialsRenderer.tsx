@@ -3,15 +3,20 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 import type { TestimonialsContent } from '@/lib/types';
 import { useHomeData } from '@/lib/usePublicData';
-import { images } from '@/lib/images-supabase';
 
 const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const FALLBACK_IMAGES = [
-  images.blacktie[4],
-  images.lagoon[0],
-  images.serena[3],
-  images.intimate[5],
+  'https://images.unsplash.com/photo-1519741497674-611481863552?w=1000&q=80',
+  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1000&q=80',
+  'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1000&q=80',
+  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1000&q=80',
+];
+
+const DEFAULT_TESTIMONIALS = [
+  { id: 'dt1', quote: 'Fiesta turned our wedding into something we could never have imagined. Every guest said it was the most beautiful event they had ever attended.', client_name: 'SARAH & MICHEL', event_type: 'Wedding', location: 'Kigali', image_url: '' },
+  { id: 'dt2', quote: 'Professional, creative, and genuinely passionate. They don\'t just plan events - they create experiences that stay with you.', client_name: 'DAVID NZAMUHO', event_type: 'Corporate Summit', location: '', image_url: '' },
+  { id: 'dt3', quote: 'The energy they brought to our concert was unreal. From stage design to sound production - absolute perfection.', client_name: 'JEAN-PASCAL', event_type: 'Live Show Production', location: '', image_url: '' },
 ];
 
 function usePrefersReducedMotion() {
@@ -34,8 +39,14 @@ export function TestimonialsRenderer({ content }: { content: unknown }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const items = data?.testimonials?.length ? data.testimonials : (testimonials || []).slice(0, 4).map((t) => ({
-    id: t.id, quote: t.quote, client_name: t.client_name, event_type: t.event_type || '', location: t.location || '', image_url: t.image_url || '',
+  const rawItems = data?.testimonials?.length ? data.testimonials : (testimonials || []).length ? (testimonials || []).slice(0, 4) : DEFAULT_TESTIMONIALS;
+  const items = rawItems.map((t: Record<string, unknown>, i: number) => ({
+    id: (t.id as string) || `ti${i}`,
+    quote: (t.quote as string) || '',
+    client_name: (t.client_name as string) || (t.author as string) || '',
+    event_type: (t.event_type as string) || (t.role as string) || '',
+    location: (t.location as string) || '',
+    image_url: (t.image_url as string) || '',
   }));
 
   const total = items.length;

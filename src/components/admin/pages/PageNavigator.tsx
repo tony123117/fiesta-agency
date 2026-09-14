@@ -429,7 +429,7 @@ export default function PageNavigator({
                     total={sections.length}
                     blockCount={node.blockCount}
                     isExpanded={expandedSections.has(node.section.id)}
-                    isSelected={node.section.id === selectedSectionId && !selectedBlockId && !layoutSelection}
+                    isSelected={node.section.id === selectedSectionId && !selectedBlockId}
                     isDragOver={sectionDragOverIndex === node.index}
                     menuOpen={menuOpenId === node.section.id}
                     onToggleExpand={() => toggleExpand(node.section.id)}

@@ -91,6 +91,7 @@ export default function FullPagePreview({ open, page, sections, onClose }: FullP
                 <SectionRenderer
                   key={section.id}
                   section={section}
+                  isPreview={true}
                 />
               ))
             ) : (

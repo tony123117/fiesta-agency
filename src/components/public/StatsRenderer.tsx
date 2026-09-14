@@ -1,131 +1,174 @@
-import { useEffect, useState } from 'react';
-import { Calendar, Users, Star, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
-import type { StatsContent } from '@/lib/types';
+import { images } from '@/lib/images-supabase';
 
-const EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>> = {
-  events: Calendar,
-  clients: Users,
-  experience: Star,
-  cities: Globe,
-};
-
-function getIconForLabel(label: string): React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }> {
-  const lower = label.toLowerCase();
-  if (lower.includes('event') || lower.includes('production')) return ICON_MAP.events;
-  if (lower.includes('client') || lower.includes('happy')) return ICON_MAP.clients;
-  if (lower.includes('year') || lower.includes('experience')) return ICON_MAP.experience;
-  if (lower.includes('cit') || lower.includes('countr') || lower.includes('operat')) return ICON_MAP.cities;
-  return ICON_MAP.events;
+interface StatsContent {
+  eyebrow?: string;
+  heading?: string;
+  stats?: Array<{ number: string; label: string }>;
+  link_text?: string;
 }
+
+const DEFAULT_STATS = [
+  { number: '200+', label: 'Events Executed' },
+  { number: '98%', label: 'Client Satisfaction' },
+  { number: '5K+', label: 'Happy Guests' },
+  { number: '100%', label: 'Commitment' },
+];
 
 export function StatsRenderer({ content }: { content: unknown }) {
   const data = content as StatsContent;
-  const stats = data?.stats || [];
-  const { ref: sectionRef, visible: sectionVisible } = useReveal({ threshold: 0.15 });
-  const [countersStarted, setCountersStarted] = useState(false);
+  const { ref, visible } = useReveal({ threshold: 0.1 });
 
-  useEffect(() => {
-    if (sectionVisible && !countersStarted) {
-      setCountersStarted(true);
-    }
-  }, [sectionVisible, countersStarted]);
-
-  if (stats.length === 0) return null;
+  const eyebrow = (data?.eyebrow as string) || 'WHY CHOOSE US';
+  const heading = ((data?.heading as string) || 'More Than Just An Event.').replace(/\\n/g, '\n');
+  const stats = data?.stats?.length ? data.stats : DEFAULT_STATS;
+  const linkText = (data?.link_text as string) || 'Learn More';
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden"
-      style={{ backgroundColor: '#111111' }}
-    >
-      <div
-        className="mx-auto px-5 md:px-[4vw] lg:px-[5vw] max-w-[1280px]"
-        style={{
-          paddingTop: 'clamp(60px, 8vw, 100px)',
-          paddingBottom: 'clamp(60px, 8vw, 100px)',
-        }}
-      >
-        <div
-          className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-0"
-          style={{
-            opacity: sectionVisible ? 1 : 0,
-            transform: sectionVisible ? 'translateY(0)' : 'translateY(24px)',
-            transition: `opacity 0.9s ${EASE}, transform 0.9s ${EASE}`,
-          }}
-        >
-          {stats.slice(0, 5).map((stat, i) => (
-            <div
-              key={stat.id}
-              className="text-center relative"
-              style={{
-                opacity: sectionVisible ? 1 : 0,
-                transform: sectionVisible ? 'translateY(0)' : 'translateY(16px)',
-                transition: `opacity 0.7s ${EASE} ${0.1 + i * 0.08}s, transform 0.7s ${EASE} ${0.1 + i * 0.08}s`,
-              }}
-            >
-              {/* Vertical separator — not on first item */}
-              {i > 0 && (
-                <div
-                  className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-12"
-                  style={{ backgroundColor: 'rgba(245,242,234,0.1)' }}
-                  aria-hidden="true"
-                />
-              )}
-
-              {/* Icon */}
-              <div className="flex justify-center mb-4 md:mb-5">
-                {(() => {
-                  const Icon = getIconForLabel(stat.label);
-                  return <Icon size={22} strokeWidth={1.2} className="text-gold" />;
-                })()}
-              </div>
-
-              {/* Number */}
-              <p
-                className="font-serif font-light tracking-tight"
+    <section ref={ref} style={{
+      backgroundColor: '#090909',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingLeft: 'clamp(24px, 5vw, 40px)',
+        paddingRight: 'clamp(24px, 5vw, 40px)',
+        paddingTop: 'clamp(60px, 8vw, 100px)',
+        paddingBottom: 'clamp(60px, 8vw, 100px)',
+      }}>
+        <div className="svc-stats-split" style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 'clamp(32px, 4vw, 56px)',
+          alignItems: 'center',
+        }}>
+          <Reveal delay={0} visible={visible}>
+            <div style={{ overflow: 'hidden' }}>
+              <img
+                src={images.process[4]}
+                alt="Live event with dramatic stage lighting"
                 style={{
-                  fontSize: 'clamp(2.5rem, 3.3vw, 3.25rem)',
-                  color: '#F5F2EA',
-                  lineHeight: '1',
+                  width: '100%',
+                  height: 'clamp(280px, 32vw, 400px)',
+                  objectFit: 'cover',
+                  display: 'block',
+                  filter: 'grayscale(30%)',
+                  transform: visible ? 'scale(1)' : 'scale(1.04)',
+                  transition: `transform 1.2s ${E}`,
                 }}
-              >
-                {countersStarted ? stat.number : '0'}
-              </p>
-
-              {/* Label */}
-              <p
-                className="font-sans uppercase tracking-[0.18em] mt-3 md:mt-4"
-                style={{
-                  fontSize: '0.6rem',
-                  color: '#A9A9A6',
-                  lineHeight: '1.5',
-                }}
-              >
-                {stat.label}
-              </p>
-
-              {/* Description */}
-              {stat.description && (
-                <p
-                  className="font-sans mt-2 md:mt-3 hidden md:block"
-                  style={{
-                    fontSize: '0.78rem',
-                    color: 'rgba(169,169,166,0.7)',
-                    lineHeight: '1.6',
-                    maxWidth: '200px',
-                    margin: '8px auto 0',
-                  }}
-                >
-                  {stat.description}
-                </p>
-              )}
+                loading="lazy"
+              />
             </div>
-          ))}
+          </Reveal>
+
+          <div>
+            <Reveal delay={0.1} visible={visible}>
+              <div style={{ marginBottom: 'clamp(28px, 3vw, 40px)' }}>
+                <p style={{
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '11px',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase' as const,
+                  fontWeight: 600,
+                  color: '#D6A54A',
+                  marginBottom: '16px',
+                }}>{eyebrow}</p>
+                <h2 style={{
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                  lineHeight: 0.95,
+                  fontWeight: 400,
+                  color: '#F8F5EF',
+                }}>
+                  {heading.includes('An Event.') ? (
+                    <>More Than Just{' '}<span style={{ fontStyle: 'italic' }}>An Event.</span></>
+                  ) : heading}
+                </h2>
+              </div>
+            </Reveal>
+
+            <div className="svc-stats-row" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 'clamp(20px, 3vw, 32px)',
+              marginBottom: 'clamp(28px, 3vw, 40px)',
+            }}>
+              {stats.slice(0, 3).map((stat, i) => (
+                <div key={stat.label} style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(16px)',
+                  transition: `opacity 0.7s ${E} ${0.15 + i * 0.08}s, transform 0.7s ${E} ${0.15 + i * 0.08}s`,
+                }}>
+                  <span style={{
+                    fontFamily: "'Fraunces', Georgia, serif",
+                    fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+                    fontWeight: 400,
+                    color: '#D6A54A',
+                    lineHeight: 1,
+                    display: 'block',
+                    marginBottom: '6px',
+                  }}>{stat.number}</span>
+                  <span style={{
+                    fontFamily: "'Manrope', system-ui, sans-serif",
+                    fontSize: '0.58rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase' as const,
+                    letterSpacing: '0.14em',
+                    color: 'rgba(248,245,239,0.45)',
+                  }}>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <Reveal delay={0.35} visible={visible}>
+              <Link
+                to="/about"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.14em',
+                  color: '#D6A54A',
+                  textDecoration: 'none',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#B8862D'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#D6A54A'; }}
+              >
+                {linkText}
+                <ArrowRight size={14} strokeWidth={2} />
+              </Link>
+            </Reveal>
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .svc-stats-split { grid-template-columns: 48% 1fr !important; }
+        }
+      `}</style>
     </section>
+  );
+}
+
+function Reveal({ children, delay = 0, visible }: { children: React.ReactNode; delay?: number; visible: boolean }) {
+  return (
+    <div style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(22px)',
+      transition: `opacity 0.8s ${E} ${delay}s, transform 0.8s ${E} ${delay}s`,
+    }}>
+      {children}
+    </div>
   );
 }
