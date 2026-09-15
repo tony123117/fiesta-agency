@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Monitor, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { SectionRenderer } from '@/components/public/SectionRenderer';
 import { reorderSections } from '@/lib/sectionsService';
@@ -31,6 +31,8 @@ const VIEWPORT_ICONS: Record<ViewportSize, typeof Monitor> = {
 };
 
 const DEFAULT_ZOOM = 75;
+
+const SECTION_PLACEHOLDER_HEIGHT = 200;
 
 interface VisualCanvasProps {
   sections: Section[];
@@ -102,7 +104,6 @@ export function VisualCanvas({
 }: VisualCanvasProps) {
   const [viewport, setViewport] = useState<ViewportSize>('1440');
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
   const [localHoveredBlockId, setLocalHoveredBlockId] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -110,6 +111,11 @@ export function VisualCanvas({
   const [blockDrag, setBlockDrag] = useState<{ sectionId: string; blockId: string; fromIndex: number } | null>(null);
   const [blockDropTarget, setBlockDropTarget] = useState<{ sectionId: string; toIndex: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Deferred rendering: track which sections are visible in the scroll viewport
+  const [mountedSections, setMountedSections] = useState<Set<string>>(new Set());
+  const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const effectiveHoveredBlockId = hoveredBlockId ?? localHoveredBlockId;
   const effectiveSetHoveredBlockId = onHoverBlock || setLocalHoveredBlockId;
@@ -125,6 +131,54 @@ export function VisualCanvas({
   }, [viewportWidth]);
 
   useEffect(() => { fitToScreen(); }, [viewport, fitToScreen]);
+
+  // IntersectionObserver to mount/unmount sections as they scroll in/out
+  useEffect(() => {
+    const scrollContainer = containerRef.current;
+    if (!scrollContainer) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        setMountedSections((prev) => {
+          const next = new Set(prev);
+          for (const entry of entries) {
+            const id = entry.target.getAttribute('data-section-id');
+            if (!id) continue;
+            if (entry.isIntersecting) {
+              next.add(id);
+            }
+          }
+          return next;
+        });
+      },
+      {
+        root: scrollContainer,
+        rootMargin: '200px 0px',
+        threshold: 0,
+      }
+    );
+
+    // Observe all section placeholder elements
+    sectionRefs.current.forEach((el) => {
+      observerRef.current?.observe(el);
+    });
+
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, [sections]);
+
+  // Always mount selected section
+  useEffect(() => {
+    if (selectedSectionId) {
+      setMountedSections((prev) => {
+        if (prev.has(selectedSectionId)) return prev;
+        const next = new Set(prev);
+        next.add(selectedSectionId);
+        return next;
+      });
+    }
+  }, [selectedSectionId]);
 
   const zoomIn = useCallback(() => setZoom((z) => Math.min(150, z + 25)), []);
   const zoomOut = useCallback(() => setZoom((z) => Math.max(25, z - 25)), []);
@@ -217,55 +271,16 @@ export function VisualCanvas({
     return () => window.removeEventListener('keydown', handler);
   }, [onSelectSection, selectedBlockId, onSelectBlock]);
 
-  const renderSections = useMemo(() => {
-    return sections.map((section) => (
-      <div
-        key={section.id}
-        data-section-id={section.id}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectSection(section.id);
-        }}
-        className={`relative cursor-pointer transition-shadow duration-150 ${
-          selectedSectionId === section.id
-            ? 'ring-2 ring-gold/50 ring-offset-2 ring-offset-white'
-            : 'hover:ring-2 hover:ring-gold/20 hover:ring-offset-1 hover:ring-offset-white'
-        }`}
-      >
-        <SectionRenderer
-          section={{ ...section, published: true }}
-          selectedBlockId={selectedBlockId}
-          hoveredBlockId={effectiveHoveredBlockId}
-          onSelectBlock={onSelectBlock}
-          onHoverBlock={effectiveSetHoveredBlockId}
-          blockDragSectionId={blockDrag?.sectionId ?? null}
-          blockDragBlockId={blockDrag?.blockId ?? null}
-          blockDropTargetSectionId={blockDropTarget?.sectionId ?? null}
-          blockDropTargetIndex={blockDropTarget?.toIndex ?? null}
-          onBlockDragStart={handleBlockDragStart}
-          onBlockDragOver={handleBlockDragOver}
-          onBlockDrop={handleBlockDrop}
-          onBlockDragEnd={handleBlockDragEnd}
-          blockToolbar={blockToolbar}
-          viewport={VIEWPORT_DEVICE[viewport]}
-          isPreview={isPreview}
-          layoutSelection={layoutSelection}
-          onSelectLayout={onSelectLayout}
-          layoutDragState={layoutDragState}
-          onLayoutBlockDragStart={onLayoutBlockDragStart}
-          onLayoutBlockDragOver={onLayoutBlockDragOver}
-          onLayoutBlockDrop={onLayoutBlockDrop}
-          onLayoutBlockDragEnd={onLayoutBlockDragEnd}
-          columnResizeState={columnResizeState}
-          onColumnResizeStart={onColumnResizeStart}
-          onColumnResizeMove={onColumnResizeMove}
-          onColumnResizeCommit={onColumnResizeCommit}
-          onColumnResizeCancel={onColumnResizeCancel}
-        />
-      </div>
-    ));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sections, selectedSectionId, dropIndex, dragIndex, isDragging, selectedBlockId, effectiveHoveredBlockId, onSelectBlock, onSelectSection, blockDrag, blockDropTarget, blockToolbar, viewport, isPreview, layoutSelection, onSelectLayout, layoutDragState, columnResizeState]);
+  const registerSectionRef = useCallback((id: string, el: HTMLDivElement | null) => {
+    if (el) {
+      sectionRefs.current.set(id, el);
+      observerRef.current?.observe(el);
+    } else {
+      const existing = sectionRefs.current.get(id);
+      if (existing) observerRef.current?.unobserve(existing);
+      sectionRefs.current.delete(id);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-charcoal">
@@ -329,7 +344,67 @@ export function VisualCanvas({
             }}
           >
             {sections.length > 0 ? (
-              renderSections
+              sections.map((section) => {
+                const isMounted = mountedSections.has(section.id);
+                const isSelected = selectedSectionId === section.id;
+
+                return (
+                  <div
+                    key={section.id}
+                    data-section-id={section.id}
+                    ref={(el) => registerSectionRef(section.id, el)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectSection(section.id);
+                    }}
+                    className={`relative cursor-pointer transition-shadow duration-150 ${
+                      isSelected
+                        ? 'ring-2 ring-gold/50 ring-offset-2 ring-offset-white'
+                        : 'hover:ring-2 hover:ring-gold/20 hover:ring-offset-1 hover:ring-offset-white'
+                    }`}
+                  >
+                    {isMounted ? (
+                      <SectionRenderer
+                        section={{ ...section, published: true }}
+                        selectedBlockId={selectedBlockId}
+                        hoveredBlockId={effectiveHoveredBlockId}
+                        onSelectBlock={onSelectBlock}
+                        onHoverBlock={effectiveSetHoveredBlockId}
+                        blockDragSectionId={blockDrag?.sectionId ?? null}
+                        blockDragBlockId={blockDrag?.blockId ?? null}
+                        blockDropTargetSectionId={blockDropTarget?.sectionId ?? null}
+                        blockDropTargetIndex={blockDropTarget?.toIndex ?? null}
+                        onBlockDragStart={handleBlockDragStart}
+                        onBlockDragOver={handleBlockDragOver}
+                        onBlockDrop={handleBlockDrop}
+                        onBlockDragEnd={handleBlockDragEnd}
+                        blockToolbar={blockToolbar}
+                        viewport={VIEWPORT_DEVICE[viewport]}
+                        isPreview={isPreview}
+                        layoutSelection={layoutSelection}
+                        onSelectLayout={onSelectLayout}
+                        layoutDragState={layoutDragState}
+                        onLayoutBlockDragStart={onLayoutBlockDragStart}
+                        onLayoutBlockDragOver={onLayoutBlockDragOver}
+                        onLayoutBlockDrop={onLayoutBlockDrop}
+                        onLayoutBlockDragEnd={onLayoutBlockDragEnd}
+                        columnResizeState={columnResizeState}
+                        onColumnResizeStart={onColumnResizeStart}
+                        onColumnResizeMove={onColumnResizeMove}
+                        onColumnResizeCommit={onColumnResizeCommit}
+                        onColumnResizeCancel={onColumnResizeCancel}
+                      />
+                    ) : (
+                      <div
+                        className="bg-stone/5 flex items-center justify-center border-b border-stone/10"
+                        style={{ height: SECTION_PLACEHOLDER_HEIGHT, width: viewportWidth }}
+                      >
+                        <span className="text-[0.65rem] text-stone/30">{section.section_type}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <div className="flex flex-col items-center justify-center py-32 text-center" style={{ width: viewportWidth }}>
                 <div className="w-10 h-10 rounded-full bg-stone/10 flex items-center justify-center mb-4">

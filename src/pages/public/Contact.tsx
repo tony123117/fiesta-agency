@@ -5,8 +5,10 @@ import { useSiteSettings } from '@/lib/useSiteSettings';
 import { useReveal } from '@/lib/useReveal';
 import { getPageBySlug } from '@/lib/pagesService';
 import { getSections } from '@/lib/sectionsService';
+import { supabase } from '@/lib/supabase';
 import type { Section } from '@/lib/types';
 import { SectionRenderer } from '@/components/public/SectionRenderer';
+import { FAQRenderer } from '@/components/public/FAQRenderer';
 
 const E = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -64,6 +66,7 @@ export function Contact() {
         <ContactFormSection content={infoSection.content} />
       )}
       {locationSection && <SectionRenderer section={locationSection} />}
+      <FAQRenderer content={get('faq')} />
       {ctaSection && <SectionRenderer section={ctaSection} />}
     </>
   );
@@ -93,7 +96,7 @@ function ContactFormSection({ content }: { content: Record<string, unknown> }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_key: 'd6b77b68-0673-4996-b358-2c45019787a4',
+          access_key: 'd6b77b68-0673-4096-b358-2c45019787a4',
           name: formData.name,
           email: formData.email,
           phone: formData.phone || undefined,
@@ -105,10 +108,27 @@ function ContactFormSection({ content }: { content: Record<string, unknown> }) {
         }),
       });
       const data = await res.json();
+      console.log('Web3Forms response:', data);
       if (!data.success) throw new Error('Failed to send');
+
+      // Fire-and-forget: save to bookings table after successful email
+      supabase.from('bookings').insert({
+        client_name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        event_type: formData.eventType || 'General Inquiry',
+        event_date: formData.date || null,
+        location: '',
+        guest_count: 0,
+        budget: '',
+        message: formData.message,
+        status: 'new',
+      }).then(() => console.log('Booking saved')).catch((err) => console.error('Booking save failed:', err));
+
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', eventType: '', date: '', message: '' });
-    } catch {
+    } catch (err) {
+      console.error('Contact form error:', err);
       setStatus('error');
     }
   };

@@ -1,4 +1,4 @@
-import { AdminInput, AdminTextarea } from '@/components/admin/AdminUI';
+import { AdminInput } from '@/components/admin/AdminUI';
 import type { ContactInfoContent } from '@/lib/types';
 
 export function ContactInfoEditor({ content, onChange }: { content: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
@@ -19,6 +19,9 @@ export function ContactInfoEditor({ content, onChange }: { content: Record<strin
     <div className="space-y-5">
       <AdminInput label="Eyebrow" value={data.eyebrow || ''} onChange={(e) => update({ eyebrow: e.target.value })} />
       <AdminInput label="Heading" value={data.heading || ''} onChange={(e) => update({ heading: e.target.value })} />
+      <AdminInput label="Email" type="email" value={data.email || ''} onChange={(e) => update({ email: e.target.value })} placeholder="hello@fiestaagency.example" />
+      <AdminInput label="Phone" value={data.phone || ''} onChange={(e) => update({ phone: e.target.value })} placeholder="+1 (555) 000-0000" />
+      <AdminInput label="Address" value={data.address || ''} onChange={(e) => update({ address: e.target.value })} placeholder="Design Studio, Lagos · London · Dubai" />
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-white/50 mb-2">Event Types</label>
         {eventTypes.map((t, i) => (

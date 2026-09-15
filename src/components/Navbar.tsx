@@ -178,7 +178,8 @@ function MobileMenu({
       role="dialog"
       aria-modal="true"
       aria-label="Navigation menu"
-      className={`fixed inset-0 z-[60] overflow-hidden bg-[radial-gradient(circle_at_top,rgba(214,166,79,0.12),transparent_25%),#090909] transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:duration-0 ${
+      style={{ backgroundColor: "#090909" }}
+      className={`fixed inset-0 z-[60] overflow-hidden bg-[radial-gradient(circle_at_top,rgba(214,166,79,0.12),transparent_25%)] transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:duration-0 ${
         open
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"

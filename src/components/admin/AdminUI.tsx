@@ -16,6 +16,8 @@ import { X, CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 interface SidebarContextValue {
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
+  collapsed: boolean;
+  setCollapsed: (v: boolean) => void;
 }
 
 const SidebarContext = createContext<SidebarContextValue | undefined>(
@@ -24,8 +26,16 @@ const SidebarContext = createContext<SidebarContextValue | undefined>(
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('admin-sidebar-collapsed') === 'true'; } catch { return false; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem('admin-sidebar-collapsed', String(collapsed)); } catch { /* silent */ }
+  }, [collapsed]);
+
   return (
-    <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
+    <SidebarContext.Provider value={{ isOpen, setIsOpen, collapsed, setCollapsed }}>
       {children}
     </SidebarContext.Provider>
   );

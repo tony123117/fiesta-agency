@@ -7,6 +7,7 @@ import { getPageBySlug } from '@/lib/pagesService';
 import { getSections } from '@/lib/sectionsService';
 import { images } from '@/lib/images-supabase';
 import { useReveal } from '@/lib/useReveal';
+import { FAQRenderer } from '@/components/public/FAQRenderer';
 import type { EventItem, Section } from '@/lib/types';
 // Image URLs from Supabase Storage (uploaded via admin)
 const EVENTS_IMAGES = {
@@ -131,6 +132,7 @@ export function Events() {
       <E03Filter active={activeFilter} onChange={setActiveFilter} content={filterContent} />
       <E04Upcoming events={filteredUpcoming} loading={loading} content={upcomingContent} />
       <E05Past events={past} loading={loading} content={pastContent} />
+      <FAQRenderer content={get('faq')} />
       <E06CTA
         eyebrow={(ctaContent.eyebrow as string) || "LET'S CREATE TOGETHER"}
         heading={((ctaContent.heading as string) || 'YOUR EVENT DESERVES ITS OWN STORY.').replace(/\\n/g, '\n')}

@@ -9,6 +9,7 @@ import { ServicesCards } from '@/components/public/services/ServicesCards';
 import { StatsRenderer } from '@/components/public/StatsRenderer';
 import { ServicesProcess } from '@/components/public/services/ServicesProcess';
 import { TestimonialsRenderer } from '@/components/public/TestimonialsRenderer';
+import { FAQRenderer } from '@/components/public/FAQRenderer';
 import { ServicesCTA } from '@/components/public/services/ServicesCTA';
 
 /* ─── PAGE LOAD INTRO ─── */
@@ -62,6 +63,7 @@ export function Services() {
       <StatsRenderer content={get('stats')} />
       <ServicesProcess content={get('services-process')} />
       <TestimonialsRenderer content={get('testimonials')} />
+      <FAQRenderer content={get('faq')} />
       <ServicesCTA content={get('services-cta')} />
     </div>
   );

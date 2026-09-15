@@ -572,8 +572,8 @@ export const SECTION_TYPES: SectionTypeConfig[] = [
     icon: 'Info',
     variants: [{ id: 'default', label: 'Default', description: 'Contact form with info sidebar' }],
     defaultVariant: 'default',
-    defaultContent: { eyebrow: 'CONTACT INFO', heading: "WE'D LOVE\nTO HEAR FROM YOU.", event_types: ['Wedding','Corporate Event','Private Party','Gala Dinner','Conference','Other'] },
-    previewContent: { eyebrow: 'CONTACT INFO', heading: "WE'D LOVE\nTO HEAR FROM YOU.", event_types: ['Wedding','Corporate Event','Private Party','Gala Dinner','Conference','Other'] },
+    defaultContent: { eyebrow: 'CONTACT INFO', heading: "WE'D LOVE\nTO HEAR FROM YOU.", event_types: ['Wedding','Corporate Event','Private Party','Gala Dinner','Conference','Other'], email: 'hello@fiestaagency.example', phone: '+1 (555) 000-0000', address: 'Design Studio, Lagos · London · Dubai' },
+    previewContent: { eyebrow: 'CONTACT INFO', heading: "WE'D LOVE\nTO HEAR FROM YOU.", event_types: ['Wedding','Corporate Event','Private Party','Gala Dinner','Conference','Other'], email: 'hello@fiestaagency.example', phone: '+1 (555) 000-0000', address: 'Design Studio, Lagos · London · Dubai' },
   },
   {
     type: 'contact-location',

@@ -17,7 +17,7 @@ import type {
 import { isLayoutContent } from '@/lib/layoutTypes';
 import type { LayoutSelection } from '@/hooks/useLayoutOperations';
 import type { BlockResponsiveBreakpoint } from '@/lib/blockTypes';
-import { Plus, Trash2, Monitor, Tablet, Smartphone } from 'lucide-react';
+import { Plus, Trash2, Monitor, Tablet, Smartphone, ArrowLeft } from 'lucide-react';
 
 const VIEWPORT_OPTIONS: { value: BlockResponsiveBreakpoint; label: string; icon: typeof Monitor }[] = [
   { value: 'desktop', label: 'Desktop', icon: Monitor },
@@ -51,17 +51,11 @@ export function LayoutInspector({
   section,
   selection,
   onClearSelection,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _onUpdateContainer,
   onUpdateContainerResponsive,
   onDeleteContainer,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _onUpdateRow,
   onUpdateRowResponsive,
   onDeleteRow,
   onAddRow,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _onUpdateColumn,
   onUpdateColumnResponsive,
   onDeleteColumn,
   onAddColumn,
@@ -146,7 +140,6 @@ export function LayoutInspector({
         {column && row ? (
           <ColumnInspector
             column={column}
-            container={container}
             row={row}
             viewport={viewport}
             onUpdate={updateColumnBp}
@@ -157,7 +150,6 @@ export function LayoutInspector({
         ) : row ? (
           <RowInspector
             row={row}
-            container={container}
             viewport={viewport}
             onUpdate={updateRowBp!}
             onDelete={() => onDeleteRow(container.id, row.id)}
@@ -367,15 +359,12 @@ function ContainerInspector({
 
 function RowInspector({
   row,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _container,
   viewport,
   onUpdate,
   onDelete,
   onAddRow,
 }: {
   row: LayoutRow;
-  _container: LayoutContainer;
   viewport: BlockResponsiveBreakpoint;
   onUpdate: (patch: Record<string, unknown>) => void;
   onDelete: () => void;
@@ -472,8 +461,6 @@ function RowInspector({
 
 function ColumnInspector({
   column,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _container,
   row,
   viewport,
   onUpdate,
@@ -482,7 +469,6 @@ function ColumnInspector({
   onAddColumn,
 }: {
   column: LayoutColumn;
-  _container: LayoutContainer;
   row: LayoutRow;
   viewport: BlockResponsiveBreakpoint;
   onUpdate: (patch: Record<string, unknown>) => void;

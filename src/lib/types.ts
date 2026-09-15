@@ -492,6 +492,9 @@ export interface ContactInfoContent {
   eyebrow?: string;
   heading?: string;
   event_types?: string[];
+  email?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface ContactLocationContent {
