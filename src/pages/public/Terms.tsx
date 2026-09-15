@@ -28,6 +28,7 @@ export function Terms() {
   useDocumentMeta({
     title: 'Terms & Conditions | Fiesta Agency',
     description: 'Fiesta Agency terms and conditions. Read about the rules governing use of our services and website.',
+    canonicalPath: '/terms',
   });
 
   useEffect(() => {

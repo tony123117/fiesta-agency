@@ -25,6 +25,7 @@ export function PortfolioDetail() {
     title: project ? `${project.title} | Fiesta Agency` : 'Portfolio | Fiesta Agency',
     description: project?.description || undefined,
     ogImage: project?.cover_image || undefined,
+    canonicalPath: slug ? `/portfolio/${slug}` : undefined,
   });
 
   useEffect(() => {

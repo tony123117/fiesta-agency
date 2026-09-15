@@ -20,6 +20,7 @@ export function Home() {
     title: seo.title || 'Fiesta Agency | Events, Entertainment & Experiences in Rwanda',
     description: seo.description || 'Fiesta designs, produces and manages unforgettable weddings, celebrations, corporate events and premium experiences in Rwanda.',
     ogImage: seo.ogImage,
+    canonicalPath: '/',
   });
 
   return <PageRenderer slug="home" onPageLoaded={handlePageLoaded} />;

@@ -56,7 +56,7 @@ export function ContactInfo({ content }: { content: unknown }) {
       if (!data.success) throw new Error('Failed to send');
 
       // Fire-and-forget: save to bookings table after successful email
-      supabase.from('bookings').insert({
+      void supabase.from('bookings').insert({
         client_name: formData.name,
         email: formData.email,
         phone: formData.phone || null,
@@ -67,7 +67,7 @@ export function ContactInfo({ content }: { content: unknown }) {
         budget: '',
         message: formData.message,
         status: 'new',
-      }).catch(() => {});
+      });
 
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', eventType: '', date: '', message: '' });

@@ -32,6 +32,7 @@ export function Services() {
   useDocumentMeta({
     title: 'Services | Fiesta Agency Rwanda',
     description: 'Explore our comprehensive event services - planning, production, entertainment and more.',
+    canonicalPath: '/services',
   });
 
   useEffect(() => {

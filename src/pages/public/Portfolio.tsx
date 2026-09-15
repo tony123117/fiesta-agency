@@ -75,6 +75,7 @@ export function Portfolio() {
   useDocumentMeta({
     title: 'Portfolio | Fiesta Agency Rwanda',
     description: 'Explore our portfolio of events, productions and experiences across Rwanda.',
+    canonicalPath: '/portfolio',
   });
 
   useEffect(() => {

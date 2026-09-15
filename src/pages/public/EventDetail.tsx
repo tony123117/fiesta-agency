@@ -25,6 +25,7 @@ export function EventDetail() {
     title: event ? `${event.title} | Fiesta Agency` : 'Event | Fiesta Agency',
     description: event?.description || 'Event details from Fiesta Agency.',
     ogImage: event?.cover_image || undefined,
+    canonicalPath: slug ? `/events/${slug}` : undefined,
   });
 
   useEffect(() => {

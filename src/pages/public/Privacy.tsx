@@ -29,6 +29,7 @@ export function Privacy() {
   useDocumentMeta({
     title: 'Privacy Policy | Fiesta Agency',
     description: 'Fiesta Agency privacy policy. Learn how we collect, use, and protect your personal information.',
+    canonicalPath: '/privacy',
   });
 
   useEffect(() => {

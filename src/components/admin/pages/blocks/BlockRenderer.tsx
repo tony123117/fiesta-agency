@@ -1,4 +1,5 @@
 import type { Block, HeadingContent, TextContent, ImageContent, ButtonContent, SpacerContent } from '@/lib/blockTypes';
+import { sanitizeHTML } from '@/lib/sanitize';
 
 // ── Block Renderer (Admin Canvas Preview) ──
 // Renders a block for the admin canvas. Used in VisualCanvas and block preview.
@@ -51,7 +52,7 @@ function TextBlock({ content }: { content: TextContent }) {
     <div
       className="prose prose-sm max-w-none"
       style={{ textAlign: content.alignment, color: content.color || undefined }}
-      dangerouslySetInnerHTML={{ __html: content.html || '<p>Empty text</p>' }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHTML(content.html || '<p>Empty text</p>') }}
     />
   );
 }

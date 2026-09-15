@@ -42,6 +42,7 @@ export function About() {
     title: seo.title || 'About Fiesta Agency | Rwanda',
     description: seo.description || 'Learn about Fiesta — a creative event agency turning ideas into memorable experiences across Rwanda.',
     ogImage: seo.ogImage,
+    canonicalPath: '/about',
   });
 
   if (!loaded) return null;

@@ -7,6 +7,7 @@ import type { Block, HeadingContent, TextContent, ImageContent, ButtonContent, S
 import { getBlockLabel, isBlockVisible, resolveBlockContent } from '@/lib/blockTypes';
 import { FloatingBlockToolbar } from '../admin/pages/blocks/FloatingBlockToolbar';
 import { LayoutRenderer } from './LayoutRenderer';
+import { sanitizeHTML } from '@/lib/sanitize';
 
 import { isLayoutContent, type LayoutContent } from '@/lib/layoutTypes';
 
@@ -241,7 +242,7 @@ function PublicTextBlock({ content }: { content: TextContent }) {
         textAlign: content.alignment,
         color: content.color || undefined,
       }}
-      dangerouslySetInnerHTML={{ __html: content.html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHTML(content.html) }}
     />
   );
 }

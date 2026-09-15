@@ -10,6 +10,7 @@ export function NotFound() {
   useDocumentMeta({
     title: 'Page Not Found | Fiesta Agency',
     description: 'The page you are looking for does not exist.',
+    canonicalPath: '/404',
   });
 
   const { ref: heroRef, visible: heroVisible } = useReveal({ threshold: 0.1 });

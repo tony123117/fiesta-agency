@@ -14,6 +14,7 @@ export function HowWeWork() {
   useDocumentMeta({
     title: 'How We Work | Fiesta Agency Rwanda',
     description: 'Discover our five-phase process for planning and producing extraordinary events.',
+    canonicalPath: '/how-we-work',
   });
 
   useEffect(() => {

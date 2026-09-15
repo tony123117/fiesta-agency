@@ -76,6 +76,7 @@ export function Events() {
   useDocumentMeta({
     title: 'Events | Fiesta Agency Rwanda',
     description: 'Discover upcoming events and see our past productions across Rwanda.',
+    canonicalPath: '/events',
   });
 
   useEffect(() => {

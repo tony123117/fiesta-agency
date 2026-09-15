@@ -30,6 +30,7 @@ export function Contact() {
   useDocumentMeta({
     title: 'Contact | Fiesta Agency Rwanda',
     description: 'Get in touch with Fiesta to plan your next event.',
+    canonicalPath: '/contact',
   });
 
   useEffect(() => {
@@ -108,11 +109,10 @@ function ContactFormSection({ content }: { content: Record<string, unknown> }) {
         }),
       });
       const data = await res.json();
-      console.log('Web3Forms response:', data);
       if (!data.success) throw new Error('Failed to send');
 
       // Fire-and-forget: save to bookings table after successful email
-      supabase.from('bookings').insert({
+      void supabase.from('bookings').insert({
         client_name: formData.name,
         email: formData.email,
         phone: formData.phone || null,
@@ -123,7 +123,7 @@ function ContactFormSection({ content }: { content: Record<string, unknown> }) {
         budget: '',
         message: formData.message,
         status: 'new',
-      }).then(() => console.log('Booking saved')).catch((err) => console.error('Booking save failed:', err));
+      });
 
       setStatus('success');
       setFormData({ name: '', email: '', phone: '', eventType: '', date: '', message: '' });
